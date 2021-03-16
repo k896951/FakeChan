@@ -21,3 +21,6 @@ fakeChan.exeをBouyomiChan.exeにリネームして入れ替えてください�
 
 64bit版の音声合成製品を利用できます……棒読みちゃんでCeVIO AI使うのがまだ困難なようですし… ※2021/03/16現在
 
+## バイナリはどこ？
+
+私のサイトの[ダウンロードページ](https://hgotoh.jp/wiki/doku.php/documents/tools/tools-206)からダウンロードしてください。
