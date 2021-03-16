@@ -72,11 +72,48 @@ namespace FakeChan
             TextBoxListenPort.SetBinding(TextBox.TextProperty, myBinding);
 
             ComboBoxAvator.ItemsSource = null;
+            ComboBoxMapAvator0.ItemsSource = null;
+            ComboBoxMapAvator1.ItemsSource = null;
+            ComboBoxMapAvator2.ItemsSource = null;
+            ComboBoxMapAvator3.ItemsSource = null;
+            ComboBoxMapAvator4.ItemsSource = null;
+            ComboBoxMapAvator5.ItemsSource = null;
+            ComboBoxMapAvator6.ItemsSource = null;
+            ComboBoxMapAvator7.ItemsSource = null;
+            ComboBoxMapAvator8.ItemsSource = null;
             if (AvatorNameList.Count != 0)
             {
                 ComboBoxAvator.ItemsSource = AvatorNameList;
                 ComboBoxAvator.SelectedIndex = 0;
                 ComboBoxAvator.IsEnabled = true;
+
+                ComboBoxMapAvator0.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator0.SelectedIndex = 0;
+                ComboBoxMapAvator0.IsEnabled = true;
+                ComboBoxMapAvator1.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator1.SelectedIndex = 0;
+                ComboBoxMapAvator1.IsEnabled = true;
+                ComboBoxMapAvator2.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator2.SelectedIndex = 0;
+                ComboBoxMapAvator2.IsEnabled = true;
+                ComboBoxMapAvator3.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator3.SelectedIndex = 0;
+                ComboBoxMapAvator3.IsEnabled = true;
+                ComboBoxMapAvator4.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator4.SelectedIndex = 0;
+                ComboBoxMapAvator4.IsEnabled = true;
+                ComboBoxMapAvator5.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator5.SelectedIndex = 0;
+                ComboBoxMapAvator5.IsEnabled = true;
+                ComboBoxMapAvator6.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator6.SelectedIndex = 0;
+                ComboBoxMapAvator6.IsEnabled = true;
+                ComboBoxMapAvator7.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator7.SelectedIndex = 0;
+                ComboBoxMapAvator7.IsEnabled = true;
+                ComboBoxMapAvator8.ItemsSource = AvatorNameList;
+                ComboBoxMapAvator8.SelectedIndex = 0;
+                ComboBoxMapAvator8.IsEnabled = true;
             }
             else
             {
@@ -101,6 +138,12 @@ namespace FakeChan
                     }
                 });
             }
+        }
+
+        private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+
         }
 
         private void ComboBoxAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -214,7 +257,7 @@ namespace FakeChan
 
         private void SetupBGTask()
         {
-            // パケット（プログラムでは先頭5項目をスキップ）
+            // パケット（プログラムでは先頭4項目をスキップ）
             //   Int16  iCommand = 0x0001;
             //   Int16  iSpeed = -1;
             //   Int16  iTone = -1;
@@ -226,7 +269,7 @@ namespace FakeChan
 
             BGListen = (()=>{
 
-                int SkipSize = 2 * 5;
+                int SkipSize = 2 * 4;
 
                 while (KeepListen) // とりあえずの待ち受け構造
                 {
@@ -234,10 +277,13 @@ namespace FakeChan
                     {
                         Listener.Start();
                         TcpClient client = Listener.AcceptTcpClient();
+                        Int16 iVoice;
                         byte bCode;
                         Int32 iLength;
-                        byte[] iLengthBuff;
                         string TalkText = "";
+
+                        byte[] iLengthBuff;
+                        byte[] iVoiceBuff;
 
                         using (NetworkStream ns = client.GetStream())
                         {
@@ -245,7 +291,11 @@ namespace FakeChan
                             {
                                 br.ReadBytes(SkipSize);
 
+                                iVoiceBuff = br.ReadBytes(2);
+                                iVoice = BitConverter.ToInt16(iVoiceBuff, 0); // うーん…
+
                                 bCode = br.ReadByte();
+
                                 iLengthBuff = br.ReadBytes(4);
                                 iLength = BitConverter.ToInt32(iLengthBuff, 0); // うーん…
 
@@ -272,12 +322,55 @@ namespace FakeChan
 
                         Dispatcher.Invoke(() => {
 
+                            int cid = SelectedCid;
+                            
+                            switch (iVoice)
+                            {
+                                case 0:
+                                default:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator0.SelectedItem).Key;
+                                    break;
+
+                                case 1:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator1.SelectedItem).Key;
+                                    break;
+
+                                case 2:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator2.SelectedItem).Key;
+                                    break;
+
+                                case 3:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator3.SelectedItem).Key;
+                                    break;
+
+                                case 4:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator4.SelectedItem).Key;
+                                    break;
+
+                                case 5:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator5.SelectedItem).Key;
+                                    break;
+
+                                case 6:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator6.SelectedItem).Key;
+                                    break;
+
+                                case 7:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator7.SelectedItem).Key;
+                                    break;
+
+                                case 8:
+                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator8.SelectedItem).Key;
+                                    break;
+                            }
+
                             MessageData talk = new MessageData()
                             {
-                                Cid = SelectedCid,
-                                Message = TalkText,
-                                Effects = AvatorParamList[SelectedCid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                                Emotions = AvatorParamList[SelectedCid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                                Cid          = cid,
+                                Message      = TalkText,
+                                BouyomiVoice = iVoice,  // 何かの機能で使うかもしれないので
+                                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
                             };
 
                             MessQue.TryAdd(talk, 500);

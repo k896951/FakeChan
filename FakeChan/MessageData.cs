@@ -10,6 +10,8 @@ namespace FakeChan
     {
         public int Cid { get; set; }
 
+        public int BouyomiVoice { get; set; }
+
         public string Message { get; set; }
 
         public Dictionary<string, decimal> Effects { get; set; }
