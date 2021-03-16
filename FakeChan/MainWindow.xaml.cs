@@ -35,7 +35,9 @@ namespace FakeChan
         Action BGListen;
         DispatcherTimer KickTalker;
 
+        bool ReEntry;
         bool KeepListen;
+        object lockObj = new object();
         int SelectedCid;
 
         public MainWindow()
@@ -51,6 +53,7 @@ namespace FakeChan
                 AvatorNameList = WcfClient.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
                 AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
                 MessQue = new BlockingCollection<MessageData>();
+                ReEntry = true;
 
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
@@ -130,13 +133,25 @@ namespace FakeChan
         {
             if (MessQue.Count != 0)
             {
-                Task.Run(() =>
+                lock (lockObj)
                 {
-                    foreach (var item in MessQue.GetConsumingEnumerable())
+                    if (ReEntry)
                     {
-                        WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                        ReEntry = false;
+
+                        Task.Run(() =>
+                        {
+                            foreach (var item in MessQue.GetConsumingEnumerable())
+                            {
+                                WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                            }
+
+                            ReEntry = true;
+                        });
+
                     }
-                });
+                }
+
             }
         }
 
@@ -374,6 +389,7 @@ namespace FakeChan
                             };
 
                             MessQue.TryAdd(talk, 500);
+
                         });
 
                     }
