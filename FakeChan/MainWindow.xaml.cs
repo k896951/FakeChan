@@ -104,6 +104,8 @@ namespace FakeChan
                         {
                             WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                         }
+
+                        KeepTalk = false;
                     }
                 });
             }
