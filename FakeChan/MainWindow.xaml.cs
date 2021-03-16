@@ -16,6 +16,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Net.Sockets;
 using System.IO;
+using System.Collections.Concurrent;
+using System.Windows.Threading;
 
 namespace FakeChan
 {
@@ -27,10 +29,14 @@ namespace FakeChan
         WCFClient WcfClient;
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
+        BlockingCollection<MessageData> MessQue;
         IPListenPoint ListenEndPoint;
         TcpListener Listener;
-        Action BGTask;
+        Action BGListen;
+        DispatcherTimer KickTalker;
+
         bool KeepListen;
+        bool KeepTalk;
         int SelectedCid;
 
         public MainWindow()
@@ -45,6 +51,13 @@ namespace FakeChan
                 WcfClient = new WCFClient();
                 AvatorNameList = WcfClient.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
                 AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
+                MessQue = new BlockingCollection<MessageData>();
+
+                KeepTalk = false;
+                KickTalker = new DispatcherTimer();
+                KickTalker.Tick += new EventHandler(KickTalker_Tick);
+                KickTalker.Interval = new TimeSpan(0, 0, 1);
+                KickTalker.Start();
 
                 ListenEndPoint = new IPListenPoint();
                 ListenEndPoint.Address = IPAddress.Parse("127.0.0.1");
@@ -70,6 +83,29 @@ namespace FakeChan
             else
             {
                 ComboBoxAvator.IsEnabled = false;
+            }
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            KickTalker.Stop();
+        }
+
+        private void KickTalker_Tick(object sender, EventArgs e)
+        {
+            if (!KeepTalk)
+            {
+                Task.Run(() =>
+                {
+                    if (MessQue.Count != 0)
+                    {
+                        KeepTalk = true;
+                        foreach (var item in MessQue.GetConsumingEnumerable())
+                        {
+                            WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                        }
+                    }
+                });
             }
         }
 
@@ -161,7 +197,7 @@ namespace FakeChan
                 Listener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
                 KeepListen = true;
                 SetupBGTask();
-                Task.Run(BGTask);
+                Task.Run(BGListen);
             }
             catch (Exception e1)
             {
@@ -194,7 +230,7 @@ namespace FakeChan
             //   Int32  iLength = bMessage.Length;
             //   byte[] bMessage;
 
-            BGTask = (()=>{
+            BGListen = (()=>{
 
                 int SkipSize = 2 * 5;
 
@@ -241,11 +277,24 @@ namespace FakeChan
                         }
 
                         Dispatcher.Invoke(() => {
-                            Dictionary<string, decimal> effects = AvatorParamList[SelectedCid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                            Dictionary<string, decimal> emotions = AvatorParamList[SelectedCid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                            WcfClient.Talk(SelectedCid, TalkText, "", effects, emotions);
+                            MessageData talk = new MessageData()
+                            {
+                                Cid = SelectedCid,
+                                Message = TalkText,
+                                Effects = AvatorParamList[SelectedCid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                                Emotions = AvatorParamList[SelectedCid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                            };
+
+                            MessQue.TryAdd(talk, 500);
                         });
+
+                        //Dispatcher.Invoke(() => {
+                        //    Dictionary<string, decimal> effects = AvatorParamList[SelectedCid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                        //    Dictionary<string, decimal> emotions = AvatorParamList[SelectedCid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+                        //    WcfClient.Talk(SelectedCid, TalkText, "", effects, emotions);
+                        //});
                     }
                     catch (Exception)
                     {
@@ -256,6 +305,7 @@ namespace FakeChan
                     }
                 }
             });
+
         }
 
     }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FakeChan"
         mc:Ignorable="d"
-        Title="偽装ちゃん" Height="275" Width="650" Loaded="Window_Loaded" MinWidth="550" MinHeight="275">
+        Title="偽装ちゃん" Height="275" Width="650" Loaded="Window_Loaded" MinWidth="550" MinHeight="275" Closing="Window_Closing">
 
     <TabControl>
         <TabItem x:Name="top" Header="話者">

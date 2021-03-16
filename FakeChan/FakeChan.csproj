@@ -57,6 +57,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="IPEndPoint.cs" />
+    <Compile Include="MessageData.cs" />
     <Compile Include="WCFClient.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
