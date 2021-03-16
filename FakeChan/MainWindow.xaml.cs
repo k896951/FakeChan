@@ -36,7 +36,6 @@ namespace FakeChan
         DispatcherTimer KickTalker;
 
         bool KeepListen;
-        bool KeepTalk;
         int SelectedCid;
 
         public MainWindow()
@@ -53,7 +52,6 @@ namespace FakeChan
                 AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
                 MessQue = new BlockingCollection<MessageData>();
 
-                KeepTalk = false;
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
                 KickTalker.Interval = new TimeSpan(0, 0, 1);
@@ -93,19 +91,13 @@ namespace FakeChan
 
         private void KickTalker_Tick(object sender, EventArgs e)
         {
-            if (!KeepTalk)
+            if (MessQue.Count != 0)
             {
                 Task.Run(() =>
                 {
-                    if (MessQue.Count != 0)
+                    foreach (var item in MessQue.GetConsumingEnumerable())
                     {
-                        KeepTalk = true;
-                        foreach (var item in MessQue.GetConsumingEnumerable())
-                        {
-                            WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
-                        }
-
-                        KeepTalk = false;
+                        WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                     }
                 });
             }
@@ -291,12 +283,6 @@ namespace FakeChan
                             MessQue.TryAdd(talk, 500);
                         });
 
-                        //Dispatcher.Invoke(() => {
-                        //    Dictionary<string, decimal> effects = AvatorParamList[SelectedCid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                        //    Dictionary<string, decimal> emotions = AvatorParamList[SelectedCid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-                        //    WcfClient.Talk(SelectedCid, TalkText, "", effects, emotions);
-                        //});
                     }
                     catch (Exception)
                     {
