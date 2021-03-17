@@ -18,6 +18,10 @@ using System.Net.Sockets;
 using System.IO;
 using System.Collections.Concurrent;
 using System.Windows.Threading;
+using System.Runtime.Remoting.Channels.Ipc;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting;
+using System.Runtime.Serialization.Formatters;
 
 namespace FakeChan
 {
@@ -29,6 +33,7 @@ namespace FakeChan
         WCFClient WcfClient;
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
+        Dictionary<int, int> Bouyomi2AssistantSeika;
         BlockingCollection<MessageData> MessQue;
         IPListenPoint ListenEndPoint;
         TcpListener Listener;
@@ -55,6 +60,7 @@ namespace FakeChan
                 MessQue = new BlockingCollection<MessageData>();
                 ReEntry = true;
 
+                // 読み上げバックグラウンドタスク起動
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
                 KickTalker.Interval = new TimeSpan(0, 0, 1);
@@ -63,8 +69,24 @@ namespace FakeChan
                 ListenEndPoint = new IPListenPoint();
                 ListenEndPoint.Address = IPAddress.Parse("127.0.0.1");
                 ListenEndPoint.PortNum = 50001;
+
+                FNF.Utility.BouyomiChanRemoting fipc = new FNF.Utility.BouyomiChanRemoting();
+                fipc.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
+                fipc.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
+                fipc.OnAddTalkTask03 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask03(IPCAddTalkTask03);
+                fipc.OnAddTalkTask21 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask21(IPCAddTalkTask21);
+                fipc.OnAddTalkTask23 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask23(IPCAddTalkTask23);
+                fipc.OnClearTalkTask += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCClearTalkTask);
+                fipc.OnSkipTalkTask  += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCSkipTalkTask);
+                fipc.MessQue = MessQue;
+
+                IpcServerChannel IpcCh = new IpcServerChannel("BouyomiChan");
+                IpcCh.IsSecured = false;
+                ChannelServices.RegisterChannel(IpcCh, false);
+                RemotingServices.Marshal(fipc, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
+
             }
-            catch(Exception e1)
+            catch (Exception e1)
             {
                 MessageBox.Show(e1.Message, "Sorry1");
                 Application.Current.Shutdown();
@@ -73,6 +95,9 @@ namespace FakeChan
             Binding myBinding = new Binding("PortNum");
             myBinding.Source = ListenEndPoint;
             TextBoxListenPort.SetBinding(TextBox.TextProperty, myBinding);
+
+            Bouyomi2AssistantSeika = new Dictionary<int, int>();
+            Bouyomi2AssistantSeika.Clear();
 
             ComboBoxAvator.ItemsSource = null;
             ComboBoxMapAvator0.ItemsSource = null;
@@ -84,6 +109,7 @@ namespace FakeChan
             ComboBoxMapAvator6.ItemsSource = null;
             ComboBoxMapAvator7.ItemsSource = null;
             ComboBoxMapAvator8.ItemsSource = null;
+
             if (AvatorNameList.Count != 0)
             {
                 ComboBoxAvator.ItemsSource = AvatorNameList;
@@ -117,16 +143,81 @@ namespace FakeChan
                 ComboBoxMapAvator8.ItemsSource = AvatorNameList;
                 ComboBoxMapAvator8.SelectedIndex = 0;
                 ComboBoxMapAvator8.IsEnabled = true;
+
             }
             else
             {
                 ComboBoxAvator.IsEnabled = false;
+                ComboBoxMapAvator0.IsEnabled = false;
+                ComboBoxMapAvator1.IsEnabled = false;
+                ComboBoxMapAvator2.IsEnabled = false;
+                ComboBoxMapAvator3.IsEnabled = false;
+                ComboBoxMapAvator4.IsEnabled = false;
+                ComboBoxMapAvator5.IsEnabled = false;
+                ComboBoxMapAvator6.IsEnabled = false;
+                ComboBoxMapAvator7.IsEnabled = false;
+                ComboBoxMapAvator8.IsEnabled = false;
             }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             KickTalker.Stop();
+        }
+
+        private void IPCAddTalkTask01(string TalkText)
+        {
+            int cid = Bouyomi2AssistantSeika[0];
+
+            MessageData talk = new MessageData()
+            {
+                Cid = cid,
+                Message = TalkText,
+                BouyomiVoice = 0,  // 何かの機能で使うかもしれないので
+                Effects  = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+            };
+
+            MessQue.TryAdd(talk, 500);
+        }
+        private void IPCAddTalkTask02(string TalkText, int iSpeed, int iVolume, int vType)
+        {
+            int vt = vType > 8 ? 0 : vType;
+            int cid = Bouyomi2AssistantSeika[vt];
+
+            MessageData talk = new MessageData()
+            {
+                Cid = cid,
+                Message = TalkText,
+                BouyomiVoice = vt,  // 何かの機能で使うかもしれないので
+                Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+            };
+
+            MessQue.TryAdd(talk, 500);
+        }
+        private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
+        {
+            IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
+        }
+        private int IPCAddTalkTask21(string TalkText)
+        {
+            IPCAddTalkTask01(TalkText);
+            return 0;
+        }
+        private int IPCAddTalkTask23(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
+        {
+            IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
+            return 0;
+        }
+        private void IPCClearTalkTask()
+        {
+            // キューを空にする
+            BlockingCollection<MessageData>[] t = { MessQue };
+            BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
+        }
+        private void IPCSkipTalkTask()
+        {
         }
 
         private void KickTalker_Tick(object sender, EventArgs e)
@@ -157,8 +248,24 @@ namespace FakeChan
 
         private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            int voice = 0;
             ComboBox cb = sender as ComboBox;
 
+            switch(cb.Name)
+            {
+                case "ComboBoxMapAvator0": voice = 0; break;
+                case "ComboBoxMapAvator1": voice = 1; break;
+                case "ComboBoxMapAvator2": voice = 2; break;
+                case "ComboBoxMapAvator3": voice = 3; break;
+                case "ComboBoxMapAvator4": voice = 4; break;
+                case "ComboBoxMapAvator5": voice = 5; break;
+                case "ComboBoxMapAvator6": voice = 6; break;
+                case "ComboBoxMapAvator7": voice = 7; break;
+                case "ComboBoxMapAvator8": voice = 8; break;
+                default: voice = 0; break;
+            }
+
+            Bouyomi2AssistantSeika[voice]= ((KeyValuePair<int, string>)cb.SelectedItem).Key;
         }
 
         private void ComboBoxAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -250,6 +357,7 @@ namespace FakeChan
                 KeepListen = true;
                 SetupBGTask();
                 Task.Run(BGListen);
+
             }
             catch (Exception e1)
             {
@@ -265,6 +373,11 @@ namespace FakeChan
         {
             KeepListen = false;
             Listener.Stop();
+            
+            // キューを空にする
+            BlockingCollection<MessageData>[] t = { MessQue };
+            BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
+
             ButtonStart.IsEnabled = true;
             ButtonStop.IsEnabled = false;
             TextBoxListenPort.IsEnabled = true;
@@ -338,46 +451,10 @@ namespace FakeChan
                         Dispatcher.Invoke(() => {
 
                             int cid = SelectedCid;
-                            
-                            switch (iVoice)
-                            {
-                                case 0:
-                                default:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator0.SelectedItem).Key;
-                                    break;
 
-                                case 1:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator1.SelectedItem).Key;
-                                    break;
+                            iVoice = (short)(iVoice > 8 ? 0 : iVoice);
 
-                                case 2:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator2.SelectedItem).Key;
-                                    break;
-
-                                case 3:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator3.SelectedItem).Key;
-                                    break;
-
-                                case 4:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator4.SelectedItem).Key;
-                                    break;
-
-                                case 5:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator5.SelectedItem).Key;
-                                    break;
-
-                                case 6:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator6.SelectedItem).Key;
-                                    break;
-
-                                case 7:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator7.SelectedItem).Key;
-                                    break;
-
-                                case 8:
-                                    cid = ((KeyValuePair<int, string>)ComboBoxMapAvator8.SelectedItem).Key;
-                                    break;
-                            }
+                            cid = Bouyomi2AssistantSeika[iVoice];
 
                             MessageData talk = new MessageData()
                             {
