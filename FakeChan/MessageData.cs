@@ -12,6 +12,8 @@ namespace FakeChan
 
         public int BouyomiVoice { get; set; }
 
+        public int TaskId { get; set; }
+
         public string Message { get; set; }
 
         public Dictionary<string, decimal> Effects { get; set; }

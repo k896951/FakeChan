@@ -26,9 +26,10 @@ namespace FNF.Utility
         public event CallEventHandlerSimpleTask OnSkipTalkTask;
 
         public BlockingCollection<FakeChan.MessageData> MessQue;
+        public int taskId = 0;
 
         public int TalkTaskCount { get { return MessQue.Count; } }
-        public int NowTaskId { get { return 0; } }
+        public int NowTaskId { get { return taskId; } }
         public bool NowPlaying { get { return MessQue.Count != 0; } }
         public bool Pause { get; set; }
 

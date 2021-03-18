@@ -39,6 +39,7 @@ namespace FakeChan
         TcpListener TcpIpListener;
         Action BGTcpListen;
         DispatcherTimer KickTalker;
+        FNF.Utility.BouyomiChanRemoting ShareIpcObject;
 
         bool ReEntry;
         bool KeepListen;
@@ -80,19 +81,19 @@ namespace FakeChan
                 TextBoxListenPort.IsEnabled = false;
 
                 // IPCサービス起動
-                FNF.Utility.BouyomiChanRemoting fipc = new FNF.Utility.BouyomiChanRemoting();
-                fipc.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
-                fipc.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
-                fipc.OnAddTalkTask03 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask03(IPCAddTalkTask03);
-                fipc.OnAddTalkTask21 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask21(IPCAddTalkTask21);
-                fipc.OnAddTalkTask23 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask23(IPCAddTalkTask23);
-                fipc.OnClearTalkTask += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCClearTalkTask);
-                fipc.OnSkipTalkTask  += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCSkipTalkTask);
-                fipc.MessQue = MessQue;
+                ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
+                ShareIpcObject.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
+                ShareIpcObject.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
+                ShareIpcObject.OnAddTalkTask03 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask03(IPCAddTalkTask03);
+                ShareIpcObject.OnAddTalkTask21 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask21(IPCAddTalkTask21);
+                ShareIpcObject.OnAddTalkTask23 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask23(IPCAddTalkTask23);
+                ShareIpcObject.OnClearTalkTask += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCClearTalkTask);
+                ShareIpcObject.OnSkipTalkTask  += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCSkipTalkTask);
+                ShareIpcObject.MessQue = MessQue;
                 IpcServerChannel IpcCh = new IpcServerChannel("BouyomiChan");
                 IpcCh.IsSecured = false;
                 ChannelServices.RegisterChannel(IpcCh, false);
-                RemotingServices.Marshal(fipc, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
+                RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
 
             }
             catch (Exception e1)
@@ -177,14 +178,16 @@ namespace FakeChan
         private void IPCAddTalkTask01(string TalkText)
         {
             int cid = Bouyomi2AssistantSeika[0];
+            int tid = MessQue.Count + 1;
 
             MessageData talk = new MessageData()
             {
-                Cid = cid,
-                Message = TalkText,
+                Cid          = cid,
+                Message      = TalkText,
                 BouyomiVoice = 0,  // 何かの機能で使うかもしれないので
-                Effects  = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                TaskId       = tid,
+                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
             };
 
             MessQue.TryAdd(talk, 500);
@@ -193,14 +196,16 @@ namespace FakeChan
         {
             int vt = vType > 8 ? 0 : vType;
             int cid = Bouyomi2AssistantSeika[vt];
+            int tid = MessQue.Count + 1;
 
             MessageData talk = new MessageData()
             {
-                Cid = cid,
-                Message = TalkText,
+                Cid          = cid,
+                Message      = TalkText,
                 BouyomiVoice = vt,  // 何かの機能で使うかもしれないので
-                Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                TaskId       = tid,
+                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
             };
 
             MessQue.TryAdd(talk, 500);
@@ -245,12 +250,14 @@ namespace FakeChan
                             {
                                 Dispatcher.Invoke(() =>
                                 {
+                                    ShareIpcObject.taskId = item.TaskId;
                                     TextBlockReceveText.Text = item.Message;
                                 });
 
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                             }
 
+                            ShareIpcObject.taskId = 0;
                             ReEntry = true;
                         });
 
@@ -476,16 +483,18 @@ namespace FakeChan
                         Dispatcher.Invoke(() => {
 
                             int cid = SelectedCid;
+                            int tid = MessQue.Count + 1;
 
                             iVoice = (short)(iVoice > 8 ? 0 : iVoice);
 
                             cid = Bouyomi2AssistantSeika[iVoice];
-
+                            
                             MessageData talk = new MessageData()
                             {
                                 Cid          = cid,
                                 Message      = TalkText,
                                 BouyomiVoice = iVoice,  // 何かの機能で使うかもしれないので
+                                TaskId       = tid,
                                 Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
                                 Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
                             };
