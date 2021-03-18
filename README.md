@@ -1,6 +1,6 @@
 # 偽装ちゃん
 
-偽装ちゃん(fakeChan)は、棒読みちゃん(BouyomiChan)の替わりにAssistantSeika経由で音声合成製品に渡します。
+偽装ちゃん(FakeChan)は、棒読みちゃん(BouyomiChan)のフリをしてテキストを受け取りAssistantSeika経由で音声合成製品に渡します。  
 コメントビュアーが棒読みちゃん呼び出しをサポートしていれば、棒読みちゃん替わりに利用できます。
 
 ## 偽装IPCインタフェースをサポートしました
@@ -11,12 +11,12 @@
 
 事前に[AssistantSeika](https://hgotoh.jp/wiki/doku.php/documents/voiceroid/assistantseika/assistantseika-001a) をダウンロード、インストール、実行してください。
 
-AssistantSeikaで利用したい音声合成製品を認識している状態になったら、偽装ちゃん(fakeChan.exe)を実行してください。  
-コメントビュアーなどでは自動でBouyomiChan.exeを呼び出すようになっている場合があるようですので、その際は呼び出すプログラムをfakeChan.exeに変更するか、
-fakeChan.exeをBouyomiChan.exeにリネームして入れ替えてください。  
+AssistantSeikaで利用したい音声合成製品を認識している状態になったら、偽装ちゃん(FakeChan.exe)を起動してください。  
+コメントビュアーなどでは自動でBouyomiChan.exeを呼び出すようになっている場合があるので、
+その際は呼び出すプログラムをFakeChan.exeに変更するか、FakeChan.exeをBouyomiChan.exeにリネームして入れ替えてください。  
 ※もちろんオリジナルのBouyomiChan.exeはバックアップしておいてください。
 
-偽装ちゃんが起動し（必要ならポート番号を変更し）たら、読み上げが始まります。
+偽装ちゃんが起動したら、読み上げが始まります。
 
 TCP/IPでの接続をする場合は「TCP/IP待ち受け開始」ボタンを押します。待ち受けポートの変更等無ければ、通信を受け付けてコメントを読み上げ可能になります。
 
