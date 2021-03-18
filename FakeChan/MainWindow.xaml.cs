@@ -36,8 +36,8 @@ namespace FakeChan
         Dictionary<int, int> Bouyomi2AssistantSeika;
         BlockingCollection<MessageData> MessQue;
         IPListenPoint ListenEndPoint;
-        TcpListener Listener;
-        Action BGListen;
+        TcpListener TcpIpListener;
+        Action BGTcpListen;
         DispatcherTimer KickTalker;
 
         bool ReEntry;
@@ -66,10 +66,20 @@ namespace FakeChan
                 KickTalker.Interval = new TimeSpan(0, 0, 1);
                 KickTalker.Start();
 
+                // TCP/IP リスナタスク起動
                 ListenEndPoint = new IPListenPoint();
                 ListenEndPoint.Address = IPAddress.Parse("127.0.0.1");
                 ListenEndPoint.PortNum = 50001;
+                SetupBGTcpListenerTask();
+                TcpIpListener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
+                TcpIpListener.Start();
+                KeepListen = true;
+                Task.Run(BGTcpListen);
+                ButtonStart.IsEnabled = false;
+                ButtonStop.IsEnabled = true;
+                TextBoxListenPort.IsEnabled = false;
 
+                // IPCサービス起動
                 FNF.Utility.BouyomiChanRemoting fipc = new FNF.Utility.BouyomiChanRemoting();
                 fipc.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
                 fipc.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
@@ -79,7 +89,6 @@ namespace FakeChan
                 fipc.OnClearTalkTask += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCClearTalkTask);
                 fipc.OnSkipTalkTask  += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCSkipTalkTask);
                 fipc.MessQue = MessQue;
-
                 IpcServerChannel IpcCh = new IpcServerChannel("BouyomiChan");
                 IpcCh.IsSecured = false;
                 ChannelServices.RegisterChannel(IpcCh, false);
@@ -234,6 +243,11 @@ namespace FakeChan
                         {
                             foreach (var item in MessQue.GetConsumingEnumerable())
                             {
+                                Dispatcher.Invoke(() =>
+                                {
+                                    TextBlockReceveText.Text = item.Message;
+                                });
+
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                             }
 
@@ -352,38 +366,50 @@ namespace FakeChan
             try
             {
                 ButtonStart.IsEnabled = false;
+                ButtonStop.IsEnabled = false;
                 TextBoxListenPort.IsEnabled = false;
-                Listener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
-                KeepListen = true;
-                SetupBGTask();
-                Task.Run(BGListen);
 
+                TcpIpListener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
+                TcpIpListener.Start();
+                KeepListen = true;
+                Task.Run(BGTcpListen);
+
+                ButtonStop.IsEnabled = true;
             }
             catch (Exception e1)
             {
                 MessageBox.Show(e1.Message, "Sorry2");
                 ButtonStart.IsEnabled = true;
                 ButtonStop.IsEnabled = false;
+                TextBoxListenPort.IsEnabled = true;
             }
-
-            ButtonStop.IsEnabled = true;
         }
 
         private void ButtonStop_Click(object sender, RoutedEventArgs e)
         {
-            KeepListen = false;
-            Listener.Stop();
-            
-            // キューを空にする
-            BlockingCollection<MessageData>[] t = { MessQue };
-            BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
+            try
+            {
+                KeepListen = false;
+                TcpIpListener.Stop();
 
-            ButtonStart.IsEnabled = true;
-            ButtonStop.IsEnabled = false;
-            TextBoxListenPort.IsEnabled = true;
+                // キューを空にする
+                BlockingCollection<MessageData>[] t = { MessQue };
+                BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
+
+                ButtonStart.IsEnabled = true;
+                ButtonStop.IsEnabled = false;
+                TextBoxListenPort.IsEnabled = true;
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show(e1.Message, "Sorry3");
+                ButtonStart.IsEnabled = true;
+                ButtonStop.IsEnabled = false;
+                TextBoxListenPort.IsEnabled = true;
+            }
         }
 
-        private void SetupBGTask()
+        private void SetupBGTcpListenerTask()
         {
             // パケット（プログラムでは先頭4項目をスキップ）
             //   Int16  iCommand = 0x0001;
@@ -395,7 +421,7 @@ namespace FakeChan
             //   Int32  iLength = bMessage.Length;
             //   byte[] bMessage;
 
-            BGListen = (()=>{
+            BGTcpListen = (()=>{
 
                 int SkipSize = 2 * 4;
 
@@ -403,8 +429,7 @@ namespace FakeChan
                 {
                     try
                     {
-                        Listener.Start();
-                        TcpClient client = Listener.AcceptTcpClient();
+                        TcpClient client = TcpIpListener.AcceptTcpClient();
                         Int16 iVoice;
                         byte bCode;
                         Int32 iLength;

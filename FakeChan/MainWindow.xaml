@@ -9,7 +9,7 @@
 
     <TabControl>
         
-        <TabItem x:Name="Settings" Header="設定と開始">
+        <TabItem x:Name="Settings" Header="設定">
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <Grid.ColumnDefinitions>
@@ -20,6 +20,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -34,16 +35,18 @@
                 <Button x:Name="ButtonStart" Content="TCP/IP待ち受け開始" Grid.Column="2" Grid.Row="0" Margin="2,1,1,1" IsEnabled="True" Click="ButtonStart_Click"/>
                 <Button x:Name="ButtonStop"  Content="TCP/IP待ち受け終了" Grid.Column="3" Grid.Row="0" Margin="2,1,1,1" IsEnabled="False" Click="ButtonStop_Click"/>
 
-                <Label Content="話者" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="ComboBoxAvator" Margin="2,1,1,1" Grid.ColumnSpan="3" SelectedValuePath="Key" DisplayMemberPath="Value" Grid.Column="1" Grid.Row="1" 
+                <Label Content="再生テキスト" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
+                <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"/>
+
+                <Label Content="話者" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                <ComboBox x:Name="ComboBoxAvator" Margin="2,1,1,1" SelectedValuePath="Key" DisplayMemberPath="Value" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3" 
                                                                IsReadOnly="True"
                                                                SnapsToDevicePixels="True"
                                                                SelectionChanged="ComboBoxAvator_SelectionChanged"
                                                                HorizontalAlignment="Stretch"
                                                                HorizontalContentAlignment="Stretch"/>
 
-
-                <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4">
+                <StackPanel Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True">
                         <StackPanel Margin="1,1,1,1">
                             <WrapPanel x:Name="WrapPanelParams1" Margin="1,1,1,1" ></WrapPanel>
