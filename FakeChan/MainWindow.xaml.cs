@@ -64,6 +64,9 @@ namespace FakeChan
             try
             {
                 // AssistantSeikaとの接続
+                // シンプルな例は
+                // https://hgotoh.jp/wiki/doku.php/documents/voiceroid/assistantseika/interface/wcf/wcf-004
+                // を見てください。
                 WcfClient = new WCFClient();
                 AvatorNameList = WcfClient.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
                 AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
