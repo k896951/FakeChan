@@ -60,6 +60,7 @@
     <Compile Include="BouyomiChanRemoting.cs" />
     <Compile Include="IPEndPoint.cs" />
     <Compile Include="MessageData.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="WCFClient.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -33,18 +33,26 @@ namespace FakeChan
         WCFClient WcfClient;
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
-        Dictionary<int, int> Bouyomi2AssistantSeika;
+        Dictionary<int, int> Bouyomi2AssistantSeika = new Dictionary<int, int>();
+        Dictionary<int, string> BouyomiVoiceList = new Dictionary<int, string>() { { 0, "ボイス0" },
+                                                                                   { 1, "女性1"},
+                                                                                   { 2, "女性2"},
+                                                                                   { 3, "男性1"},
+                                                                                   { 4, "男性2"},
+                                                                                   { 5, "中性" },
+                                                                                   { 6, "ロボット" },
+                                                                                   { 7, "機械1" },
+                                                                                   { 8, "機械2" } };
         BlockingCollection<MessageData> MessQue;
         IPListenPoint ListenEndPoint;
         TcpListener TcpIpListener;
         Action BGTcpListen;
         DispatcherTimer KickTalker;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
-
+        List<ComboBox> MapAvatorsComboBoxList;
         bool ReEntry;
         bool KeepListen;
         object lockObj = new object();
-        int SelectedCid;
 
         public MainWindow()
         {
@@ -55,9 +63,12 @@ namespace FakeChan
         {
             try
             {
+                // AssistantSeikaとの接続
                 WcfClient = new WCFClient();
                 AvatorNameList = WcfClient.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
                 AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
+
+                // メッセージキューを使うよ！
                 MessQue = new BlockingCollection<MessageData>();
                 ReEntry = true;
 
@@ -80,7 +91,7 @@ namespace FakeChan
                 ButtonStop.IsEnabled = true;
                 TextBoxListenPort.IsEnabled = false;
 
-                // IPCサービス起動
+                // IPCサービス起動（棒読みちゃんのフリをします！）
                 ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
                 ShareIpcObject.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
                 ShareIpcObject.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
@@ -106,68 +117,47 @@ namespace FakeChan
             myBinding.Source = ListenEndPoint;
             TextBoxListenPort.SetBinding(TextBox.TextProperty, myBinding);
 
-            Bouyomi2AssistantSeika = new Dictionary<int, int>();
+            MapAvatorsComboBoxList = new List<ComboBox>()
+            {
+                ComboBoxMapAvator0,
+                ComboBoxMapAvator1,
+                ComboBoxMapAvator2,
+                ComboBoxMapAvator3,
+                ComboBoxMapAvator4,
+                ComboBoxMapAvator5,
+                ComboBoxMapAvator6,
+                ComboBoxMapAvator7,
+                ComboBoxMapAvator8,
+            };
+
             Bouyomi2AssistantSeika.Clear();
 
-            ComboBoxAvator.ItemsSource = null;
-            ComboBoxMapAvator0.ItemsSource = null;
-            ComboBoxMapAvator1.ItemsSource = null;
-            ComboBoxMapAvator2.ItemsSource = null;
-            ComboBoxMapAvator3.ItemsSource = null;
-            ComboBoxMapAvator4.ItemsSource = null;
-            ComboBoxMapAvator5.ItemsSource = null;
-            ComboBoxMapAvator6.ItemsSource = null;
-            ComboBoxMapAvator7.ItemsSource = null;
-            ComboBoxMapAvator8.ItemsSource = null;
+            foreach(var item in MapAvatorsComboBoxList)
+            {
+                item.ItemsSource = null;
+            }
 
             if (AvatorNameList.Count != 0)
             {
-                ComboBoxAvator.ItemsSource = AvatorNameList;
-                ComboBoxAvator.SelectedIndex = 0;
-                ComboBoxAvator.IsEnabled = true;
-
-                ComboBoxMapAvator0.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator0.SelectedIndex = 0;
-                ComboBoxMapAvator0.IsEnabled = true;
-                ComboBoxMapAvator1.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator1.SelectedIndex = 0;
-                ComboBoxMapAvator1.IsEnabled = true;
-                ComboBoxMapAvator2.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator2.SelectedIndex = 0;
-                ComboBoxMapAvator2.IsEnabled = true;
-                ComboBoxMapAvator3.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator3.SelectedIndex = 0;
-                ComboBoxMapAvator3.IsEnabled = true;
-                ComboBoxMapAvator4.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator4.SelectedIndex = 0;
-                ComboBoxMapAvator4.IsEnabled = true;
-                ComboBoxMapAvator5.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator5.SelectedIndex = 0;
-                ComboBoxMapAvator5.IsEnabled = true;
-                ComboBoxMapAvator6.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator6.SelectedIndex = 0;
-                ComboBoxMapAvator6.IsEnabled = true;
-                ComboBoxMapAvator7.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator7.SelectedIndex = 0;
-                ComboBoxMapAvator7.IsEnabled = true;
-                ComboBoxMapAvator8.ItemsSource = AvatorNameList;
-                ComboBoxMapAvator8.SelectedIndex = 0;
-                ComboBoxMapAvator8.IsEnabled = true;
-
+                foreach (var item in MapAvatorsComboBoxList)
+                {
+                    item.ItemsSource = AvatorNameList;
+                    item.SelectedIndex = 0;
+                    item.IsEnabled = true;
+                }
             }
             else
             {
-                ComboBoxAvator.IsEnabled = false;
-                ComboBoxMapAvator0.IsEnabled = false;
-                ComboBoxMapAvator1.IsEnabled = false;
-                ComboBoxMapAvator2.IsEnabled = false;
-                ComboBoxMapAvator3.IsEnabled = false;
-                ComboBoxMapAvator4.IsEnabled = false;
-                ComboBoxMapAvator5.IsEnabled = false;
-                ComboBoxMapAvator6.IsEnabled = false;
-                ComboBoxMapAvator7.IsEnabled = false;
-                ComboBoxMapAvator8.IsEnabled = false;
+                foreach (var item in MapAvatorsComboBoxList)
+                {
+                    item.IsEnabled = false;
+                }
             }
+
+            ComboBoxBouyomiVoice.ItemsSource = null;
+            ComboBoxBouyomiVoice.ItemsSource = BouyomiVoiceList;
+            ComboBoxBouyomiVoice.SelectedIndex = 0;
+
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -252,12 +242,17 @@ namespace FakeChan
                                 {
                                     ShareIpcObject.taskId = item.TaskId;
                                     TextBlockReceveText.Text = item.Message;
+                                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", BouyomiVoiceList[item.BouyomiVoice], AvatorNameList[item.Cid]);
                                 });
 
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                             }
 
-                            ShareIpcObject.taskId = 0;
+                            Dispatcher.Invoke(() =>
+                            {
+                                ShareIpcObject.taskId = 0;
+                            });
+
                             ReEntry = true;
                         });
 
@@ -270,6 +265,7 @@ namespace FakeChan
         private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int voice = 0;
+            int cid;
             ComboBox cb = sender as ComboBox;
 
             switch(cb.Name)
@@ -286,19 +282,35 @@ namespace FakeChan
                 default: voice = 0; break;
             }
 
-            Bouyomi2AssistantSeika[voice]= ((KeyValuePair<int, string>)cb.SelectedItem).Key;
+            cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
+            Bouyomi2AssistantSeika[voice] = cid;
+
+            if (ComboBoxBouyomiVoice.SelectedIndex != voice)
+            {
+                ComboBoxBouyomiVoice.SelectedIndex = voice;
+            }
+            else
+            {
+                UpdateEditParamPanel(Bouyomi2AssistantSeika[voice]);
+            }
         }
 
-        private void ComboBoxAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void ComboBoxBouyomiVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int cid = Convert.ToInt32(ComboBoxAvator.SelectedValue);
+            int voice = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
+            int cid = Bouyomi2AssistantSeika[voice];
 
-            SelectedCid = cid;
+            UpdateEditParamPanel(cid);
+        }
 
+        private void UpdateEditParamPanel(int cid)
+        {
+            LabelSelectedAvator.Content = AvatorNameList[cid];
             WrapPanelParams1.Children.Clear();
+
             WrapPanelParams2.Children.Clear();
 
-            ReSetupParams(cid, AvatorParamList[cid]["effect"],  WrapPanelParams1.Children);
+            ReSetupParams(cid, AvatorParamList[cid]["effect"], WrapPanelParams1.Children);
             ReSetupParams(cid, AvatorParamList[cid]["emotion"], WrapPanelParams2.Children);
         }
 
@@ -482,7 +494,7 @@ namespace FakeChan
 
                         Dispatcher.Invoke(() => {
 
-                            int cid = SelectedCid;
+                            int cid = Bouyomi2AssistantSeika[0];
                             int tid = MessQue.Count + 1;
 
                             iVoice = (short)(iVoice > 8 ? 0 : iVoice);
