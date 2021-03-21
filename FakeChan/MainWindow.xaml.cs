@@ -2,18 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Net.Sockets;
 using System.IO;
 using System.Collections.Concurrent;
@@ -21,7 +14,6 @@ using System.Windows.Threading;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting;
-using System.Runtime.Serialization.Formatters;
 
 namespace FakeChan
 {
@@ -308,7 +300,7 @@ namespace FakeChan
 
         private void UpdateEditParamPanel(int cid)
         {
-            LabelSelectedAvator.Content = AvatorNameList[cid];
+            LabelSelectedAvator.Content = string.Format(@"⇒ {0}",AvatorNameList[cid]);
             WrapPanelParams1.Children.Clear();
 
             WrapPanelParams2.Children.Clear();

@@ -13,7 +13,8 @@
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="130"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -28,28 +29,29 @@
                 </Grid.RowDefinitions>
 
                 <Label Content="TCP/IP待ち受けポート" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>
-                <TextBox x:Name="TextBoxListenPort"  Margin="2,1,1,1" Grid.Column="1" Grid.Row="0"  MaxLength="5"
+                <TextBox x:Name="TextBoxListenPort"  Margin="2,1,1,1" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" MaxLength="5"
                                                                                             InputMethod.IsInputMethodEnabled="False"
                                                                                             LostFocus="TextBoxListenPort_LostFocus"
                                                                                             HorizontalAlignment="Left"
                                                                                             VerticalContentAlignment="Center" />
-                <Button x:Name="ButtonStart" Content="TCP/IP待ち受け開始" Grid.Column="2" Grid.Row="0" Margin="2,1,1,1" IsEnabled="True" Click="ButtonStart_Click"/>
-                <Button x:Name="ButtonStop"  Content="TCP/IP待ち受け終了" Grid.Column="3" Grid.Row="0" Margin="2,1,1,1" IsEnabled="False" Click="ButtonStop_Click"/>
+                <Button x:Name="ButtonStart" Content="TCP/IP待ち受け開始" Grid.Column="3" Grid.Row="0" Margin="2,1,1,1" IsEnabled="True" Click="ButtonStart_Click"/>
+                <Button x:Name="ButtonStop"  Content="TCP/IP待ち受け終了" Grid.Column="4" Grid.Row="0" Margin="2,1,1,1" IsEnabled="False" Click="ButtonStop_Click"/>
 
                 <Label Content="話者" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"/>
+                <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
 
                 <Label Content="再生テキスト" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"/>
+                <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="4"/>
 
                 <Label Content="音声パラメタ設定" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                <ComboBox x:Name="ComboBoxBouyomiVoice" SelectedValuePath="Key" DisplayMemberPath="Value" Grid.Column="1" Grid.Row="3" Margin="2,1,1,1"
+                <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="1" Grid.Row="3" Margin="2,1,1,1"
+                                                               SelectedValuePath="Key"
+                                                               DisplayMemberPath="Value"
                                                                IsReadOnly="True"
-                                                               SnapsToDevicePixels="True"
                                                                SelectionChanged="ComboBoxBouyomiVoice_SelectionChanged"/>
-                <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="2" Margin="2,1,1,1" VerticalAlignment="Center"/>
+                <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="2" Grid.Row="3" Grid.ColumnSpan="3" Margin="2,1,1,1" VerticalAlignment="Center"/>
 
-                <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="4">
+                <StackPanel Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="5">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True">
                         <StackPanel Margin="1,1,1,1">
                             <WrapPanel x:Name="WrapPanelParams1" Margin="1,1,1,1" ></WrapPanel>
