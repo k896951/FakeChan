@@ -254,10 +254,7 @@ namespace FakeChan
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                             }
 
-                            Dispatcher.Invoke(() =>
-                            {
-                                ShareIpcObject.taskId = 0;
-                            });
+                            ShareIpcObject.taskId = 0;
 
                             ReEntry = true;
                         });
@@ -392,12 +389,8 @@ namespace FakeChan
             ButtonTestTalk.IsEnabled = false;
             ComboBoxBouyomiVoice.IsEnabled = false;
 
-            int voice = ((KeyValuePair<int, string>)ComboBoxBouyomiVoice.SelectedItem).Key;
-            int cid = Bouyomi2AssistantSeika[voice];
-            int tid = MessQue.Count + 1;
             string text = TextBoxReceveText.Text;
-            Dictionary<string, decimal> Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            int voice = ((KeyValuePair<int, string>)ComboBoxBouyomiVoice.SelectedItem).Key;
 
             // See https://gist.github.com/pinzolo/2814091
             DispatcherFrame frame = new DispatcherFrame();
@@ -411,6 +404,10 @@ namespace FakeChan
 
             Task.Run(() =>
             {
+                int cid = Bouyomi2AssistantSeika[voice];
+                Dictionary<string, decimal> Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                Dictionary<string, decimal> Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
                 WcfClient.Talk(cid, text, "", Effects, Emotions);
 
                 Dispatcher.Invoke(() =>
