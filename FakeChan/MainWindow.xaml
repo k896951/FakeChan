@@ -41,7 +41,8 @@
                 <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
 
                 <Label Content="再生テキスト" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="4"/>
+                <TextBox x:Name="TextBoxReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"/>
+                <Button x:Name="ButtonTestTalk"  Content="テスト再生" Grid.Column="4" Grid.Row="2" Margin="2,1,1,1" IsEnabled="True" Click="ButtonTestTalk_Click"/>
 
                 <Label Content="音声パラメタ設定" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
                 <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="1" Grid.Row="3" Margin="2,1,1,1"

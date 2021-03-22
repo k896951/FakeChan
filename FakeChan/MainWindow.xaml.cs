@@ -165,50 +165,61 @@ namespace FakeChan
             int cid = Bouyomi2AssistantSeika[0];
             int tid = MessQue.Count + 1;
 
-            MessageData talk = new MessageData()
+            Task.Run(() =>
             {
-                Cid          = cid,
-                Message      = TalkText,
-                BouyomiVoice = 0,  // 何かの機能で使うかもしれないので
-                TaskId       = tid,
-                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
-            };
+                MessageData talk = new MessageData()
+                {
+                    Cid          = cid,
+                    Message      = TalkText,
+                    BouyomiVoice = 0,
+                    TaskId       = tid,
+                    Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                    Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                };
 
-            MessQue.TryAdd(talk, 500);
+                MessQue.TryAdd(talk, 500);
+            });
         }
+
         private void IPCAddTalkTask02(string TalkText, int iSpeed, int iVolume, int vType)
         {
             int vt = vType > 8 ? 0 : vType;
             int cid = Bouyomi2AssistantSeika[vt];
             int tid = MessQue.Count + 1;
 
-            MessageData talk = new MessageData()
+            Task.Run(() =>
             {
-                Cid          = cid,
-                Message      = TalkText,
-                BouyomiVoice = vt,  // 何かの機能で使うかもしれないので
-                TaskId       = tid,
-                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
-            };
+                MessageData talk = new MessageData()
+                {
+                    Cid          = cid,
+                    Message      = TalkText,
+                    BouyomiVoice = vt,
+                    TaskId       = tid,
+                    Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
+                    Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
+                };
 
-            MessQue.TryAdd(talk, 500);
+                MessQue.TryAdd(talk, 500);
+            });
         }
+
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
             IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
         }
+
         private int IPCAddTalkTask21(string TalkText)
         {
             IPCAddTalkTask01(TalkText);
             return 0;
         }
+
         private int IPCAddTalkTask23(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
             IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
             return 0;
         }
+
         private void IPCClearTalkTask()
         {
             // キューを空にする
@@ -236,7 +247,7 @@ namespace FakeChan
                                 Dispatcher.Invoke(() =>
                                 {
                                     ShareIpcObject.taskId = item.TaskId;
-                                    TextBlockReceveText.Text = item.Message;
+                                    TextBoxReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", BouyomiVoiceList[item.BouyomiVoice], AvatorNameList[item.Cid]);
                                 });
 
@@ -375,6 +386,43 @@ namespace FakeChan
             }
         }
 
+        private void ButtonTestTalk_Click(object sender, RoutedEventArgs e)
+        {
+            TextBoxReceveText.IsEnabled = false;
+            ButtonTestTalk.IsEnabled = false;
+            ComboBoxBouyomiVoice.IsEnabled = false;
+
+            int voice = ((KeyValuePair<int, string>)ComboBoxBouyomiVoice.SelectedItem).Key;
+            int cid = Bouyomi2AssistantSeika[voice];
+            int tid = MessQue.Count + 1;
+            string text = TextBoxReceveText.Text;
+            Dictionary<string, decimal> Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+            // See https://gist.github.com/pinzolo/2814091
+            DispatcherFrame frame = new DispatcherFrame();
+            var callback = new DispatcherOperationCallback(obj =>
+            {
+                ((DispatcherFrame)obj).Continue = false;
+                return null;
+            });
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
+            Dispatcher.PushFrame(frame);
+
+            Task.Run(() =>
+            {
+                WcfClient.Talk(cid, text, "", Effects, Emotions);
+
+                Dispatcher.Invoke(() =>
+                {
+                    TextBoxReceveText.IsEnabled = true;
+                    ButtonTestTalk.IsEnabled = true;
+                    ComboBoxBouyomiVoice.IsEnabled = true;
+                });
+            });
+
+        }
+
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -500,7 +548,7 @@ namespace FakeChan
                             {
                                 Cid          = cid,
                                 Message      = TalkText,
-                                BouyomiVoice = iVoice,  // 何かの機能で使うかもしれないので
+                                BouyomiVoice = iVoice,
                                 TaskId       = tid,
                                 Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
                                 Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
