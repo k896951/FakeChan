@@ -28,15 +28,6 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Label Content="TCP/IP待ち受けポート" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>
-                <TextBox x:Name="TextBoxListenPort"  Margin="2,1,1,1" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" MaxLength="5"
-                                                                                            InputMethod.IsInputMethodEnabled="False"
-                                                                                            LostFocus="TextBoxListenPort_LostFocus"
-                                                                                            HorizontalAlignment="Left"
-                                                                                            VerticalContentAlignment="Center" />
-                <Button x:Name="ButtonStart" Content="TCP/IP待ち受け開始" Grid.Column="3" Grid.Row="0" Margin="2,1,1,1" IsEnabled="True" Click="ButtonStart_Click"/>
-                <Button x:Name="ButtonStop"  Content="TCP/IP待ち受け終了" Grid.Column="4" Grid.Row="0" Margin="2,1,1,1" IsEnabled="False" Click="ButtonStop_Click"/>
-
                 <Label Content="話者" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
                 <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
 

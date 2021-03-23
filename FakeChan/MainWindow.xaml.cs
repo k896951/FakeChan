@@ -22,21 +22,9 @@ namespace FakeChan
     /// </summary>
     public partial class MainWindow : Window
     {
+        Configs Config;
         WCFClient WcfClient;
-        Dictionary<int, string> AvatorNameList;
-        Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
-        Dictionary<int, int> Bouyomi2AssistantSeika = new Dictionary<int, int>();
-        Dictionary<int, string> BouyomiVoiceList = new Dictionary<int, string>() { { 0, "ボイス0" },
-                                                                                   { 1, "女性1"},
-                                                                                   { 2, "女性2"},
-                                                                                   { 3, "男性1"},
-                                                                                   { 4, "男性2"},
-                                                                                   { 5, "中性" },
-                                                                                   { 6, "ロボット" },
-                                                                                   { 7, "機械1" },
-                                                                                   { 8, "機械2" } };
         BlockingCollection<MessageData> MessQue;
-        IPListenPoint ListenEndPoint;
         TcpListener TcpIpListener;
         Action BGTcpListen;
         DispatcherTimer KickTalker;
@@ -55,13 +43,13 @@ namespace FakeChan
         {
             try
             {
+                Config = new Configs();
+
                 // AssistantSeikaとの接続
                 // シンプルな例は
                 // https://hgotoh.jp/wiki/doku.php/documents/voiceroid/assistantseika/interface/wcf/wcf-004
                 // を見てください。
                 WcfClient = new WCFClient();
-                AvatorNameList = WcfClient.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
-                AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => WcfClient.GetDefaultParams2(v.Key));
 
                 // メッセージキューを使うよ！
                 MessQue = new BlockingCollection<MessageData>();
@@ -74,17 +62,11 @@ namespace FakeChan
                 KickTalker.Start();
 
                 // TCP/IP リスナタスク起動
-                ListenEndPoint = new IPListenPoint();
-                ListenEndPoint.Address = IPAddress.Parse("127.0.0.1");
-                ListenEndPoint.PortNum = 50001;
-                SetupBGTcpListenerTask();
-                TcpIpListener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
+                TcpIpListener = new TcpListener(Config.EndPoint.Address, Config.EndPoint.PortNum);
                 TcpIpListener.Start();
                 KeepListen = true;
+                SetupBGTcpListenerTask();
                 Task.Run(BGTcpListen);
-                ButtonStart.IsEnabled = false;
-                ButtonStop.IsEnabled = true;
-                TextBoxListenPort.IsEnabled = false;
 
                 // IPCサービス起動（棒読みちゃんのフリをします！）
                 ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
@@ -98,6 +80,7 @@ namespace FakeChan
                 ShareIpcObject.MessQue = MessQue;
                 IpcServerChannel IpcCh = new IpcServerChannel("BouyomiChan");
                 IpcCh.IsSecured = false;
+                
                 ChannelServices.RegisterChannel(IpcCh, false);
                 RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
 
@@ -107,10 +90,6 @@ namespace FakeChan
                 MessageBox.Show(e1.Message, "Sorry1");
                 Application.Current.Shutdown();
             }
-
-            Binding myBinding = new Binding("PortNum");
-            myBinding.Source = ListenEndPoint;
-            TextBoxListenPort.SetBinding(TextBox.TextProperty, myBinding);
 
             MapAvatorsComboBoxList = new List<ComboBox>()
             {
@@ -125,32 +104,25 @@ namespace FakeChan
                 ComboBoxMapAvator8,
             };
 
-            Bouyomi2AssistantSeika.Clear();
-
-            foreach(var item in MapAvatorsComboBoxList)
-            {
-                item.ItemsSource = null;
-            }
-
-            if (AvatorNameList.Count != 0)
+            if (Config.AvatorNames.Count != 0)
             {
                 foreach (var item in MapAvatorsComboBoxList)
                 {
-                    item.ItemsSource = AvatorNameList;
+                    item.ItemsSource = null;
+                    item.ItemsSource = Config.AvatorNames;
                     item.SelectedIndex = 0;
                     item.IsEnabled = true;
                 }
             }
             else
             {
-                foreach (var item in MapAvatorsComboBoxList)
-                {
-                    item.IsEnabled = false;
-                }
+                MessageBox.Show("No Avators detected from AssistantSeika", "Sorry2");
+                Application.Current.Shutdown();
+                return;
             }
 
             ComboBoxBouyomiVoice.ItemsSource = null;
-            ComboBoxBouyomiVoice.ItemsSource = BouyomiVoiceList;
+            ComboBoxBouyomiVoice.ItemsSource = Config.BouyomiVoices;
             ComboBoxBouyomiVoice.SelectedIndex = 0;
 
         }
@@ -162,45 +134,51 @@ namespace FakeChan
 
         private void IPCAddTalkTask01(string TalkText)
         {
-            int cid = Bouyomi2AssistantSeika[0];
+            int cid = Config.B2Amap.First().Value;
             int tid = MessQue.Count + 1;
 
-            Task.Run(() =>
-            {
-                MessageData talk = new MessageData()
-                {
-                    Cid          = cid,
-                    Message      = TalkText,
-                    BouyomiVoice = 0,
-                    TaskId       = tid,
-                    Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                    Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
-                };
+            Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                MessQue.TryAdd(talk, 500);
-            });
+            MessageData talk = new MessageData()
+            {
+                Cid = cid,
+                Message = TalkText,
+                BouyomiVoice = 0,
+                TaskId = tid,
+                Effects = Effects,
+                Emotions = Emotions
+            };
+
+            lock (lockObj)
+            {
+                MessQue.TryAdd(talk, 1000);
+            }
         }
 
         private void IPCAddTalkTask02(string TalkText, int iSpeed, int iVolume, int vType)
         {
             int vt = vType > 8 ? 0 : vType;
-            int cid = Bouyomi2AssistantSeika[vt];
+            int cid = Config.B2Amap[vt];
             int tid = MessQue.Count + 1;
 
-            Task.Run(() =>
-            {
-                MessageData talk = new MessageData()
-                {
-                    Cid          = cid,
-                    Message      = TalkText,
-                    BouyomiVoice = vt,
-                    TaskId       = tid,
-                    Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                    Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
-                };
+            Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                MessQue.TryAdd(talk, 500);
-            });
+            MessageData talk = new MessageData()
+            {
+                Cid = cid,
+                Message = TalkText,
+                BouyomiVoice = vt,
+                TaskId = tid,
+                Effects = Effects,
+                Emotions = Emotions
+            };
+
+            lock (lockObj)
+            {
+                MessQue.TryAdd(talk, 1000);
+            }
         }
 
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
@@ -242,13 +220,15 @@ namespace FakeChan
 
                         Task.Run(() =>
                         {
+                            Dictionary<int, string> bv = Config.BouyomiVoices;
+                            Dictionary<int, string> an = Config.AvatorNames;
                             foreach (var item in MessQue.GetConsumingEnumerable())
                             {
                                 Dispatcher.Invoke(() =>
                                 {
                                     ShareIpcObject.taskId = item.TaskId;
                                     TextBoxReceveText.Text = item.Message;
-                                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", BouyomiVoiceList[item.BouyomiVoice], AvatorNameList[item.Cid]);
+                                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoice], an[item.Cid] );
                                 });
 
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
@@ -286,7 +266,7 @@ namespace FakeChan
             }
 
             cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
-            Bouyomi2AssistantSeika[voice] = cid;
+            Config.B2Amap[voice] = cid;
 
             if (ComboBoxBouyomiVoice.SelectedIndex != voice)
             {
@@ -294,27 +274,26 @@ namespace FakeChan
             }
             else
             {
-                UpdateEditParamPanel(Bouyomi2AssistantSeika[voice]);
+                UpdateEditParamPanel(Config.B2Amap[voice]);
             }
         }
 
         private void ComboBoxBouyomiVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int voice = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
-            int cid = Bouyomi2AssistantSeika[voice];
+            int cid = Config.B2Amap[voice];
 
             UpdateEditParamPanel(cid);
         }
 
         private void UpdateEditParamPanel(int cid)
         {
-            LabelSelectedAvator.Content = string.Format(@"⇒ {0}",AvatorNameList[cid]);
+            LabelSelectedAvator.Content = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
             WrapPanelParams1.Children.Clear();
-
             WrapPanelParams2.Children.Clear();
 
-            ReSetupParams(cid, AvatorParamList[cid]["effect"], WrapPanelParams1.Children);
-            ReSetupParams(cid, AvatorParamList[cid]["emotion"], WrapPanelParams2.Children);
+            ReSetupParams(cid, Config.AvatorEffectParams(cid), WrapPanelParams1.Children);
+            ReSetupParams(cid, Config.AvatorEmotionParams(cid), WrapPanelParams2.Children);
         }
 
         private void ReSetupParams(int cid, Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
@@ -365,24 +344,6 @@ namespace FakeChan
             }
         }
 
-        private void TextBoxListenPort_LostFocus(object sender, RoutedEventArgs e)
-        {
-            ButtonStart.IsEnabled = false;
-
-            if (TextBoxListenPort.Text != "")
-            {
-                int p;
-
-                if (Int32.TryParse(TextBoxListenPort.Text, out p))
-                {
-                    if ((p > 1023) && (p < 65536))
-                    {
-                        ButtonStart.IsEnabled = true;
-                    }
-                }
-            }
-        }
-
         private void ButtonTestTalk_Click(object sender, RoutedEventArgs e)
         {
             TextBoxReceveText.IsEnabled = false;
@@ -404,9 +365,9 @@ namespace FakeChan
 
             Task.Run(() =>
             {
-                int cid = Bouyomi2AssistantSeika[voice];
-                Dictionary<string, decimal> Effects = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                Dictionary<string, decimal> Emotions = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                int cid =  Config.B2Amap[voice];
+                Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+                Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
 
                 WcfClient.Talk(cid, text, "", Effects, Emotions);
 
@@ -418,54 +379,6 @@ namespace FakeChan
                 });
             });
 
-        }
-
-        private void ButtonStart_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                ButtonStart.IsEnabled = false;
-                ButtonStop.IsEnabled = false;
-                TextBoxListenPort.IsEnabled = false;
-
-                TcpIpListener = new TcpListener(ListenEndPoint.Address, ListenEndPoint.PortNum);
-                TcpIpListener.Start();
-                KeepListen = true;
-                Task.Run(BGTcpListen);
-
-                ButtonStop.IsEnabled = true;
-            }
-            catch (Exception e1)
-            {
-                MessageBox.Show(e1.Message, "Sorry2");
-                ButtonStart.IsEnabled = true;
-                ButtonStop.IsEnabled = false;
-                TextBoxListenPort.IsEnabled = true;
-            }
-        }
-
-        private void ButtonStop_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                KeepListen = false;
-                TcpIpListener.Stop();
-
-                // キューを空にする
-                BlockingCollection<MessageData>[] t = { MessQue };
-                BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
-
-                ButtonStart.IsEnabled = true;
-                ButtonStop.IsEnabled = false;
-                TextBoxListenPort.IsEnabled = true;
-            }
-            catch (Exception e1)
-            {
-                MessageBox.Show(e1.Message, "Sorry3");
-                ButtonStart.IsEnabled = true;
-                ButtonStop.IsEnabled = false;
-                TextBoxListenPort.IsEnabled = true;
-            }
         }
 
         private void SetupBGTcpListenerTask()
@@ -532,28 +445,29 @@ namespace FakeChan
                             }
                         }
 
-                        Dispatcher.Invoke(() => {
+                        int cid = Config.B2Amap.First().Value;
+                        int tid = MessQue.Count + 1;
 
-                            int cid = Bouyomi2AssistantSeika[0];
-                            int tid = MessQue.Count + 1;
+                        iVoice = (short)(iVoice > 8 ? 0 : iVoice);
 
-                            iVoice = (short)(iVoice > 8 ? 0 : iVoice);
+                        cid = Config.B2Amap[iVoice];
+                        Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+                        Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                            cid = Bouyomi2AssistantSeika[iVoice];
-                            
-                            MessageData talk = new MessageData()
-                            {
-                                Cid          = cid,
-                                Message      = TalkText,
-                                BouyomiVoice = iVoice,
-                                TaskId       = tid,
-                                Effects      = AvatorParamList[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]),
-                                Emotions     = AvatorParamList[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"])
-                            };
+                        MessageData talk = new MessageData()
+                        {
+                            Cid = cid,
+                            Message = TalkText,
+                            BouyomiVoice = iVoice,
+                            TaskId = tid,
+                            Effects = Effects,
+                            Emotions = Emotions
+                        };
 
-                            MessQue.TryAdd(talk, 500);
-
-                        });
+                        lock (lockObj)
+                        {
+                            MessQue.TryAdd(talk, 1000);
+                        }
 
                     }
                     catch (Exception)

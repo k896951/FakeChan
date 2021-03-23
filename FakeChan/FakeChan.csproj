@@ -58,7 +58,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BouyomiChanRemoting.cs" />
-    <Compile Include="IPEndPoint.cs" />
+    <Compile Include="Configs.cs" />
+    <Compile Include="IPListenPoint.cs" />
     <Compile Include="MessageData.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="WCFClient.cs" />
