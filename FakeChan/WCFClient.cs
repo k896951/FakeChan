@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace FakeChan
 {
-    class WCFClient
+    public class WCFClient
     {
         IScAPIs ServiceAc;
         ChannelFactory<IScAPIs> ChannelAc;

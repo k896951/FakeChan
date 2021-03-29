@@ -59,9 +59,12 @@
     </ApplicationDefinition>
     <Compile Include="BouyomiChanRemoting.cs" />
     <Compile Include="Configs.cs" />
-    <Compile Include="IPListenPoint.cs" />
+    <Compile Include="EnumClass.cs" />
+    <Compile Include="IpcTasks.cs" />
     <Compile Include="MessageData.cs" />
+    <Compile Include="MessQueueWrapper.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SocketTasks.cs" />
     <Compile Include="WCFClient.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

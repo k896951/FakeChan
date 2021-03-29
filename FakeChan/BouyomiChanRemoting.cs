@@ -25,12 +25,12 @@ namespace FNF.Utility
         public event CallEventHandlerSimpleTask OnClearTalkTask;
         public event CallEventHandlerSimpleTask OnSkipTalkTask;
 
-        public BlockingCollection<FakeChan.MessageData> MessQue;
+        public FakeChan.MessQueueWrapper MessQue;
         public int taskId = 0;
 
-        public int TalkTaskCount { get { return MessQue.Count; } }
+        public int TalkTaskCount { get { return MessQue.count; } }
         public int NowTaskId { get { return taskId; } }
-        public bool NowPlaying { get { return MessQue.Count != 0; } }
+        public bool NowPlaying { get { return MessQue.count != 0; } }
         public bool Pause { get; set; }
 
         public override object InitializeLifetimeService()

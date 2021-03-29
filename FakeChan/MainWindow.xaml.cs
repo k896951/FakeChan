@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
-using System.Net.Sockets;
-using System.IO;
-using System.Collections.Concurrent;
 using System.Windows.Threading;
-using System.Runtime.Remoting.Channels.Ipc;
-using System.Runtime.Remoting.Channels;
-using System.Runtime.Remoting;
 
 namespace FakeChan
 {
@@ -23,16 +16,16 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         Configs Config;
+        MessQueueWrapper MessQueWrapper;
+        SocketTasks SockTask = null;
+        IpcTasks IpcTask = null;
+
         WCFClient WcfClient;
-        BlockingCollection<MessageData> MessQue;
-        TcpListener TcpIpListener;
-        Action BGTcpListen;
         DispatcherTimer KickTalker;
-        FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         List<ComboBox> MapAvatorsComboBoxList;
         bool ReEntry;
-        bool KeepListen;
         object lockObj = new object();
+
 
         public MainWindow()
         {
@@ -43,46 +36,34 @@ namespace FakeChan
         {
             try
             {
-                Config = new Configs();
-
                 // AssistantSeikaとの接続
                 // シンプルな例は
                 // https://hgotoh.jp/wiki/doku.php/documents/voiceroid/assistantseika/interface/wcf/wcf-004
                 // を見てください。
                 WcfClient = new WCFClient();
 
+                // 設定色々
+                Config = new Configs();
+
                 // メッセージキューを使うよ！
-                MessQue = new BlockingCollection<MessageData>();
-                ReEntry = true;
+                MessQueWrapper = new MessQueueWrapper();
 
                 // 読み上げバックグラウンドタスク起動
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
                 KickTalker.Interval = new TimeSpan(0, 0, 1);
+                ReEntry = true;
                 KickTalker.Start();
 
-                // TCP/IP リスナタスク起動
-                TcpIpListener = new TcpListener(Config.EndPoint.Address, Config.EndPoint.PortNum);
-                TcpIpListener.Start();
-                KeepListen = true;
-                SetupBGTcpListenerTask();
-                Task.Run(BGTcpListen);
+                // ソケットサービス起動（棒読みちゃんのフリをします！）
+                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
+                SockTask.StartSocketTasks();
+                EllipseSocket.Fill = Brushes.LightGreen;
 
                 // IPCサービス起動（棒読みちゃんのフリをします！）
-                ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
-                ShareIpcObject.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
-                ShareIpcObject.OnAddTalkTask02 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask02(IPCAddTalkTask02);
-                ShareIpcObject.OnAddTalkTask03 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask03(IPCAddTalkTask03);
-                ShareIpcObject.OnAddTalkTask21 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask21(IPCAddTalkTask21);
-                ShareIpcObject.OnAddTalkTask23 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask23(IPCAddTalkTask23);
-                ShareIpcObject.OnClearTalkTask += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCClearTalkTask);
-                ShareIpcObject.OnSkipTalkTask  += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerSimpleTask(IPCSkipTalkTask);
-                ShareIpcObject.MessQue = MessQue;
-                IpcServerChannel IpcCh = new IpcServerChannel("BouyomiChan");
-                IpcCh.IsSecured = false;
-                
-                ChannelServices.RegisterChannel(IpcCh, false);
-                RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
+                IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient);
+                IpcTask.StartIpcTasks();
+                EllipseIpc.Fill = Brushes.LightGreen;
 
             }
             catch (Exception e1)
@@ -102,7 +83,24 @@ namespace FakeChan
                 ComboBoxMapAvator6,
                 ComboBoxMapAvator7,
                 ComboBoxMapAvator8,
+                ComboBoxMapAvator10,
+                ComboBoxMapAvator11,
+                ComboBoxMapAvator12,
+                ComboBoxMapAvator13,
+                ComboBoxMapAvator14,
+                ComboBoxMapAvator15,
+                ComboBoxMapAvator16,
+                ComboBoxMapAvator17,
+                ComboBoxMapAvator18,
             };
+
+            ComboBoxCallMethodIPC.ItemsSource = null;
+            ComboBoxCallMethodIPC.ItemsSource = Config.PlayMethods;
+            ComboBoxCallMethodIPC.SelectedIndex = 0;
+
+            ComboBoxCallMethodSocket.ItemsSource = null;
+            ComboBoxCallMethodSocket.ItemsSource = Config.PlayMethods;
+            ComboBoxCallMethodSocket.SelectedIndex = 0;
 
             if (Config.AvatorNames.Count != 0)
             {
@@ -120,7 +118,6 @@ namespace FakeChan
                 Application.Current.Shutdown();
                 return;
             }
-
             ComboBoxBouyomiVoice.ItemsSource = null;
             ComboBoxBouyomiVoice.ItemsSource = Config.BouyomiVoices;
             ComboBoxBouyomiVoice.SelectedIndex = 0;
@@ -130,87 +127,13 @@ namespace FakeChan
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             KickTalker.Stop();
+            SockTask.StopSocketTasks();
         }
 
-        private void IPCAddTalkTask01(string TalkText)
-        {
-            int cid = Config.B2Amap.First().Value;
-            int tid = MessQue.Count + 1;
-
-            Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-
-            MessageData talk = new MessageData()
-            {
-                Cid = cid,
-                Message = TalkText,
-                BouyomiVoice = 0,
-                TaskId = tid,
-                Effects = Effects,
-                Emotions = Emotions
-            };
-
-            lock (lockObj)
-            {
-                MessQue.TryAdd(talk, 1000);
-            }
-        }
-
-        private void IPCAddTalkTask02(string TalkText, int iSpeed, int iVolume, int vType)
-        {
-            int vt = vType > 8 ? 0 : vType;
-            int cid = Config.B2Amap[vt];
-            int tid = MessQue.Count + 1;
-
-            Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-
-            MessageData talk = new MessageData()
-            {
-                Cid = cid,
-                Message = TalkText,
-                BouyomiVoice = vt,
-                TaskId = tid,
-                Effects = Effects,
-                Emotions = Emotions
-            };
-
-            lock (lockObj)
-            {
-                MessQue.TryAdd(talk, 1000);
-            }
-        }
-
-        private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
-        {
-            IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
-        }
-
-        private int IPCAddTalkTask21(string TalkText)
-        {
-            IPCAddTalkTask01(TalkText);
-            return 0;
-        }
-
-        private int IPCAddTalkTask23(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
-        {
-            IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
-            return 0;
-        }
-
-        private void IPCClearTalkTask()
-        {
-            // キューを空にする
-            BlockingCollection<MessageData>[] t = { MessQue };
-            BlockingCollection<MessageData>.TryTakeFromAny(t, out MessageData item);
-        }
-        private void IPCSkipTalkTask()
-        {
-        }
 
         private void KickTalker_Tick(object sender, EventArgs e)
         {
-            if (MessQue.Count != 0)
+            if (MessQueWrapper.count != 0)
             {
                 lock (lockObj)
                 {
@@ -222,11 +145,11 @@ namespace FakeChan
                         {
                             Dictionary<int, string> bv = Config.BouyomiVoices;
                             Dictionary<int, string> an = Config.AvatorNames;
-                            foreach (var item in MessQue.GetConsumingEnumerable())
+                            foreach (var item in MessQueWrapper.QueueRef().GetConsumingEnumerable())
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    ShareIpcObject.taskId = item.TaskId;
+                                    IpcTask.SetTaskId(item.TaskId);
                                     TextBoxReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoice], an[item.Cid] );
                                 });
@@ -234,7 +157,7 @@ namespace FakeChan
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                             }
 
-                            ShareIpcObject.taskId = 0;
+                            IpcTask.SetTaskId(0);
 
                             ReEntry = true;
                         });
@@ -253,15 +176,24 @@ namespace FakeChan
 
             switch(cb.Name)
             {
-                case "ComboBoxMapAvator0": voice = 0; break;
-                case "ComboBoxMapAvator1": voice = 1; break;
-                case "ComboBoxMapAvator2": voice = 2; break;
-                case "ComboBoxMapAvator3": voice = 3; break;
-                case "ComboBoxMapAvator4": voice = 4; break;
-                case "ComboBoxMapAvator5": voice = 5; break;
-                case "ComboBoxMapAvator6": voice = 6; break;
-                case "ComboBoxMapAvator7": voice = 7; break;
-                case "ComboBoxMapAvator8": voice = 8; break;
+                case "ComboBoxMapAvator0":  voice = 0;  break;
+                case "ComboBoxMapAvator1":  voice = 1;  break;
+                case "ComboBoxMapAvator2":  voice = 2;  break;
+                case "ComboBoxMapAvator3":  voice = 3;  break;
+                case "ComboBoxMapAvator4":  voice = 4;  break;
+                case "ComboBoxMapAvator5":  voice = 5;  break;
+                case "ComboBoxMapAvator6":  voice = 6;  break;
+                case "ComboBoxMapAvator7":  voice = 7;  break;
+                case "ComboBoxMapAvator8":  voice = 8;  break;
+                case "ComboBoxMapAvator10": voice = 9;  break;
+                case "ComboBoxMapAvator11": voice = 10; break;
+                case "ComboBoxMapAvator12": voice = 11; break;
+                case "ComboBoxMapAvator13": voice = 12; break;
+                case "ComboBoxMapAvator14": voice = 13; break;
+                case "ComboBoxMapAvator15": voice = 14; break;
+                case "ComboBoxMapAvator16": voice = 15; break;
+                case "ComboBoxMapAvator17": voice = 16; break;
+                case "ComboBoxMapAvator18": voice = 17; break;
                 default: voice = 0; break;
             }
 
@@ -284,6 +216,18 @@ namespace FakeChan
             int cid = Config.B2Amap[voice];
 
             UpdateEditParamPanel(cid);
+        }
+
+        private void ComboBoxCallMethodIPC_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            IpcTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
+        }
+
+        private void ComboBoxCallMethodSocket_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            SockTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
         }
 
         private void UpdateEditParamPanel(int cid)
@@ -378,108 +322,6 @@ namespace FakeChan
                     ComboBoxBouyomiVoice.IsEnabled = true;
                 });
             });
-
-        }
-
-        private void SetupBGTcpListenerTask()
-        {
-            // パケット（プログラムでは先頭4項目をスキップ）
-            //   Int16  iCommand = 0x0001;
-            //   Int16  iSpeed = -1;
-            //   Int16  iTone = -1;
-            //   Int16  iVolume = -1;
-            //   Int16  iVoice = 1;
-            //   byte   bCode = 0;
-            //   Int32  iLength = bMessage.Length;
-            //   byte[] bMessage;
-
-            BGTcpListen = (()=>{
-
-                int SkipSize = 2 * 4;
-
-                while (KeepListen) // とりあえずの待ち受け構造
-                {
-                    try
-                    {
-                        TcpClient client = TcpIpListener.AcceptTcpClient();
-                        Int16 iVoice;
-                        byte bCode;
-                        Int32 iLength;
-                        string TalkText = "";
-
-                        byte[] iLengthBuff;
-                        byte[] iVoiceBuff;
-
-                        using (NetworkStream ns = client.GetStream())
-                        {
-                            using (BinaryReader br = new BinaryReader(ns))
-                            {
-                                br.ReadBytes(SkipSize);
-
-                                iVoiceBuff = br.ReadBytes(2);
-                                iVoice = BitConverter.ToInt16(iVoiceBuff, 0); // うーん…
-
-                                bCode = br.ReadByte();
-
-                                iLengthBuff = br.ReadBytes(4);
-                                iLength = BitConverter.ToInt32(iLengthBuff, 0); // うーん…
-
-                                byte[] TalkTextBuff = new byte[iLength];
-
-                                TalkTextBuff = br.ReadBytes(iLength);
-
-                                switch (bCode)
-                                {
-                                    case 0: // UTF8
-                                        TalkText = System.Text.Encoding.UTF8.GetString(TalkTextBuff, 0, iLength);
-                                        break;
-
-                                    case 2: // CP932
-                                        TalkText = System.Text.Encoding.GetEncoding(932).GetString(TalkTextBuff, 0, iLength);
-                                        break;
-
-                                    case 1: // 暫定で書いた
-                                        TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
-                                        break;
-                                }
-                            }
-                        }
-
-                        int cid = Config.B2Amap.First().Value;
-                        int tid = MessQue.Count + 1;
-
-                        iVoice = (short)(iVoice > 8 ? 0 : iVoice);
-
-                        cid = Config.B2Amap[iVoice];
-                        Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-                        Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-
-                        MessageData talk = new MessageData()
-                        {
-                            Cid = cid,
-                            Message = TalkText,
-                            BouyomiVoice = iVoice,
-                            TaskId = tid,
-                            Effects = Effects,
-                            Emotions = Emotions
-                        };
-
-                        lock (lockObj)
-                        {
-                            MessQue.TryAdd(talk, 1000);
-                        }
-
-                    }
-                    catch (Exception)
-                    {
-                        //Dispatcher.Invoke(() =>
-                        //{
-                        //    MessageBox.Show(e.Message, "sorry3");
-                        //});
-                    }
-                }
-            });
-
         }
 
     }
