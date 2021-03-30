@@ -129,6 +129,24 @@ namespace FakeChan
                 ComboBoxMapAvator26,
                 ComboBoxMapAvator27,
                 ComboBoxMapAvator28,
+                ComboBoxMapAvator30,
+                ComboBoxMapAvator31,
+                ComboBoxMapAvator32,
+                ComboBoxMapAvator33,
+                ComboBoxMapAvator34,
+                ComboBoxMapAvator35,
+                ComboBoxMapAvator36,
+                ComboBoxMapAvator37,
+                ComboBoxMapAvator38,
+                ComboBoxMapAvator40,
+                ComboBoxMapAvator41,
+                ComboBoxMapAvator42,
+                ComboBoxMapAvator43,
+                ComboBoxMapAvator44,
+                ComboBoxMapAvator45,
+                ComboBoxMapAvator46,
+                ComboBoxMapAvator47,
+                ComboBoxMapAvator48
             };
 
             ComboBoxCallMethodIPC.ItemsSource = null;
@@ -142,6 +160,14 @@ namespace FakeChan
             ComboBoxCallMethodHTTP.ItemsSource = null;
             ComboBoxCallMethodHTTP.ItemsSource = Config.PlayMethods;
             ComboBoxCallMethodHTTP.SelectedIndex = 0;
+
+            ComboBoxCallMethodSocket2.ItemsSource = null;
+            ComboBoxCallMethodSocket2.ItemsSource = Config.PlayMethods;
+            ComboBoxCallMethodSocket2.SelectedIndex = 0;
+
+            ComboBoxCallMethodHTTP2.ItemsSource = null;
+            ComboBoxCallMethodHTTP2.ItemsSource = Config.PlayMethods;
+            ComboBoxCallMethodHTTP2.SelectedIndex = 0;
 
             if (Config.AvatorNames.Count != 0)
             {
@@ -246,6 +272,24 @@ namespace FakeChan
                 case "ComboBoxMapAvator26": voice = 24; break;
                 case "ComboBoxMapAvator27": voice = 25; break;
                 case "ComboBoxMapAvator28": voice = 26; break;
+                case "ComboBoxMapAvator30": voice = 27; break;
+                case "ComboBoxMapAvator31": voice = 28; break;
+                case "ComboBoxMapAvator32": voice = 29; break;
+                case "ComboBoxMapAvator33": voice = 30; break;
+                case "ComboBoxMapAvator34": voice = 31; break;
+                case "ComboBoxMapAvator35": voice = 32; break;
+                case "ComboBoxMapAvator36": voice = 33; break;
+                case "ComboBoxMapAvator37": voice = 34; break;
+                case "ComboBoxMapAvator38": voice = 35; break;
+                case "ComboBoxMapAvator40": voice = 36; break;
+                case "ComboBoxMapAvator41": voice = 37; break;
+                case "ComboBoxMapAvator42": voice = 38; break;
+                case "ComboBoxMapAvator43": voice = 39; break;
+                case "ComboBoxMapAvator44": voice = 40; break;
+                case "ComboBoxMapAvator45": voice = 41; break;
+                case "ComboBoxMapAvator46": voice = 42; break;
+                case "ComboBoxMapAvator47": voice = 43; break;
+                case "ComboBoxMapAvator48": voice = 44; break;
                 default: voice = 0; break;
             }
 
@@ -277,8 +321,7 @@ namespace FakeChan
         }
 
         private void ComboBoxCallMethodSocket_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
+        {            ComboBox cb = sender as ComboBox;
             SockTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
         }
 
