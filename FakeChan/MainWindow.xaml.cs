@@ -321,13 +321,27 @@ namespace FakeChan
         }
 
         private void ComboBoxCallMethodSocket_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {            ComboBox cb = sender as ComboBox;
+        {
+            ComboBox cb = sender as ComboBox;
             SockTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
         }
 
         private void ComboBoxCallMethodHTTP_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox cb = sender as ComboBox;
+            HttpTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
+        }
+
+        private void ComboBoxCallMethodSocket2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            SockTask2.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
+        }
+
+        private void ComboBoxCallMethodHTTP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            HttpTask2.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
         }
 
         private void UpdateEditParamPanel(int cid)
