@@ -418,7 +418,7 @@
                                                                                                      VerticalContentAlignment="Center"
                                                                                                      SnapsToDevicePixels="True"
                                                                                                      HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="0" SelectionChanged="ComboBoxCallMethodSocket_SelectionChanged"/>
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="0" SelectionChanged="ComboBoxCallMethodSocket2_SelectionChanged"/>
 
                         <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
                         <ComboBox x:Name="ComboBoxMapAvator30"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
@@ -513,7 +513,7 @@
                                                                                                      VerticalContentAlignment="Center"
                                                                                                      SnapsToDevicePixels="True"
                                                                                                      HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="0" SelectionChanged="ComboBoxCallMethodHTTP_SelectionChanged"/>
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="0" SelectionChanged="ComboBoxCallMethodHTTP2_SelectionChanged"/>
 
                         <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
                         <ComboBox x:Name="ComboBoxMapAvator40"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
