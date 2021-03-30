@@ -39,6 +39,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
@@ -64,6 +65,7 @@
     <Compile Include="MessageData.cs" />
     <Compile Include="MessQueueWrapper.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="HttpTasks.cs" />
     <Compile Include="SocketTasks.cs" />
     <Compile Include="WCFClient.cs" />
     <Page Include="MainWindow.xaml">

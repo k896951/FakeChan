@@ -41,16 +41,23 @@ namespace FakeChan
 
         public void StartIpcTasks()
         {
-            IpcCh = new IpcServerChannel("BouyomiChan");
+            try
+            {
+                IpcCh = new IpcServerChannel("BouyomiChan");
+                ChannelServices.RegisterChannel(IpcCh, false);
+            }
+            catch (Exception)
+            {
+                //
+            }
             IpcCh.IsSecured = false;
-            ChannelServices.RegisterChannel(IpcCh, false);
             RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
         }
 
         public void StopIpcTasks()
         {
+            //ChannelServices.UnregisterChannel(IpcCh);
             RemotingServices.Disconnect(ShareIpcObject);
-            ChannelServices.UnregisterChannel(IpcCh);
         }
 
         public void SetTaskId(int Id)

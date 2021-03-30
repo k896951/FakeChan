@@ -12,8 +12,27 @@ namespace FakeChan
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
         Dictionary<int, int> Bouyomi2AssistantSeika;
-        public IPAddress Address { get; set; }
-        public Int32 PortNum { get; set; }
+        public IPAddress SocketAddress { get; set; }
+        public Int32 SocketPortNum { get; set; }
+        public IPAddress HttpAddress { get; set; }
+        public Int32 HttpPortNum { get; set; }
+        public IPAddress SocketAddress2 { get; set; }
+        public Int32 SocketPortNum2 { get; set; }
+        public IPAddress HttpAddress2 { get; set; }
+        public Int32 HttpPortNum2 { get; set; }
+
+        Dictionary<int, string> BouyomiVoiceListHttp = new Dictionary<int, string>()
+        {
+            {  0, "ボイス0" },
+            {  1, "女性1"},
+            {  2, "女性2"},
+            {  3, "男性1"},
+            {  4, "男性2"},
+            {  5, "中性" },
+            {  6, "ロボット" },
+            {  7, "機械1" },
+            {  8, "機械2" }
+        };
 
         Dictionary<int, string> BouyomiVoiceList = new Dictionary<int, string>()
         {
@@ -34,7 +53,16 @@ namespace FakeChan
             { 14, "Socket:中性" },
             { 15, "Socket:ロボット" },
             { 16, "Socket:機械1" },
-            { 17, "Socket:機械2" }
+            { 17, "Socket:機械2" },
+            { 18, "HTTP:ボイス0" },
+            { 19, "HTTP:女性1"},
+            { 20, "HTTP:女性2"},
+            { 21, "HTTP:男性1"},
+            { 22, "HTTP:男性2"},
+            { 23, "HTTP:中性" },
+            { 24, "HTTP:ロボット" },
+            { 25, "HTTP:機械1" },
+            { 26, "HTTP:機械2" }
         };
 
         Dictionary<methods, string> PlayMethodList = new Dictionary<methods, string>()
@@ -67,6 +95,14 @@ namespace FakeChan
             }
         }
 
+        public Dictionary<int, string> BouyomiVoicesHttp
+        {
+            get
+            {
+                return BouyomiVoiceListHttp;
+            }
+        }
+
         public Dictionary<int, int> B2Amap
         {
             get
@@ -86,8 +122,17 @@ namespace FakeChan
             AvatorNameList = api.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
             AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => api.GetDefaultParams2(v.Key));
 
-            Address = IPAddress.Parse("127.0.0.1");
-            PortNum = 50001;
+            SocketAddress = IPAddress.Parse("127.0.0.1");
+            SocketPortNum = 50001;
+
+            HttpAddress = IPAddress.Parse("127.0.0.1");
+            HttpPortNum = 50080;
+
+            SocketAddress2 = IPAddress.Parse("127.0.0.1");
+            SocketPortNum2 = 50002;
+
+            HttpAddress2 = IPAddress.Parse("127.0.0.1");
+            HttpPortNum2 = 50081;
 
             int cid = AvatorNameList.First().Key;
             Bouyomi2AssistantSeika = BouyomiVoiceList.ToDictionary(k => k.Key, v => cid);

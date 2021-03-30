@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace FakeChan
@@ -17,12 +18,17 @@ namespace FakeChan
     {
         Configs Config;
         MessQueueWrapper MessQueWrapper;
-        SocketTasks SockTask = null;
         IpcTasks IpcTask = null;
+        SocketTasks SockTask = null;
+        HttpTasks HttpTask = null;
+        SocketTasks SockTask2 = null;
+        HttpTasks HttpTask2 = null;
 
         WCFClient WcfClient;
         DispatcherTimer KickTalker;
         List<ComboBox> MapAvatorsComboBoxList;
+        List<Ellipse> LampList;
+
         bool ReEntry;
         object lockObj = new object();
 
@@ -55,15 +61,22 @@ namespace FakeChan
                 ReEntry = true;
                 KickTalker.Start();
 
-                // ソケットサービス起動（棒読みちゃんのフリをします！）
-                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-                SockTask.StartSocketTasks();
-                EllipseSocket.Fill = Brushes.LightGreen;
-
                 // IPCサービス起動（棒読みちゃんのフリをします！）
                 IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient);
                 IpcTask.StartIpcTasks();
                 EllipseIpc.Fill = Brushes.LightGreen;
+
+                // ソケットサービス起動（棒読みちゃんのフリをします！）
+                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
+                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                EllipseSocket.Fill = Brushes.LightGreen;
+                SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
+
+                // HTTPサービス起動（棒読みちゃんのフリをします！）
+                HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient);
+                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                EllipseHTTP.Fill = Brushes.LightGreen;
+                HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient);
 
             }
             catch (Exception e1)
@@ -71,6 +84,21 @@ namespace FakeChan
                 MessageBox.Show(e1.Message, "Sorry1");
                 Application.Current.Shutdown();
             }
+
+            LampList = new List<Ellipse>()
+            {
+                EllipseIpc,
+                EllipseSocket,
+                EllipseHTTP,
+                EllipseSocket2,
+                EllipseHTTP2
+            };
+
+            EllipseIpc.Tag = true;
+            EllipseSocket.Tag = true;
+            EllipseHTTP.Tag = true;
+            EllipseSocket2.Tag = false;
+            EllipseHTTP2.Tag = false;
 
             MapAvatorsComboBoxList = new List<ComboBox>()
             {
@@ -92,6 +120,15 @@ namespace FakeChan
                 ComboBoxMapAvator16,
                 ComboBoxMapAvator17,
                 ComboBoxMapAvator18,
+                ComboBoxMapAvator20,
+                ComboBoxMapAvator21,
+                ComboBoxMapAvator22,
+                ComboBoxMapAvator23,
+                ComboBoxMapAvator24,
+                ComboBoxMapAvator25,
+                ComboBoxMapAvator26,
+                ComboBoxMapAvator27,
+                ComboBoxMapAvator28,
             };
 
             ComboBoxCallMethodIPC.ItemsSource = null;
@@ -101,6 +138,10 @@ namespace FakeChan
             ComboBoxCallMethodSocket.ItemsSource = null;
             ComboBoxCallMethodSocket.ItemsSource = Config.PlayMethods;
             ComboBoxCallMethodSocket.SelectedIndex = 0;
+
+            ComboBoxCallMethodHTTP.ItemsSource = null;
+            ComboBoxCallMethodHTTP.ItemsSource = Config.PlayMethods;
+            ComboBoxCallMethodHTTP.SelectedIndex = 0;
 
             if (Config.AvatorNames.Count != 0)
             {
@@ -128,8 +169,9 @@ namespace FakeChan
         {
             KickTalker.Stop();
             SockTask.StopSocketTasks();
+            IpcTask.StopIpcTasks();
+            HttpTask.StopHttpTasks();
         }
-
 
         private void KickTalker_Tick(object sender, EventArgs e)
         {
@@ -150,6 +192,7 @@ namespace FakeChan
                                 Dispatcher.Invoke(() =>
                                 {
                                     IpcTask.SetTaskId(item.TaskId);
+                                    HttpTask.SetTaskId(item.TaskId);
                                     TextBoxReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoice], an[item.Cid] );
                                 });
@@ -194,6 +237,15 @@ namespace FakeChan
                 case "ComboBoxMapAvator16": voice = 15; break;
                 case "ComboBoxMapAvator17": voice = 16; break;
                 case "ComboBoxMapAvator18": voice = 17; break;
+                case "ComboBoxMapAvator20": voice = 18; break;
+                case "ComboBoxMapAvator21": voice = 19; break;
+                case "ComboBoxMapAvator22": voice = 20; break;
+                case "ComboBoxMapAvator23": voice = 21; break;
+                case "ComboBoxMapAvator24": voice = 22; break;
+                case "ComboBoxMapAvator25": voice = 23; break;
+                case "ComboBoxMapAvator26": voice = 24; break;
+                case "ComboBoxMapAvator27": voice = 25; break;
+                case "ComboBoxMapAvator28": voice = 26; break;
                 default: voice = 0; break;
             }
 
@@ -228,6 +280,11 @@ namespace FakeChan
         {
             ComboBox cb = sender as ComboBox;
             SockTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
+        }
+
+        private void ComboBoxCallMethodHTTP_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
         }
 
         private void UpdateEditParamPanel(int cid)
@@ -322,6 +379,79 @@ namespace FakeChan
                     ComboBoxBouyomiVoice.IsEnabled = true;
                 });
             });
+        }
+
+        private void EllipseConnect_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            int lampNo = 0;
+            Ellipse ep = sender as Ellipse;
+
+            switch (ep.Name)
+            {
+                case "EllipseIpc"    : lampNo = 0; break;
+                case "EllipseSocket" : lampNo = 1; break;
+                case "EllipseHTTP"   : lampNo = 2; break;
+                case "EllipseSocket2": lampNo = 3; break;
+                case "EllipseHTTP2"  : lampNo = 4; break;
+                default: lampNo = 0; break;
+            }
+
+            bool sw = (bool)(LampList[lampNo].Tag);
+            if (sw)
+            {
+                ep.Fill = Brushes.Black;
+                LampList[lampNo].Tag = !sw;
+                switch (lampNo)
+                {
+                    case 0:
+                        IpcTask.StopIpcTasks();
+                        break;
+
+                    case 1:
+                        SockTask.StopSocketTasks();
+                        break;
+
+                    case 2:
+                        HttpTask.StopHttpTasks();
+                        break;
+
+                    case 3:
+                        SockTask2.StopSocketTasks();
+                        break;
+
+                    case 4:
+                        HttpTask2.StopHttpTasks();
+                        break;
+                }
+            }
+            else
+            {
+                ep.Fill = Brushes.LightGreen;
+                LampList[lampNo].Tag = !sw;
+                switch (lampNo)
+                {
+                    case 0:
+                        IpcTask.StartIpcTasks();
+                        break;
+
+                    case 1:
+                        SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                        break;
+
+                    case 2:
+                        HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                        break;
+
+                    case 3:
+                        SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2);
+                        break;
+
+                    case 4:
+                        HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);
+                        break;
+                }
+            }
+
         }
 
     }

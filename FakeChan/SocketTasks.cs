@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,12 +30,12 @@ namespace FakeChan
             WcfClient = wcf;
         }
 
-        public void StartSocketTasks()
+        public void StartSocketTasks(IPAddress addr, int port)
         {
             PlayMethod = methods.sync;
 
             // TCP/IP リスナタスク起動
-            TcpIpListener = new TcpListener(Config.Address, Config.PortNum);
+            TcpIpListener = new TcpListener(addr, port);
             TcpIpListener.Start();
             KeepListen = true;
             BGTcpListen = SetupBGTcpListenerTask();
@@ -115,7 +116,7 @@ namespace FakeChan
                         int cid = Config.B2Amap.First().Value;
                         int tid = MessQue.count + 1;
 
-                        iVoice = (short)(iVoice > 8 ? 0 : iVoice);
+                        iVoice = (short)(iVoice > 8 ? 9 : iVoice + 9);
 
                         cid = Config.B2Amap[iVoice];
                         Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
