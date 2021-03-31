@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +12,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Xml.Serialization;
 
 namespace FakeChan
 {
@@ -29,9 +34,10 @@ namespace FakeChan
         List<ComboBox> MapAvatorsComboBoxList;
         List<Ellipse> LampList;
 
+        public UserDefData UserData;
+
         bool ReEntry;
         object lockObj = new object();
-
 
         public MainWindow()
         {
@@ -40,6 +46,12 @@ namespace FakeChan
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // 設定色々
+            Config = new Configs();
+
+            // メッセージキューを使うよ！
+            MessQueWrapper = new MessQueueWrapper();
+
             try
             {
                 // AssistantSeikaとの接続
@@ -48,57 +60,73 @@ namespace FakeChan
                 // を見てください。
                 WcfClient = new WCFClient();
 
-                // 設定色々
-                Config = new Configs();
+                if (WcfClient.AvatorList().Count==0)
+                {
+                    throw new Exception("No Avators detected from AssistantSeika");
+                }
 
-                // メッセージキューを使うよ！
-                MessQueWrapper = new MessQueueWrapper();
+                // 最後の設定値があれば読むよ！
+                if (Properties.Settings.Default.UpgradeRequired)
+                {
+                    Properties.Settings.Default.Upgrade();
+                    Properties.Settings.Default.UpgradeRequired = false;
+                    Properties.Settings.Default.Save();
+                }
 
-                // 読み上げバックグラウンドタスク起動
-                KickTalker = new DispatcherTimer();
-                KickTalker.Tick += new EventHandler(KickTalker_Tick);
-                KickTalker.Interval = new TimeSpan(0, 0, 1);
-                ReEntry = true;
-                KickTalker.Start();
-
-                // IPCサービス起動（棒読みちゃんのフリをします！）
-                IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-                IpcTask.StartIpcTasks();
-                EllipseIpc.Fill = Brushes.LightGreen;
-
-                // ソケットサービス起動（棒読みちゃんのフリをします！）
-                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
-                EllipseSocket.Fill = Brushes.LightGreen;
-                SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-
-                // HTTPサービス起動（棒読みちゃんのフリをします！）
-                HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
-                EllipseHTTP.Fill = Brushes.LightGreen;
-                HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient);
-
+                UserData = new UserDefData();
+                if (Properties.Settings.Default.UserSettings != "")
+                {
+                    DataContractJsonSerializer uds = new DataContractJsonSerializer(typeof(UserDefData));
+                    MemoryStream ms = new MemoryStream(Encoding.UTF8.GetBytes(Properties.Settings.Default.UserSettings));
+                    UserData = (UserDefData)uds.ReadObject(ms);
+                    ms.Close();
+                }
             }
-            catch (Exception e1)
+            catch (Exception e0)
             {
-                MessageBox.Show(e1.Message, "Sorry1");
+                MessageBox.Show(e0.Message, "Sorry0");
                 Application.Current.Shutdown();
+                return;
             }
 
-            LampList = new List<Ellipse>()
+            if (UserData.ParamAssignList is null)
             {
-                EllipseIpc,
-                EllipseSocket,
-                EllipseHTTP,
-                EllipseSocket2,
-                EllipseHTTP2
-            };
+                UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
+            }
 
-            EllipseIpc.Tag = true;
-            EllipseSocket.Tag = true;
-            EllipseHTTP.Tag = true;
-            EllipseSocket2.Tag = false;
-            EllipseHTTP2.Tag = false;
+            if (UserData.MethodAssignList is null)
+            {
+                UserData.MethodAssignList = new Dictionary<int, int>()
+                {
+                    {0, 0 },
+                    {1, 0 },
+                    {2, 0 },
+                    {3, 0 },
+                    {4, 0 },
+                };
+            }
+
+            ComboBoxCallMethodIPC.ItemsSource       = null;
+            ComboBoxCallMethodIPC.ItemsSource       = Config.PlayMethods;
+            ComboBoxCallMethodSocket.ItemsSource    = null;
+            ComboBoxCallMethodSocket.ItemsSource    = Config.PlayMethods;
+            ComboBoxCallMethodHTTP.ItemsSource      = null;
+            ComboBoxCallMethodHTTP.ItemsSource      = Config.PlayMethods;
+            ComboBoxCallMethodSocket2.ItemsSource   = null;
+            ComboBoxCallMethodSocket2.ItemsSource   = Config.PlayMethods;
+            ComboBoxCallMethodHTTP2.ItemsSource     = null;
+            ComboBoxCallMethodHTTP2.ItemsSource     = Config.PlayMethods;
+
+            ComboBoxCallMethodHTTP2.SelectedIndex   = UserData.MethodAssignList[4];
+            ComboBoxCallMethodSocket2.SelectedIndex = UserData.MethodAssignList[3];
+            ComboBoxCallMethodHTTP.SelectedIndex    = UserData.MethodAssignList[2];
+            ComboBoxCallMethodSocket.SelectedIndex  = UserData.MethodAssignList[1];
+            ComboBoxCallMethodIPC.SelectedIndex     = UserData.MethodAssignList[0];
+
+            if (UserData.Voice2Cid is null)
+            {
+                UserData.Voice2Cid = Config.B2Amap;
+            }
 
             MapAvatorsComboBoxList = new List<ComboBox>()
             {
@@ -149,50 +177,95 @@ namespace FakeChan
                 ComboBoxMapAvator48
             };
 
-            ComboBoxCallMethodIPC.ItemsSource = null;
-            ComboBoxCallMethodIPC.ItemsSource = Config.PlayMethods;
-            ComboBoxCallMethodIPC.SelectedIndex = 0;
-
-            ComboBoxCallMethodSocket.ItemsSource = null;
-            ComboBoxCallMethodSocket.ItemsSource = Config.PlayMethods;
-            ComboBoxCallMethodSocket.SelectedIndex = 0;
-
-            ComboBoxCallMethodHTTP.ItemsSource = null;
-            ComboBoxCallMethodHTTP.ItemsSource = Config.PlayMethods;
-            ComboBoxCallMethodHTTP.SelectedIndex = 0;
-
-            ComboBoxCallMethodSocket2.ItemsSource = null;
-            ComboBoxCallMethodSocket2.ItemsSource = Config.PlayMethods;
-            ComboBoxCallMethodSocket2.SelectedIndex = 0;
-
-            ComboBoxCallMethodHTTP2.ItemsSource = null;
-            ComboBoxCallMethodHTTP2.ItemsSource = Config.PlayMethods;
-            ComboBoxCallMethodHTTP2.SelectedIndex = 0;
-
-            if (Config.AvatorNames.Count != 0)
+            foreach (var item in MapAvatorsComboBoxList)
             {
-                foreach (var item in MapAvatorsComboBoxList)
+                item.ItemsSource = null;
+                item.ItemsSource = Config.AvatorNames;
+                item.SelectedIndex = -1;
+                item.IsEnabled = true;
+            }
+
+            if (UserData.Voice2Cid != null)
+            {
+                Dictionary<int, string> names = Config.AvatorNames;
+                Dictionary<int, int> v2c = UserData.Voice2Cid.ToDictionary(k=>k.Key, v=>v.Value);
+                foreach (var item in v2c)
                 {
-                    item.ItemsSource = null;
-                    item.ItemsSource = Config.AvatorNames;
-                    item.SelectedIndex = 0;
-                    item.IsEnabled = true;
+                    if (names.ContainsKey(item.Value))
+                    {
+                        int idx = 0;
+                        foreach(KeyValuePair<int, string> item2 in MapAvatorsComboBoxList[item.Key].Items)
+                        {
+                            if (item.Value == item2.Key) break;
+                            idx++;
+                        }
+                        MapAvatorsComboBoxList[item.Key].SelectedIndex = idx;
+                    }
                 }
             }
-            else
-            {
-                MessageBox.Show("No Avators detected from AssistantSeika", "Sorry2");
-                Application.Current.Shutdown();
-                return;
-            }
+
             ComboBoxBouyomiVoice.ItemsSource = null;
             ComboBoxBouyomiVoice.ItemsSource = Config.BouyomiVoices;
             ComboBoxBouyomiVoice.SelectedIndex = 0;
 
+            LampList = new List<Ellipse>()
+            {
+                EllipseIpc,
+                EllipseSocket,
+                EllipseHTTP,
+                EllipseSocket2,
+                EllipseHTTP2
+            };
+
+            EllipseIpc.Tag = true;
+            EllipseSocket.Tag = true;
+            EllipseHTTP.Tag = true;
+            EllipseSocket2.Tag = false;
+            EllipseHTTP2.Tag = false;
+
+            try
+            {
+                // 読み上げバックグラウンドタスク起動
+                KickTalker = new DispatcherTimer();
+                KickTalker.Tick += new EventHandler(KickTalker_Tick);
+                KickTalker.Interval = new TimeSpan(0, 0, 1);
+                ReEntry = true;
+                KickTalker.Start();
+
+                // IPCサービス起動（棒読みちゃんのフリをします！）
+                IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                IpcTask.StartIpcTasks();
+                EllipseIpc.Fill = Brushes.LightGreen;
+
+                // ソケットサービス起動（棒読みちゃんのフリをします！）
+                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                EllipseSocket.Fill = Brushes.LightGreen;
+                SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+
+                // HTTPサービス起動（棒読みちゃんのフリをします！）
+                HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                EllipseHTTP.Fill = Brushes.LightGreen;
+                HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            }
+            catch (Exception e1)
+            {
+                MessageBox.Show(e1.Message, "Sorry1");
+                Application.Current.Shutdown();
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            DataContractJsonSerializer uds = new DataContractJsonSerializer(typeof(UserDefData));
+            MemoryStream ms = new MemoryStream();
+            uds.WriteObject(ms, UserData);
+            
+            Properties.Settings.Default.UserSettings = Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)(ms.Length));
+            Properties.Settings.Default.Save();
+            ms.Close();
+
             KickTalker.Stop();
             SockTask.StopSocketTasks();
             IpcTask.StopIpcTasks();
@@ -292,9 +365,37 @@ namespace FakeChan
                 case "ComboBoxMapAvator48": voice = 44; break;
                 default: voice = 0; break;
             }
-
             cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
             Config.B2Amap[voice] = cid;
+            UserData.Voice2Cid[voice] = cid;
+
+            if (!UserData.ParamAssignList.ContainsKey(voice))
+            {
+                UserData.ParamAssignList[voice] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+            }
+
+            if (!UserData.ParamAssignList[voice].ContainsKey(cid))
+            {
+                UserData.ParamAssignList[voice].Add(cid, new Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>());
+                UserData.ParamAssignList[voice][cid].Add("effect", new Dictionary<string, Dictionary<string, decimal>>());
+                UserData.ParamAssignList[voice][cid].Add("emotion", new Dictionary<string, Dictionary<string, decimal>>());
+                foreach (var item1 in Config.AvatorEffectParams(cid))
+                {
+                    UserData.ParamAssignList[voice][cid]["effect"].Add(item1.Key, new Dictionary<string, decimal>());
+                    foreach ( var item2 in item1.Value)
+                    {
+                        UserData.ParamAssignList[voice][cid]["effect"][item1.Key].Add(item2.Key, item2.Value);
+                    }
+                }
+                foreach (var item1 in Config.AvatorEmotionParams(cid))
+                {
+                    UserData.ParamAssignList[voice][cid]["emotion"].Add(item1.Key, new Dictionary<string, decimal>());
+                    foreach (var item2 in item1.Value)
+                    {
+                        UserData.ParamAssignList[voice][cid]["emotion"][item1.Key].Add(item2.Key, item2.Value);
+                    }
+                }
+            }
 
             if (ComboBoxBouyomiVoice.SelectedIndex != voice)
             {
@@ -302,59 +403,69 @@ namespace FakeChan
             }
             else
             {
-                UpdateEditParamPanel(Config.B2Amap[voice]);
+                UpdateEditParamPanel(voice, Config.B2Amap[voice]);
             }
         }
 
         private void ComboBoxBouyomiVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int voice = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
+
+            UpdateEditParamPanel(voice, Config.B2Amap[voice]);
+        }
+
+        private void ComboBoxCallMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            methods md = Config.PlayMethodsMap[cb.SelectedIndex];
+            int mdidx=0;
+
+            switch (cb.Name)
+            {
+                case "ComboBoxCallMethodIPC"    : mdidx = 0; if (IpcTask   != null) IpcTask.PlayMethod = md;   break;
+                case "ComboBoxCallMethodSocket" : mdidx = 1; if (SockTask  != null) SockTask.PlayMethod = md;  break;
+                case "ComboBoxCallMethodHTTP"   : mdidx = 2; if (HttpTask  != null) HttpTask.PlayMethod = md;  break;
+                case "ComboBoxCallMethodSocket2": mdidx = 3; if (SockTask2 != null) SockTask2.PlayMethod = md; break;
+                case "ComboBoxCallMethodHTTP2"  : mdidx = 4; if (HttpTask2 != null) HttpTask2.PlayMethod = md; break;
+            }
+
+            UserData.MethodAssignList[mdidx] = cb.SelectedIndex;
+        }
+
+        private void ButtonParamReset_Click(object sender, RoutedEventArgs e)
+        {
+            int voice = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
             int cid = Config.B2Amap[voice];
-
-            UpdateEditParamPanel(cid);
+            foreach(var item1 in Config.AvatorEffectParams(cid))
+            {
+                foreach(var item2 in item1.Value)
+                {
+                    UserData.ParamAssignList[voice][cid]["effect"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            foreach (var item1 in Config.AvatorEmotionParams(cid))
+            {
+                foreach (var item2 in item1.Value)
+                {
+                    UserData.ParamAssignList[voice][cid]["emotion"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            UpdateEditParamPanel(voice, cid);
         }
 
-        private void ComboBoxCallMethodIPC_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            IpcTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
-        }
-
-        private void ComboBoxCallMethodSocket_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            SockTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
-        }
-
-        private void ComboBoxCallMethodHTTP_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            HttpTask.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
-        }
-
-        private void ComboBoxCallMethodSocket2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            SockTask2.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
-        }
-
-        private void ComboBoxCallMethodHTTP2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            HttpTask2.PlayMethod = ((KeyValuePair<methods, string>)cb.SelectedItem).Key;
-        }
-
-        private void UpdateEditParamPanel(int cid)
+        private void UpdateEditParamPanel(int voice, int cid)
         {
             LabelSelectedAvator.Content = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
             WrapPanelParams1.Children.Clear();
             WrapPanelParams2.Children.Clear();
+            Dictionary<string, Dictionary<string, decimal>> effect = UserData.ParamAssignList[voice][cid]["effect"];
+            Dictionary<string, Dictionary<string, decimal>> emotion = UserData.ParamAssignList[voice][cid]["emotion"];
 
-            ReSetupParams(cid, Config.AvatorEffectParams(cid), WrapPanelParams1.Children);
-            ReSetupParams(cid, Config.AvatorEmotionParams(cid), WrapPanelParams2.Children);
+            ReSetupParams(cid, ref effect,  WrapPanelParams1.Children);
+            ReSetupParams(cid, ref emotion, WrapPanelParams2.Children);
         }
 
-        private void ReSetupParams(int cid, Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
+        private void ReSetupParams(int cid, ref Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
         {
             foreach(var param in @params)
             {
@@ -424,8 +535,8 @@ namespace FakeChan
             Task.Run(() =>
             {
                 int cid =  Config.B2Amap[voice];
-                Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-                Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+                Dictionary<string, decimal> Effects = UserData.ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                Dictionary<string, decimal> Emotions = UserData.ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                 WcfClient.Talk(cid, text, "", Effects, Emotions);
 

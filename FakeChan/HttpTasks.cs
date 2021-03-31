@@ -21,6 +21,8 @@ namespace FakeChan
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
 
+        Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
+
         bool KeepListen = false;
         HttpListener HTTPListener;
         Action BGTcpListen;
@@ -28,11 +30,12 @@ namespace FakeChan
 
         public methods PlayMethod { get; set; }
 
-        public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf)
+        public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
         {
             Config = cfg;
             MessQue = mq;
             WcfClient = wcf;
+            ParamAssignList = Params;
         }
 
         public void StartHttpTasks(IPAddress addr, int port)
@@ -114,8 +117,8 @@ namespace FakeChan
                                 int cid = Config.B2Amap.First().Value;
                                 int tid = MessQue.count + 1;
                                 cid = Config.B2Amap[voice];
-                                Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-                                Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                                 MessageData talk = new MessageData()
                                 {

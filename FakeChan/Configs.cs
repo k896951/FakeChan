@@ -65,10 +65,16 @@ namespace FakeChan
             { 26, "HTTP:機械2" }
         };
 
-        Dictionary<methods, string> PlayMethodList = new Dictionary<methods, string>()
+        Dictionary<int, string> PlayMethodList = new Dictionary<int, string>()
         {
-            { methods.sync,  "同期" },
-            { methods.async, "非同期"}
+            { 0,  "同期" },
+            { 1, "非同期"}
+        };
+
+        Dictionary<int, methods> PlayMethodMap = new Dictionary<int, methods>()
+        {
+            { 0, methods.sync },
+            { 1, methods.async}
         };
 
         public Dictionary<int, string> AvatorNames
@@ -79,11 +85,18 @@ namespace FakeChan
             }
         }
 
-        public Dictionary<methods, string> PlayMethods
+        public Dictionary<int, string> PlayMethods
         {
             get
             {
                 return PlayMethodList;
+            }
+        }
+        public Dictionary<int, methods> PlayMethodsMap
+        {
+            get
+            {
+                return PlayMethodMap;
             }
         }
 

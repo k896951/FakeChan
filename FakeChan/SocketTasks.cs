@@ -17,17 +17,20 @@ namespace FakeChan
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
 
+        Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
+
         bool KeepListen = false;
         TcpListener TcpIpListener;
         Action BGTcpListen;
 
         public methods PlayMethod { get; set; }
 
-        public SocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf)
+        public SocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
         {
             Config = cfg;
             MessQue = mq;
             WcfClient = wcf;
+            ParamAssignList = Params;
         }
 
         public void StartSocketTasks(IPAddress addr, int port)
@@ -119,8 +122,8 @@ namespace FakeChan
                         iVoice = (short)(iVoice > 8 ? 9 : iVoice + 9);
 
                         cid = Config.B2Amap[iVoice];
-                        Dictionary<string, decimal> Effects = Config.AvatorEffectParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
-                        Dictionary<string, decimal> Emotions = Config.AvatorEmotionParams(cid).ToDictionary(k => k.Key, v => v.Value["value"]);
+                        Dictionary<string, decimal> Effects = ParamAssignList[iVoice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                        Dictionary<string, decimal> Emotions = ParamAssignList[iVoice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                         MessageData talk = new MessageData()
                         {

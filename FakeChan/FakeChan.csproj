@@ -38,6 +38,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
@@ -67,6 +68,7 @@
     <Compile Include="Settings.cs" />
     <Compile Include="HttpTasks.cs" />
     <Compile Include="SocketTasks.cs" />
+    <Compile Include="UserDefData.cs" />
     <Compile Include="WCFClient.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
