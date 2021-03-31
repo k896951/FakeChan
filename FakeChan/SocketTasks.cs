@@ -22,6 +22,7 @@ namespace FakeChan
         bool KeepListen = false;
         TcpListener TcpIpListener;
         Action BGTcpListen;
+        int ListenPort;
 
         public methods PlayMethod { get; set; }
 
@@ -43,6 +44,7 @@ namespace FakeChan
             KeepListen = true;
             BGTcpListen = SetupBGTcpListenerTask();
             Task.Run(BGTcpListen);
+            ListenPort = port;
         }
 
         public void StopSocketTasks()
@@ -116,12 +118,12 @@ namespace FakeChan
                             }
                         }
 
-                        int cid = Config.B2Amap.First().Value;
+                        iVoice = (short)(iVoice > 8 ? 9 : iVoice + 9);
+                        if (ListenPort == Config.SocketPortNum2) iVoice += 18;
+
+                        int cid = Config.B2Amap[iVoice];
                         int tid = MessQue.count + 1;
 
-                        iVoice = (short)(iVoice > 8 ? 9 : iVoice + 9);
-
-                        cid = Config.B2Amap[iVoice];
                         Dictionary<string, decimal> Effects = ParamAssignList[iVoice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                         Dictionary<string, decimal> Emotions = ParamAssignList[iVoice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 

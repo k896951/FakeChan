@@ -27,6 +27,7 @@ namespace FakeChan
         HttpListener HTTPListener;
         Action BGTcpListen;
         int taskId = 0;
+        int ListenPort;
 
         public methods PlayMethod { get; set; }
 
@@ -49,6 +50,7 @@ namespace FakeChan
             KeepListen = true;
             BGTcpListen = SetupBGHttpListenerTask();
             Task.Run(BGTcpListen);
+            ListenPort = port;
         }
 
         public void StopHttpTasks()
@@ -77,11 +79,13 @@ namespace FakeChan
                         HttpListenerContext  context  = HTTPListener.GetContext();
                         HttpListenerRequest  request  = context.Request;
                         HttpListenerResponse response = context.Response;
-                        int voice = 0;
+                        int voice = 18;
                         string TalkText = "本日は晴天ですか？";
                         string UrlPath = request.Url.AbsolutePath.ToUpper();
 
-                        foreach(var item in Regex.Split(request.Url.Query, @"[&?]"))
+                        if (ListenPort == Config.HttpPortNum2) voice += 18;
+
+                        foreach (var item in Regex.Split(request.Url.Query, @"[&?]"))
                         {
                             if (item == "") continue;
 
@@ -98,6 +102,7 @@ namespace FakeChan
                                 case "voice":
                                     int.TryParse(s[1], out voice);
                                     voice = (short)(voice > 8 ? 18 : voice + 18);
+                                    if (ListenPort == Config.HttpPortNum2) voice += 18;
                                     break;
 
                                 case "volume":
@@ -114,9 +119,8 @@ namespace FakeChan
                         switch(UrlPath)
                         {
                             case "/TALK":
-                                int cid = Config.B2Amap.First().Value;
+                                int cid = Config.B2Amap[voice];
                                 int tid = MessQue.count + 1;
-                                cid = Config.B2Amap[voice];
                                 Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                                 Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
