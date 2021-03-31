@@ -3,6 +3,8 @@
 偽装ちゃん(FakeChan)は、棒読みちゃん(BouyomiChan)のフリをしてテキストを受け取りAssistantSeika経由で音声合成製品に渡します。  
 コメントビュアーが棒読みちゃん呼び出しをサポートしていれば、棒読みちゃん替わりに利用できます。
 
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210331-165343.png "ダイアグラム")
+
 ## 偽装IPCインタフェースをサポートしました
 
 コメントビュアー NCV, MultiCommentViewer で動作することを確認しました。棒読みちゃんと思い込んでます。(ΦωΦ)ﾌﾌﾌ…
