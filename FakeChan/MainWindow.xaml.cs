@@ -33,6 +33,7 @@ namespace FakeChan
         DispatcherTimer KickTalker;
         List<ComboBox> MapAvatorsComboBoxList;
         List<Ellipse> LampList;
+        List<ComboBox> MethodList;
 
         public UserDefData UserData;
 
@@ -60,7 +61,7 @@ namespace FakeChan
                 // を見てください。
                 WcfClient = new WCFClient();
 
-                if (WcfClient.AvatorList().Count==0)
+                if (WcfClient.AvatorList().Count == 0)
                 {
                     throw new Exception("No Avators detected from AssistantSeika");
                 }
@@ -106,22 +107,23 @@ namespace FakeChan
                 };
             }
 
-            ComboBoxCallMethodIPC.ItemsSource       = null;
-            ComboBoxCallMethodIPC.ItemsSource       = Config.PlayMethods;
-            ComboBoxCallMethodSocket.ItemsSource    = null;
-            ComboBoxCallMethodSocket.ItemsSource    = Config.PlayMethods;
-            ComboBoxCallMethodHTTP.ItemsSource      = null;
-            ComboBoxCallMethodHTTP.ItemsSource      = Config.PlayMethods;
-            ComboBoxCallMethodSocket2.ItemsSource   = null;
-            ComboBoxCallMethodSocket2.ItemsSource   = Config.PlayMethods;
-            ComboBoxCallMethodHTTP2.ItemsSource     = null;
-            ComboBoxCallMethodHTTP2.ItemsSource     = Config.PlayMethods;
+            MethodList = new List<ComboBox>()
+            {
+                ComboBoxCallMethodIPC,
+                ComboBoxCallMethodSocket,
+                ComboBoxCallMethodHTTP,
+                ComboBoxCallMethodSocket2,
+                ComboBoxCallMethodHTTP2
+            };
 
-            ComboBoxCallMethodHTTP2.SelectedIndex   = UserData.MethodAssignList[4];
-            ComboBoxCallMethodSocket2.SelectedIndex = UserData.MethodAssignList[3];
-            ComboBoxCallMethodHTTP.SelectedIndex    = UserData.MethodAssignList[2];
-            ComboBoxCallMethodSocket.SelectedIndex  = UserData.MethodAssignList[1];
-            ComboBoxCallMethodIPC.SelectedIndex     = UserData.MethodAssignList[0];
+            for(int idx=0; idx < MethodList.Count; idx++)
+            {
+                MethodList[idx].ItemsSource = null;
+                MethodList[idx].ItemsSource = Config.PlayMethods;
+                MethodList[idx].SelectedIndex = -1;
+                MethodList[idx].IsEnabled = true;
+                MethodList[idx].SelectedIndex = UserData.MethodAssignList[idx];
+            }
 
             if (UserData.Voice2Cid is null)
             {
@@ -185,22 +187,23 @@ namespace FakeChan
                 item.IsEnabled = true;
             }
 
-            if (UserData.Voice2Cid != null)
+            Dictionary<int, string> avators = Config.AvatorNames;
+            Dictionary<int, int> v2c = UserData.Voice2Cid.ToDictionary(k => k.Key, v => v.Value);
+            foreach (var v2cItem in v2c)
             {
-                Dictionary<int, string> names = Config.AvatorNames;
-                Dictionary<int, int> v2c = UserData.Voice2Cid.ToDictionary(k=>k.Key, v=>v.Value);
-                foreach (var item in v2c)
+                if (avators.ContainsKey(v2cItem.Value))
                 {
-                    if (names.ContainsKey(item.Value))
+                    int idx = 0;
+                    foreach (KeyValuePair<int, string> listItem in MapAvatorsComboBoxList[v2cItem.Key].Items)
                     {
-                        int idx = 0;
-                        foreach(KeyValuePair<int, string> item2 in MapAvatorsComboBoxList[item.Key].Items)
-                        {
-                            if (item.Value == item2.Key) break;
-                            idx++;
-                        }
-                        MapAvatorsComboBoxList[item.Key].SelectedIndex = idx;
+                        if (v2cItem.Value == listItem.Key) break;
+                        idx++;
                     }
+                    MapAvatorsComboBoxList[v2cItem.Key].SelectedIndex = idx;
+                }
+                else
+                {
+                    MapAvatorsComboBoxList[v2cItem.Key].SelectedIndex = 0;
                 }
             }
 
@@ -217,11 +220,10 @@ namespace FakeChan
                 EllipseHTTP2
             };
 
-            EllipseIpc.Tag = true;
-            EllipseSocket.Tag = true;
-            EllipseHTTP.Tag = true;
-            EllipseSocket2.Tag = false;
-            EllipseHTTP2.Tag = false;
+            foreach(var item in LampList)
+            {
+                item.Tag = true;
+            }
 
             try
             {
