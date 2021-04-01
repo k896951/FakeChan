@@ -67,39 +67,38 @@ namespace FakeChan
 
         private void IPCAddTalkTask01(string TalkText)
         {
-            int cid = Config.B2Amap[0];
-            int tid = MessQue.count + 1;
-            Dictionary<string, decimal> Effects = ParamAssignList[0][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = ParamAssignList[0][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-            switch (PlayMethod)
-            {
-                case methods.sync:
-                    MessageData talk = new MessageData()
-                    {
-                        Cid = cid,
-                        Message = TalkText,
-                        BouyomiVoice = 0,
-                        TaskId = tid,
-                        Effects = Effects,
-                        Emotions = Emotions
-                    };
-                    MessQue.AddQueue(talk);
-                    break;
-
-                case methods.async:
-                    WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
-                    break;
-            }
+            IPCAddTalkTask03(TalkText, -1, -1, -1, 0);
         }
 
         private void IPCAddTalkTask02(string TalkText, int iSpeed, int iVolume, int vType)
+        {
+            IPCAddTalkTask03(TalkText, iSpeed, -1, iVolume, vType);
+        }
+
+        private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
             int voice = vType > 8 ? 0 : vType;
             int cid = Config.B2Amap[voice];
             int tid = MessQue.count + 1;
             Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
             Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+            // 製品により「普通」が異なるので制御が難しい。止めておく。
+            //
+            //decimal minval_spd = ParamAssignList[voice][cid]["effect"]["speed"]["min"];
+            //decimal maxval_spd = ParamAssignList[voice][cid]["effect"]["speed"]["max"];
+            //decimal minval_pch = ParamAssignList[voice][cid]["effect"]["pitch"]["min"];
+            //decimal maxval_pch = ParamAssignList[voice][cid]["effect"]["pitch"]["max"];
+            //decimal minval_vol = ParamAssignList[voice][cid]["effect"]["volume"]["min"];
+            //decimal maxval_vol = ParamAssignList[voice][cid]["effect"]["volume"]["max"];
+            //
+            //iSpeed  = iSpeed  == -1 ? 100 : iSpeed;
+            //iTone   = iTone   == -1 ? 100 : iTone;
+            //iVolume = iVolume == -1 ?  50 : iVolume;
+            //
+            //Effects["speed"]  = Bouyomi2Othor(iSpeed,  300, minval_spd, maxval_spd);
+            //Effects["pitch"]  = Bouyomi2Othor(iTone,   200, minval_pch, maxval_pch);
+            //Effects["volume"] = Bouyomi2Othor(iVolume, 100, minval_vol, maxval_vol);
 
             switch (PlayMethod)
             {
@@ -122,11 +121,6 @@ namespace FakeChan
             }
         }
 
-        private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
-        {
-            IPCAddTalkTask02(TalkText, iSpeed, iVolume, vType);
-        }
-
         private int IPCAddTalkTask21(string TalkText)
         {
             IPCAddTalkTask01(TalkText);
@@ -146,6 +140,14 @@ namespace FakeChan
 
         private void IPCSkipTalkTask()
         {
+        }
+
+        private decimal Bouyomi2Othor(int BoValue, int BoMaxValue, decimal OtherMinValue, decimal OtherMaxValue)
+        {
+            decimal otherdisp = OtherMinValue < 0.0m ? decimal.Negate(OtherMinValue) : 0.0m;
+            decimal rate = (decimal)BoValue / BoMaxValue;
+
+            return rate * (OtherMaxValue + otherdisp) - otherdisp;
         }
 
     }
