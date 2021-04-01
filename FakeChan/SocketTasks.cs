@@ -56,7 +56,7 @@ namespace FakeChan
 
         private Action SetupBGTcpListenerTask()
         {
-            // パケット（プログラムでは先頭4項目をスキップ）
+            // パケット（プログラムではiSpeed～iVolumeをスキップ）
             //   Int16  iCommand = 0x0001;
             //   Int16  iSpeed = -1;
             //   Int16  iTone = -1;
@@ -68,92 +68,137 @@ namespace FakeChan
 
             Action BGTcpListen = (() => {
 
-                int SkipSize = 2 * 4;
-
                 while (KeepListen) // とりあえずの待ち受け構造
                 {
                     try
                     {
                         TcpClient client = TcpIpListener.AcceptTcpClient();
+                        Int16 iCommand;
                         Int16 iVoice;
                         int voice;
                         byte bCode;
                         Int32 iLength;
                         string TalkText = "";
 
-                        byte[] iLengthBuff;
+                        byte[] iCommandBuff;
                         byte[] iVoiceBuff;
+                        byte[] iLengthBuff;
 
                         using (NetworkStream ns = client.GetStream())
                         {
                             using (BinaryReader br = new BinaryReader(ns))
                             {
-                                br.ReadBytes(SkipSize);
+                                iCommandBuff = br.ReadBytes(2);
+                                iCommand = BitConverter.ToInt16(iCommandBuff, 0); // コマンド
 
-                                iVoiceBuff = br.ReadBytes(2);
-                                iVoice = BitConverter.ToInt16(iVoiceBuff, 0); // うーん…
-
-                                bCode = br.ReadByte();
-
-                                iLengthBuff = br.ReadBytes(4);
-                                iLength = BitConverter.ToInt32(iLengthBuff, 0); // うーん…
-
-                                byte[] TalkTextBuff = new byte[iLength];
-
-                                TalkTextBuff = br.ReadBytes(iLength);
-
-                                switch (bCode)
+                                switch(iCommand)
                                 {
-                                    case 0: // UTF8
-                                        TalkText = System.Text.Encoding.UTF8.GetString(TalkTextBuff, 0, iLength);
+                                    case 0x0001: // 読み上げ指示
+
+                                        br.ReadBytes(2 * 3); // スキップ
+
+                                        iVoiceBuff = br.ReadBytes(2);
+                                        iVoice = BitConverter.ToInt16(iVoiceBuff, 0); // 音声
+
+                                        bCode = br.ReadByte(); // 文字列エンコーディング
+
+                                        iLengthBuff = br.ReadBytes(4);
+                                        iLength = BitConverter.ToInt32(iLengthBuff, 0); // 文字列サイズ
+
+                                        byte[] TalkTextBuff = new byte[iLength];
+
+                                        TalkTextBuff = br.ReadBytes(iLength);  // 文字列データ
+
+                                        switch (bCode)
+                                        {
+                                            case 0: // UTF8
+                                                TalkText = System.Text.Encoding.UTF8.GetString(TalkTextBuff, 0, iLength);
+                                                break;
+
+                                            case 2: // CP932
+                                                TalkText = System.Text.Encoding.GetEncoding(932).GetString(TalkTextBuff, 0, iLength);
+                                                break;
+
+                                            case 1: // 暫定で書いた
+                                                TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
+                                                break;
+                                        }
+                                        voice = iVoice > 8 ? 0 : iVoice;
+
+                                        if (ListenPort == Config.SocketPortNum2)
+                                        {
+                                            voice = voice + (Config.BouyomiVoiceWidth * 3);
+                                        }
+                                        else
+                                        {
+                                            voice = voice + Config.BouyomiVoiceWidth;
+                                        }
+
+                                        int cid = Config.B2Amap[voice];
+                                        int tid = MessQue.count + 1;
+                                        Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+                                        switch (PlayMethod)
+                                        {
+                                            case methods.sync:
+                                                MessageData talk = new MessageData()
+                                                {
+                                                    Cid = cid,
+                                                    Message = TalkText,
+                                                    BouyomiVoice = iVoice,
+                                                    TaskId = tid,
+                                                    Effects = Effects,
+                                                    Emotions = Emotions
+                                                };
+                                                MessQue.AddQueue(talk);
+                                                break;
+
+                                            case methods.async:
+                                                WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
+                                                break;
+                                        }
+
                                         break;
 
-                                    case 2: // CP932
-                                        TalkText = System.Text.Encoding.GetEncoding(932).GetString(TalkTextBuff, 0, iLength);
+                                    case 0x0040: // 読み上げキャンセル
+                                        MessQue.ClearQueue();
                                         break;
 
-                                    case 1: // 暫定で書いた
-                                        TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
+                                    case 0x0110: // 一時停止状態の取得
+                                        byte data1 = 0;
+                                        using (BinaryWriter bw = new BinaryWriter(ns))
+                                        {
+                                            bw.Write(data1);
+                                        }
+                                        break;
+
+                                    case 0x0120: // 音声再生状態の取得
+                                        byte data2 = MessQue.count == 0 ? (byte)0 : (byte)1;
+                                        using (BinaryWriter bw = new BinaryWriter(ns))
+                                        {
+                                            bw.Write(data2);
+                                        }
+                                        break;
+
+                                    case 0x0130: // 残りタスク数の取得
+                                        byte[] data3 = BitConverter.GetBytes(MessQue.count);
+                                        using (BinaryWriter bw = new BinaryWriter(ns))
+                                        {
+                                            bw.Write(data3);
+                                        }
+                                        break;
+
+                                    case 0x0010: // 一時停止
+                                    case 0x0020: // 一時停止の解除
+                                    case 0x0030: // 現在の行をスキップし次の行へ
+                                    default:
                                         break;
                                 }
+
                             }
                         }
 
-                        voice = iVoice > 8 ? 0 : iVoice;
-
-                        if (ListenPort == Config.SocketPortNum2)
-                        {
-                            voice = voice + (Config.BouyomiVoiceWidth * 3);
-                        }
-                        else
-                        {
-                            voice = voice + Config.BouyomiVoiceWidth;
-                        }
-
-                        int cid = Config.B2Amap[voice];
-                        int tid = MessQue.count + 1;
-                        Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                        Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-                        switch (PlayMethod)
-                        {
-                            case methods.sync:
-                                MessageData talk = new MessageData()
-                                {
-                                    Cid = cid,
-                                    Message = TalkText,
-                                    BouyomiVoice = iVoice,
-                                    TaskId = tid,
-                                    Effects = Effects,
-                                    Emotions = Emotions
-                                };
-                                MessQue.AddQueue(talk);
-                                break;
-
-                            case methods.async:
-                                WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
-                                break;
-                        }
                     }
                     catch (Exception)
                     {
