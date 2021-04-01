@@ -179,12 +179,13 @@ namespace FakeChan
                 ComboBoxMapAvator48
             };
 
-            foreach (var item in MapAvatorsComboBoxList)
+            for (int idx = 0; idx < MapAvatorsComboBoxList.Count; idx++)
             {
-                item.ItemsSource = null;
-                item.ItemsSource = Config.AvatorNames;
-                item.SelectedIndex = -1;
-                item.IsEnabled = true;
+                MapAvatorsComboBoxList[idx].ItemsSource = null;
+                MapAvatorsComboBoxList[idx].ItemsSource = Config.AvatorNames;
+                MapAvatorsComboBoxList[idx].SelectedIndex = -1;
+                MapAvatorsComboBoxList[idx].IsEnabled = true;
+                MapAvatorsComboBoxList[idx].Tag = idx;
             }
 
             Dictionary<int, string> avators = Config.AvatorNames;

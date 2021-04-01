@@ -79,11 +79,9 @@ namespace FakeChan
                         HttpListenerContext  context  = HTTPListener.GetContext();
                         HttpListenerRequest  request  = context.Request;
                         HttpListenerResponse response = context.Response;
-                        int voice = 18;
+                        int voice = 0;
                         string TalkText = "本日は晴天ですか？";
                         string UrlPath = request.Url.AbsolutePath.ToUpper();
-
-                        if (ListenPort == Config.HttpPortNum2) voice += 18;
 
                         foreach (var item in Regex.Split(request.Url.Query, @"[&?]"))
                         {
@@ -101,8 +99,7 @@ namespace FakeChan
 
                                 case "voice":
                                     int.TryParse(s[1], out voice);
-                                    voice = (short)(voice > 8 ? 18 : voice + 18);
-                                    if (ListenPort == Config.HttpPortNum2) voice += 18;
+                                    voice = voice > 8 ? 0 : voice;
                                     break;
 
                                 case "volume":
@@ -115,8 +112,17 @@ namespace FakeChan
 
                         response.ContentType = "application/json; charset=utf-8";
 
+                        if (ListenPort == Config.HttpPortNum2)
+                        {
+                            voice = voice + (Config.BouyomiVoiceWidth * 4);
+                        }
+                        else
+                        {
+                            voice = voice + (Config.BouyomiVoiceWidth * 2);
+                        }
+
                         // dispath url
-                        switch(UrlPath)
+                        switch (UrlPath)
                         {
                             case "/TALK":
                                 int cid = Config.B2Amap[voice];
@@ -124,19 +130,18 @@ namespace FakeChan
                                 Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                                 Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                                MessageData talk = new MessageData()
-                                {
-                                    Cid = cid,
-                                    Message = TalkText,
-                                    BouyomiVoice = voice,
-                                    TaskId = tid,
-                                    Effects = Effects,
-                                    Emotions = Emotions
-                                };
-
                                 switch (PlayMethod)
                                 {
                                     case methods.sync:
+                                        MessageData talk = new MessageData()
+                                        {
+                                            Cid = cid,
+                                            Message = TalkText,
+                                            BouyomiVoice = voice,
+                                            TaskId = tid,
+                                            Effects = Effects,
+                                            Emotions = Emotions
+                                        };
                                         MessQue.AddQueue(talk);
                                         break;
 

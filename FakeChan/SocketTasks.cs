@@ -76,6 +76,7 @@ namespace FakeChan
                     {
                         TcpClient client = TcpIpListener.AcceptTcpClient();
                         Int16 iVoice;
+                        int voice;
                         byte bCode;
                         Int32 iLength;
                         string TalkText = "";
@@ -118,28 +119,34 @@ namespace FakeChan
                             }
                         }
 
-                        iVoice = (short)(iVoice > 8 ? 9 : iVoice + 9);
-                        if (ListenPort == Config.SocketPortNum2) iVoice += 18;
+                        voice = iVoice > 8 ? 0 : iVoice;
 
-                        int cid = Config.B2Amap[iVoice];
-                        int tid = MessQue.count + 1;
-
-                        Dictionary<string, decimal> Effects = ParamAssignList[iVoice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                        Dictionary<string, decimal> Emotions = ParamAssignList[iVoice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-                        MessageData talk = new MessageData()
+                        if (ListenPort == Config.SocketPortNum2)
                         {
-                            Cid = cid,
-                            Message = TalkText,
-                            BouyomiVoice = iVoice,
-                            TaskId = tid,
-                            Effects = Effects,
-                            Emotions = Emotions
-                        };
+                            voice = voice + (Config.BouyomiVoiceWidth * 3);
+                        }
+                        else
+                        {
+                            voice = voice + Config.BouyomiVoiceWidth;
+                        }
 
-                        switch(PlayMethod)
+                        int cid = Config.B2Amap[voice];
+                        int tid = MessQue.count + 1;
+                        Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                        Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+                        switch (PlayMethod)
                         {
                             case methods.sync:
+                                MessageData talk = new MessageData()
+                                {
+                                    Cid = cid,
+                                    Message = TalkText,
+                                    BouyomiVoice = iVoice,
+                                    TaskId = tid,
+                                    Effects = Effects,
+                                    Emotions = Emotions
+                                };
                                 MessQue.AddQueue(talk);
                                 break;
 

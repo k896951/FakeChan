@@ -9,7 +9,7 @@ namespace FakeChan
 {
     public class Configs
     {
-        WCFClient api;
+        WCFClient api = null;
 
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
@@ -22,6 +22,8 @@ namespace FakeChan
         public Int32 SocketPortNum2 { get; set; }
         public IPAddress HttpAddress2 { get; set; }
         public Int32 HttpPortNum2 { get; set; }
+
+        public readonly int BouyomiVoiceWidth = 9;
 
         Dictionary<int, string> BouyomiVoiceListHttp = new Dictionary<int, string>()
         {
