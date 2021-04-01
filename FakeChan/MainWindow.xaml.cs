@@ -47,12 +47,6 @@ namespace FakeChan
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            // 設定色々
-            Config = new Configs();
-
-            // メッセージキューを使うよ！
-            MessQueWrapper = new MessQueueWrapper();
-
             try
             {
                 // AssistantSeikaとの接続
@@ -89,6 +83,12 @@ namespace FakeChan
                 Application.Current.Shutdown();
                 return;
             }
+
+            // 設定色々
+            Config = new Configs(ref WcfClient);
+
+            // メッセージキューを使うよ！
+            MessQueWrapper = new MessQueueWrapper();
 
             if (UserData.ParamAssignList is null)
             {

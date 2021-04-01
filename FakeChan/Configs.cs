@@ -9,6 +9,8 @@ namespace FakeChan
 {
     public class Configs
     {
+        WCFClient api;
+
         Dictionary<int, string> AvatorNameList;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
         Dictionary<int, int> Bouyomi2AssistantSeika;
@@ -147,9 +149,9 @@ namespace FakeChan
             }
         }
 
-        public Configs()
+        public Configs(ref WCFClient wcf)
         {
-            WCFClient api = new WCFClient();
+            api = wcf;
             AvatorNameList = api.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
             AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => api.GetDefaultParams2(v.Key));
 

@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FakeChan", "FakeChan\FakeCh
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{544DDE0A-E57C-4272-8351-9B52F96C2569}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\..\..\..\..\metan\Pictures\Fakechan-01.png = ..\..\..\..\..\..\metan\Pictures\Fakechan-01.png
-		..\..\..\..\..\..\metan\Pictures\Fakechan-02.png = ..\..\..\..\..\..\metan\Pictures\Fakechan-02.png
 		README.md = README.md
 	EndProjectSection
 EndProject
