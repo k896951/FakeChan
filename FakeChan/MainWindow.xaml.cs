@@ -107,6 +107,46 @@ namespace FakeChan
                 };
             }
 
+            LampList = new List<Ellipse>()
+            {
+                EllipseIpc,
+                EllipseSocket,
+                EllipseHTTP,
+                EllipseSocket2,
+                EllipseHTTP2
+            };
+
+            for (int idx = 0; idx < LampList.Count; idx++)
+            {
+                switch (idx)
+                {
+                    case 0:
+                        IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        LampList[idx].Tag = true;
+                        break;
+
+                    case 1:
+                        SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        LampList[idx].Tag = true;
+                        break;
+
+                    case 2:
+                        HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        LampList[idx].Tag = true;
+                        break;
+
+                    case 3:
+                        SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        LampList[idx].Tag = false;
+                        break;
+
+                    case 4:
+                        HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        LampList[idx].Tag = false;
+                        break;
+                }
+            }
+
             MethodList = new List<ComboBox>()
             {
                 ComboBoxCallMethodIPC,
@@ -212,46 +252,6 @@ namespace FakeChan
             ComboBoxBouyomiVoice.ItemsSource = null;
             ComboBoxBouyomiVoice.ItemsSource = Config.BouyomiVoices;
             ComboBoxBouyomiVoice.SelectedIndex = 0;
-
-            LampList = new List<Ellipse>()
-            {
-                EllipseIpc,
-                EllipseSocket,
-                EllipseHTTP,
-                EllipseSocket2,
-                EllipseHTTP2
-            };
-
-            for(int idx=0; idx < LampList.Count; idx++)
-            {
-                switch(idx)
-                {
-                    case 0:
-                        LampList[idx].Tag = true;
-                        IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        break;
-
-                    case 1:
-                        LampList[idx].Tag = true;
-                        SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        break;
-
-                    case 2:
-                        LampList[idx].Tag = true;
-                        HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        break;
-
-                    case 3:
-                        LampList[idx].Tag = false;
-                        SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        break;
-
-                    case 4:
-                        LampList[idx].Tag = false;
-                        HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        break;
-                }
-            }
 
             try
             {
