@@ -116,34 +116,21 @@ namespace FakeChan
                 EllipseHTTP2
             };
 
+            IpcTask   = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            SockTask  = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+
             for (int idx = 0; idx < LampList.Count; idx++)
             {
                 switch (idx)
                 {
-                    case 0:
-                        IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        LampList[idx].Tag = true;
-                        break;
-
-                    case 1:
-                        SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        LampList[idx].Tag = true;
-                        break;
-
-                    case 2:
-                        HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        LampList[idx].Tag = true;
-                        break;
-
-                    case 3:
-                        SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        LampList[idx].Tag = false;
-                        break;
-
-                    case 4:
-                        HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                        LampList[idx].Tag = false;
-                        break;
+                    case 0: LampList[idx].Tag = true;  break;
+                    case 1: LampList[idx].Tag = true;  break;
+                    case 2: LampList[idx].Tag = true;  break;
+                    case 3: LampList[idx].Tag = false; break;
+                    case 4: LampList[idx].Tag = false; break;
                 }
             }
 
