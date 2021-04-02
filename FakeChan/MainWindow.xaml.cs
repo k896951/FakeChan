@@ -122,6 +122,7 @@ namespace FakeChan
                 MethodList[idx].ItemsSource = Config.PlayMethods;
                 MethodList[idx].SelectedIndex = -1;
                 MethodList[idx].IsEnabled = true;
+                MethodList[idx].Tag = idx;
                 MethodList[idx].SelectedIndex = UserData.MethodAssignList[idx];
             }
 
@@ -221,9 +222,35 @@ namespace FakeChan
                 EllipseHTTP2
             };
 
-            foreach(var item in LampList)
+            for(int idx=0; idx < LampList.Count; idx++)
             {
-                item.Tag = true;
+                switch(idx)
+                {
+                    case 0:
+                        LampList[idx].Tag = true;
+                        IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        break;
+
+                    case 1:
+                        LampList[idx].Tag = true;
+                        SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        break;
+
+                    case 2:
+                        LampList[idx].Tag = true;
+                        HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        break;
+
+                    case 3:
+                        LampList[idx].Tag = false;
+                        SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        break;
+
+                    case 4:
+                        LampList[idx].Tag = false;
+                        HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                        break;
+                }
             }
 
             try
@@ -235,22 +262,42 @@ namespace FakeChan
                 ReEntry = true;
                 KickTalker.Start();
 
-                // IPCサービス起動（棒読みちゃんのフリをします！）
-                IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                IpcTask.StartIpcTasks();
-                EllipseIpc.Fill = Brushes.LightGreen;
+                // 通信受付口バックグラウンドタスク起動
+                for (int idx=0; idx < LampList.Count; idx++)
+                {
+                    bool sw = (bool)LampList[idx].Tag;
+                    if (sw)
+                    {
+                        switch (idx)
+                        {
+                            case 0:
+                                IpcTask.StartIpcTasks();
+                                EllipseIpc.Fill = Brushes.LightGreen;
+                                break;
 
-                // ソケットサービス起動（棒読みちゃんのフリをします！）
-                SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
-                EllipseSocket.Fill = Brushes.LightGreen;
-                SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                            case 1:
+                                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                                EllipseSocket.Fill = Brushes.LightGreen;
+                                break;
 
-                // HTTPサービス起動（棒読みちゃんのフリをします！）
-                HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
-                EllipseHTTP.Fill = Brushes.LightGreen;
-                HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+                            case 2:
+                                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                                EllipseHTTP.Fill = Brushes.LightGreen;
+                                break;
+
+                            case 3:
+                                SockTask2.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                                EllipseSocket2.Fill = Brushes.LightGreen;
+                                break;
+
+                            case 4:
+                                HttpTask2.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                                EllipseHTTP2.Fill = Brushes.LightGreen;
+                                break;
+                        }
+                    }
+                }
+
             }
             catch (Exception e1)
             {
@@ -315,60 +362,10 @@ namespace FakeChan
 
         private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int voice = 0;
-            int cid;
             ComboBox cb = sender as ComboBox;
+            int voice = (int)cb.Tag;
+            int cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
 
-            switch(cb.Name)
-            {
-                case "ComboBoxMapAvator0":  voice = 0;  break;
-                case "ComboBoxMapAvator1":  voice = 1;  break;
-                case "ComboBoxMapAvator2":  voice = 2;  break;
-                case "ComboBoxMapAvator3":  voice = 3;  break;
-                case "ComboBoxMapAvator4":  voice = 4;  break;
-                case "ComboBoxMapAvator5":  voice = 5;  break;
-                case "ComboBoxMapAvator6":  voice = 6;  break;
-                case "ComboBoxMapAvator7":  voice = 7;  break;
-                case "ComboBoxMapAvator8":  voice = 8;  break;
-                case "ComboBoxMapAvator10": voice = 9;  break;
-                case "ComboBoxMapAvator11": voice = 10; break;
-                case "ComboBoxMapAvator12": voice = 11; break;
-                case "ComboBoxMapAvator13": voice = 12; break;
-                case "ComboBoxMapAvator14": voice = 13; break;
-                case "ComboBoxMapAvator15": voice = 14; break;
-                case "ComboBoxMapAvator16": voice = 15; break;
-                case "ComboBoxMapAvator17": voice = 16; break;
-                case "ComboBoxMapAvator18": voice = 17; break;
-                case "ComboBoxMapAvator20": voice = 18; break;
-                case "ComboBoxMapAvator21": voice = 19; break;
-                case "ComboBoxMapAvator22": voice = 20; break;
-                case "ComboBoxMapAvator23": voice = 21; break;
-                case "ComboBoxMapAvator24": voice = 22; break;
-                case "ComboBoxMapAvator25": voice = 23; break;
-                case "ComboBoxMapAvator26": voice = 24; break;
-                case "ComboBoxMapAvator27": voice = 25; break;
-                case "ComboBoxMapAvator28": voice = 26; break;
-                case "ComboBoxMapAvator30": voice = 27; break;
-                case "ComboBoxMapAvator31": voice = 28; break;
-                case "ComboBoxMapAvator32": voice = 29; break;
-                case "ComboBoxMapAvator33": voice = 30; break;
-                case "ComboBoxMapAvator34": voice = 31; break;
-                case "ComboBoxMapAvator35": voice = 32; break;
-                case "ComboBoxMapAvator36": voice = 33; break;
-                case "ComboBoxMapAvator37": voice = 34; break;
-                case "ComboBoxMapAvator38": voice = 35; break;
-                case "ComboBoxMapAvator40": voice = 36; break;
-                case "ComboBoxMapAvator41": voice = 37; break;
-                case "ComboBoxMapAvator42": voice = 38; break;
-                case "ComboBoxMapAvator43": voice = 39; break;
-                case "ComboBoxMapAvator44": voice = 40; break;
-                case "ComboBoxMapAvator45": voice = 41; break;
-                case "ComboBoxMapAvator46": voice = 42; break;
-                case "ComboBoxMapAvator47": voice = 43; break;
-                case "ComboBoxMapAvator48": voice = 44; break;
-                default: voice = 0; break;
-            }
-            cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
             Config.B2Amap[voice] = cid;
             UserData.Voice2Cid[voice] = cid;
 
@@ -420,19 +417,20 @@ namespace FakeChan
         private void ComboBoxCallMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox cb = sender as ComboBox;
+            int idx = (int)cb.Tag;
+
             methods md = Config.PlayMethodsMap[cb.SelectedIndex];
-            int mdidx=0;
 
-            switch (cb.Name)
+            UserData.MethodAssignList[idx] = cb.SelectedIndex;
+            switch (idx)
             {
-                case "ComboBoxCallMethodIPC"    : mdidx = 0; if (IpcTask   != null) IpcTask.PlayMethod = md;   break;
-                case "ComboBoxCallMethodSocket" : mdidx = 1; if (SockTask  != null) SockTask.PlayMethod = md;  break;
-                case "ComboBoxCallMethodHTTP"   : mdidx = 2; if (HttpTask  != null) HttpTask.PlayMethod = md;  break;
-                case "ComboBoxCallMethodSocket2": mdidx = 3; if (SockTask2 != null) SockTask2.PlayMethod = md; break;
-                case "ComboBoxCallMethodHTTP2"  : mdidx = 4; if (HttpTask2 != null) HttpTask2.PlayMethod = md; break;
+                case 0 : IpcTask.PlayMethod   = md; break;
+                case 1 : SockTask.PlayMethod  = md; break;
+                case 2 : HttpTask.PlayMethod  = md; break;
+                case 3 : SockTask2.PlayMethod = md; break;
+                case 4 : HttpTask2.PlayMethod = md; break;
+                default: break;
             }
-
-            UserData.MethodAssignList[mdidx] = cb.SelectedIndex;
         }
 
         private void ButtonParamReset_Click(object sender, RoutedEventArgs e)
@@ -557,69 +555,44 @@ namespace FakeChan
             int lampNo = 0;
             Ellipse ep = sender as Ellipse;
 
-            switch (ep.Name)
+            for(lampNo = 0; lampNo < LampList.Count; lampNo++)
             {
-                case "EllipseIpc"    : lampNo = 0; break;
-                case "EllipseSocket" : lampNo = 1; break;
-                case "EllipseHTTP"   : lampNo = 2; break;
-                case "EllipseSocket2": lampNo = 3; break;
-                case "EllipseHTTP2"  : lampNo = 4; break;
-                default: lampNo = 0; break;
+                if (ep.Equals(LampList[lampNo])) break;
             }
 
-            bool sw = (bool)(LampList[lampNo].Tag);
+            bool sw = (bool)LampList[lampNo].Tag;
+
             if (sw)
             {
                 ep.Fill = Brushes.Black;
-                LampList[lampNo].Tag = !sw;
-                switch (lampNo)
-                {
-                    case 0:
-                        IpcTask.StopIpcTasks();
-                        break;
-
-                    case 1:
-                        SockTask.StopSocketTasks();
-                        break;
-
-                    case 2:
-                        HttpTask.StopHttpTasks();
-                        break;
-
-                    case 3:
-                        SockTask2.StopSocketTasks();
-                        break;
-
-                    case 4:
-                        HttpTask2.StopHttpTasks();
-                        break;
-                }
             }
             else
             {
                 ep.Fill = Brushes.LightGreen;
-                LampList[lampNo].Tag = !sw;
+            }
+
+            LampList[lampNo].Tag = !sw;
+
+            if (sw)
+            {
                 switch (lampNo)
                 {
-                    case 0:
-                        IpcTask.StartIpcTasks();
-                        break;
-
-                    case 1:
-                        SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
-                        break;
-
-                    case 2:
-                        HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
-                        break;
-
-                    case 3:
-                        SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2);
-                        break;
-
-                    case 4:
-                        HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);
-                        break;
+                    case 0: IpcTask.StopIpcTasks();      break;
+                    case 1: SockTask.StopSocketTasks();  break;
+                    case 2: HttpTask.StopHttpTasks();    break;
+                    case 3: SockTask2.StopSocketTasks(); break;
+                    case 4: HttpTask2.StopHttpTasks();   break;
+                }
+            }
+            else
+            {
+                switch (lampNo)
+                {
+                    case 0: IpcTask.StartIpcTasks();                                                  break;
+                    case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    break;
+                    case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          break;
+                    case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;
+                    case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       break;
                 }
             }
 
