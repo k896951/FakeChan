@@ -90,6 +90,15 @@ namespace FakeChan
             // メッセージキューを使うよ！
             MessQueWrapper = new MessQueueWrapper();
 
+            // nullになる環境がある模様。対策する
+            if (UserData is null)
+            {
+                UserData = new UserDefData();
+                UserData.MethodAssignList = null;
+                UserData.ParamAssignList = null;
+                UserData.Voice2Cid = null;
+            }
+
             if (UserData.ParamAssignList is null)
             {
                 UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
@@ -315,10 +324,10 @@ namespace FakeChan
             Properties.Settings.Default.Save();
             ms.Close();
 
-            KickTalker.Stop();
-            SockTask.StopSocketTasks();
-            IpcTask.StopIpcTasks();
-            HttpTask.StopHttpTasks();
+            KickTalker?.Stop();
+            SockTask?.StopSocketTasks();
+            IpcTask?.StopIpcTasks();
+            HttpTask?.StopHttpTasks();
         }
 
         private void KickTalker_Tick(object sender, EventArgs e)
