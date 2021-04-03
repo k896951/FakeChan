@@ -34,14 +34,14 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 偽装ちゃんが起動すると、通信を受け付けてコメントを読み上げ可能になります。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210404-054646.png "偽装ちゃん起動直後")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210330-212440.png "偽装ちゃん起動直後")
 
 テスト再生ボタンを押すと、再生テキストにあるテキストを再生します。各話者のパラメタはここで変更できます。  
 その時に適用される話者とパラメタは、音声パラメタ設定で選択されている話者と表示されているパラメタになります。パラメタのテストで利用してください。
 
 話者マップタブで、棒読みちゃんのボイス0～8に話者を割り付けできます。  
 棒読みちゃん連携のソフトウエアのほとんどはボイス0のみ使っているように見受けられます。  
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210330-212504.png "話者マップ")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210404-054646.png "話者マップ")
 
 ## 発声方法
 
