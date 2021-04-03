@@ -258,28 +258,40 @@ namespace FakeChan
                         switch (idx)
                         {
                             case 0:
-                                IpcTask.StartIpcTasks();
-                                EllipseIpc.Fill = Brushes.LightGreen;
+                                if (IpcTask.StartIpcTasks())
+                                {
+                                    EllipseIpc.Fill = Brushes.LightGreen;
+                                    LampList[idx].Tag = true;
+                                }
+                                else
+                                {
+                                    EllipseIpc.Fill = Brushes.Black;
+                                    LampList[idx].Tag = false;
+                                }
                                 break;
 
                             case 1:
                                 SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
                                 EllipseSocket.Fill = Brushes.LightGreen;
+                                LampList[idx].Tag = true;
                                 break;
 
                             case 2:
                                 HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
                                 EllipseHTTP.Fill = Brushes.LightGreen;
+                                LampList[idx].Tag = true;
                                 break;
 
                             case 3:
                                 SockTask2.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
                                 EllipseSocket2.Fill = Brushes.LightGreen;
+                                LampList[idx].Tag = true;
                                 break;
 
                             case 4:
                                 HttpTask2.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
                                 EllipseHTTP2.Fill = Brushes.LightGreen;
+                                LampList[idx].Tag = true;
                                 break;
                         }
                     }
@@ -575,7 +587,13 @@ namespace FakeChan
             {
                 switch (lampNo)
                 {
-                    case 0: IpcTask.StartIpcTasks();                                                  break;
+                    case 0:
+                        if (!IpcTask.StartIpcTasks())
+                        {
+                            ep.Fill = Brushes.Black;
+                            LampList[lampNo].Tag = false;
+                        }
+                        break;
                     case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    break;
                     case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          break;
                     case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;

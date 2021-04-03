@@ -6,6 +6,7 @@ using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace FakeChan
 {
@@ -16,7 +17,7 @@ namespace FakeChan
         WCFClient WcfClient;
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
-        IpcServerChannel IpcCh;
+        IpcServerChannel IpcCh = null;
 
         public methods PlayMethod { get; set; }
 
@@ -39,25 +40,44 @@ namespace FakeChan
             ShareIpcObject.MessQue = MessQue;
         }
 
-        public void StartIpcTasks()
+        public bool StartIpcTasks()
         {
             try
             {
-                IpcCh = new IpcServerChannel("BouyomiChan");
+                if (IpcCh is null)
+                {
+                    IpcCh = new IpcServerChannel("BouyomiChan");
+                }
+                IpcCh.IsSecured = false;
                 ChannelServices.RegisterChannel(IpcCh, false);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //
+                MessageBox.Show(e.Message, "IPC error1");
+                return false;
             }
-            IpcCh.IsSecured = false;
             RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
+
+            return true;
         }
 
-        public void StopIpcTasks()
+        public bool StopIpcTasks()
         {
-            //ChannelServices.UnregisterChannel(IpcCh);
-            RemotingServices.Disconnect(ShareIpcObject);
+            if (IpcCh != null)
+            {
+                try
+                {
+                    RemotingServices.Disconnect(ShareIpcObject);
+                    IpcCh.StopListening(null);
+                    ChannelServices.UnregisterChannel(IpcCh);
+                }
+                catch (Exception)
+                {
+                    //MessageBox.Show(e.Message, "IPC error2");
+                }
+            }
+
+            return true;
         }
 
         public void SetTaskId(int Id)
