@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FakeChan"
         mc:Ignorable="d"
-        Title="偽装ちゃん" Height="380" Width="650" Loaded="Window_Loaded" MinWidth="650" MinHeight="380" Closing="Window_Closing">
+        Title="偽装ちゃん" Height="380" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="380" Closing="Window_Closing">
 
     <TabControl>
         
@@ -27,6 +27,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <Label Content="話者" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
@@ -34,7 +35,7 @@
 
                 <Label Content="再生テキスト" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
                 <TextBox x:Name="TextBoxReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"/>
-                <Button x:Name="ButtonTestTalk"  Content="テスト再生" Grid.Column="4" Grid.Row="2" Margin="2,1,1,1" IsEnabled="True" Click="ButtonTestTalk_Click"/>
+                <Button x:Name="ButtonTestTalk"  Content="テスト再生" Grid.Column="4" Grid.Row="2" Margin="2,1,1,1" IsEnabled="True" Width="Auto"  HorizontalAlignment="Left" Click="ButtonTestTalk_Click"/>
 
                 <WrapPanel Grid.Column="1" Grid.Row="3">
                     <Ellipse x:Name="EllipseIpc" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
@@ -59,39 +60,42 @@
                 </WrapPanel>
 
                 <GroupBox Header="音声パラメタ設定" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="5">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="0" Grid.Row="0" Margin="2,1,1,1"
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="0" Grid.Row="0" Margin="2,1,1,1" Width="Auto"
                                                                SelectedValuePath="Key"
                                                                DisplayMemberPath="Value"
                                                                IsReadOnly="True"
                                                                SelectionChanged="ComboBoxBouyomiVoice_SelectionChanged"/>
-                        <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="2" Margin="2,1,1,1" VerticalAlignment="Center"/>
-                        <Button x:Name="ButtonParamReset" Content="初期化" Grid.Column="3" Grid.Row="0" Click="ButtonParamReset_Click" />
+                            <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" Margin="2,1,2,1" VerticalAlignment="Center"/>
+                            <Button x:Name="ButtonParamReset" Content="初期化" Grid.Column="2" Grid.Row="0" Click="ButtonParamReset_Click" Width="Auto" HorizontalAlignment="Right" />
 
-                        <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" CanContentScroll="True">
-                                <StackPanel Margin="1,1,1,1">
-                                    <WrapPanel x:Name="WrapPanelParams1" Margin="1,1,1,1" ></WrapPanel>
-                                    <WrapPanel x:Name="WrapPanelParams2" Margin="1,1,1,1" ></WrapPanel>
-                                </StackPanel>
-                            </ScrollViewer>
-                        </StackPanel>
-                    </Grid>
+                            <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                                <ScrollViewer AutomationProperties.IsOffscreenBehavior="Offscreen" PanningMode="Both" Height="130" VerticalScrollBarVisibility="Auto">
+                                    <StackPanel Margin="1,1,1,1">
+                                        <WrapPanel x:Name="WrapPanelParams1" Margin="1,1,1,1" ></WrapPanel>
+                                        <WrapPanel x:Name="WrapPanelParams2" Margin="1,1,1,1" ></WrapPanel>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
                 </GroupBox>
-                
+
+                <Label Content="偽装ちゃんは、棒読みちゃんの代わりにアプリから情報を受け取り、AssistantSeikaへ転送します。怪しいツールじゃないよ！" Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="5" Margin="2,1,2,1" HorizontalContentAlignment="Right"/>
 
             </Grid>
         </TabItem>
