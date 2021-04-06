@@ -41,7 +41,7 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 話者マップタブで、棒読みちゃんのボイス0～8に話者を割り付けできます。  
 棒読みちゃん連携のソフトウエアのほとんどはボイス0のみ使っているように見受けられます。  
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210330-212504.png "話者マップ")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210404-054646.png "話者マップ")
 
 ## 発声方法
 
