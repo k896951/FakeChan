@@ -61,6 +61,7 @@
     </ApplicationDefinition>
     <Compile Include="BouyomiChanRemoting.cs" />
     <Compile Include="Configs.cs" />
+    <Compile Include="EditParamsBefore.cs" />
     <Compile Include="EnumClass.cs" />
     <Compile Include="IpcTasks.cs" />
     <Compile Include="MessageData.cs" />

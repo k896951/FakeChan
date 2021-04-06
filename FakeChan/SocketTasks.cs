@@ -16,6 +16,7 @@ namespace FakeChan
         Configs Config;
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
+        EditParamsBefore EditEffect = new EditParamsBefore();
 
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
 
@@ -123,7 +124,7 @@ namespace FakeChan
                                                 TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
                                                 break;
                                         }
-                                        voice = iVoice > 8 ? 0 : iVoice;
+                                        voice = EditEffect.CheckVoiceChange((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
 
                                         if (ListenPort == Config.SocketPortNum2)
                                         {
@@ -145,8 +146,8 @@ namespace FakeChan
                                                 MessageData talk = new MessageData()
                                                 {
                                                     Cid = cid,
-                                                    Message = TalkText,
-                                                    BouyomiVoice = iVoice,
+                                                    Message = EditEffect.ChangedTalkText,
+                                                    BouyomiVoice = voice,
                                                     TaskId = tid,
                                                     Effects = Effects,
                                                     Emotions = Emotions

@@ -18,6 +18,7 @@ namespace FakeChan
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         IpcServerChannel IpcCh = null;
+        EditParamsBefore EditEffect = new EditParamsBefore();
 
         public methods PlayMethod { get; set; }
 
@@ -97,28 +98,12 @@ namespace FakeChan
 
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
-            int voice = vType > 8 ? 0 : vType;
+            int voice = EditEffect.CheckVoiceChange((vType > 8 || vType == -1 ? 0 : vType), TalkText);
+
             int cid = Config.B2Amap[voice];
             int tid = MessQue.count + 1;
             Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
             Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-            // 製品により「普通」が異なるので制御が難しい。止めておく。
-            //
-            //decimal minval_spd = ParamAssignList[voice][cid]["effect"]["speed"]["min"];
-            //decimal maxval_spd = ParamAssignList[voice][cid]["effect"]["speed"]["max"];
-            //decimal minval_pch = ParamAssignList[voice][cid]["effect"]["pitch"]["min"];
-            //decimal maxval_pch = ParamAssignList[voice][cid]["effect"]["pitch"]["max"];
-            //decimal minval_vol = ParamAssignList[voice][cid]["effect"]["volume"]["min"];
-            //decimal maxval_vol = ParamAssignList[voice][cid]["effect"]["volume"]["max"];
-            //
-            //iSpeed  = iSpeed  == -1 ? 100 : iSpeed;
-            //iTone   = iTone   == -1 ? 100 : iTone;
-            //iVolume = iVolume == -1 ?  50 : iVolume;
-            //
-            //Effects["speed"]  = Bouyomi2Othor(iSpeed,  300, minval_spd, maxval_spd);
-            //Effects["pitch"]  = Bouyomi2Othor(iTone,   200, minval_pch, maxval_pch);
-            //Effects["volume"] = Bouyomi2Othor(iVolume, 100, minval_vol, maxval_vol);
 
             switch (PlayMethod)
             {
@@ -126,7 +111,7 @@ namespace FakeChan
                     MessageData talk = new MessageData()
                     {
                         Cid = cid,
-                        Message = TalkText,
+                        Message = EditEffect.ChangedTalkText,
                         BouyomiVoice = voice,
                         TaskId = tid,
                         Effects = Effects,
