@@ -89,8 +89,8 @@ namespace FakeChan
 
         Dictionary<int, string> PlayMethodList = new Dictionary<int, string>()
         {
-            { 0,  "同期" },
-            { 1, "非同期"}
+            { 0, "同期(共通キューに入れて順次発声)" },
+            { 1, "非同期(すぐに発声)"}
         };
 
         Dictionary<int, methods> PlayMethodMap = new Dictionary<int, methods>()
