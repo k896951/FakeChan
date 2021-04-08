@@ -348,8 +348,9 @@ namespace FakeChan
                             {
                                 Dispatcher.Invoke(() =>
                                 {
-                                    IpcTask.SetTaskId(item.TaskId);
-                                    HttpTask.SetTaskId(item.TaskId);
+                                    IpcTask?.SetTaskId(item.TaskId);
+                                    HttpTask?.SetTaskId(item.TaskId);
+                                    HttpTask2?.SetTaskId(item.TaskId);
                                     TextBoxReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoice], an[item.Cid] );
                                 });
