@@ -44,7 +44,7 @@ namespace FakeChan
         {
             PlayMethod = methods.sync;
 
-            // TCP/IP リスナタスク起動
+            // HTTP リスナタスク起動
             HTTPListener = new HttpListener();
             HTTPListener.Prefixes.Add(string.Format(@"http://{0}:{1}/", addr, port));
             HTTPListener.Start();
@@ -56,7 +56,7 @@ namespace FakeChan
 
         public void StopHttpTasks()
         {
-            // TCP/IP リスナタスク停止
+            // HTTP リスナタスク停止
             KeepListen = false;
             HTTPListener?.Stop();
         }
