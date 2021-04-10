@@ -26,7 +26,7 @@ namespace FakeChan
 
         bool KeepListen = false;
         HttpListener HTTPListener;
-        Action BGTcpListen;
+        Action BGHttpListen;
         int taskId = 0;
         int ListenPort;
 
@@ -49,8 +49,8 @@ namespace FakeChan
             HTTPListener.Prefixes.Add(string.Format(@"http://{0}:{1}/", addr, port));
             HTTPListener.Start();
             KeepListen = true;
-            BGTcpListen = SetupBGHttpListenerTask();
-            Task.Run(BGTcpListen);
+            BGHttpListen = SetupBGHttpListenerTask();
+            Task.Run(BGHttpListen);
             ListenPort = port;
         }
 
