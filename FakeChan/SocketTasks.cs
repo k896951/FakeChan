@@ -25,7 +25,7 @@ namespace FakeChan
         Action BGTcpListen;
         int ListenPort;
 
-        public methods PlayMethod { get; set; }
+        public Methods PlayMethod { get; set; }
 
         public SocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
         {
@@ -37,7 +37,7 @@ namespace FakeChan
 
         public void StartSocketTasks(IPAddress addr, int port)
         {
-            PlayMethod = methods.sync;
+            PlayMethod = Methods.sync;
 
             // TCP/IP リスナタスク起動
             TcpIpListener = new TcpListener(addr, port);
@@ -77,6 +77,7 @@ namespace FakeChan
                         Int16 iCommand;
                         Int16 iVoice;
                         int voice;
+                        int voiceIdx;
                         byte bCode;
                         Int32 iLength;
                         string TalkText = "";
@@ -128,26 +129,27 @@ namespace FakeChan
 
                                         if (ListenPort == Config.SocketPortNum2)
                                         {
-                                            voice = voice + (Config.BouyomiVoiceWidth * 3);
+                                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Socket2] + voice;
                                         }
                                         else
                                         {
-                                            voice = voice + Config.BouyomiVoiceWidth;
+                                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Socket1] + voice;
                                         }
 
-                                        int cid = Config.B2Amap[voice];
+                                        int cid = Config.B2Amap[voiceIdx];
                                         int tid = MessQue.count + 1;
-                                        Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                                        Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                                         switch (PlayMethod)
                                         {
-                                            case methods.sync:
+                                            case Methods.sync:
                                                 MessageData talk = new MessageData()
                                                 {
                                                     Cid = cid,
                                                     Message = EditEffect.ChangedTalkText,
                                                     BouyomiVoice = voice,
+                                                    BouyomiVoiceIdx = voiceIdx,
                                                     TaskId = tid,
                                                     Effects = Effects,
                                                     Emotions = Emotions
@@ -155,7 +157,7 @@ namespace FakeChan
                                                 MessQue.AddQueue(talk);
                                                 break;
 
-                                            case methods.async:
+                                            case Methods.async:
                                                 WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
                                                 break;
                                         }

@@ -46,5 +46,17 @@ namespace FakeChan.Properties {
                 this["UserSettings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20210411")]
+        public decimal SaveVersion {
+            get {
+                return ((decimal)(this["SaveVersion"]));
+            }
+            set {
+                this["SaveVersion"] = value;
+            }
+        }
     }
 }

@@ -22,8 +22,20 @@ namespace FakeChan
         public Int32 SocketPortNum2 { get; set; }
         public IPAddress HttpAddress2 { get; set; }
         public Int32 HttpPortNum2 { get; set; }
+        public string IPCChannelName { get; set; }
+        public string IPC2ChannelName { get; set; }
 
         public readonly int BouyomiVoiceWidth = 9;
+
+        public Dictionary<VoiceIndex, int> BouyomiVoiceIdx = new Dictionary<VoiceIndex, int>()
+        {
+            { VoiceIndex.IPC1,      0 },
+            { VoiceIndex.Socket1,  9 },
+            { VoiceIndex.Http1,   18 },
+            { VoiceIndex.Socket2, 27 },
+            { VoiceIndex.Http2,   36 },
+            { VoiceIndex.IPC2,    45 }
+        };
 
         Dictionary<int, string> BouyomiVoiceListHttp = new Dictionary<int, string>()
         {
@@ -84,7 +96,16 @@ namespace FakeChan
             { 41, "HTTP(50081):中性" },
             { 42, "HTTP(50081):ロボット" },
             { 43, "HTTP(50081):機械1" },
-            { 44, "HTTP(50081):機械2" }
+            { 44, "HTTP(50081):機械2" },
+            { 45, "IPC2:ボイス0" },
+            { 46, "IPC2:女性1"},
+            { 47, "IPC2:女性2"},
+            { 48, "IPC2:男性1"},
+            { 49, "IPC2:男性2"},
+            { 50, "IPC2:中性" },
+            { 51, "IPC2:ロボット" },
+            { 52, "IPC2:機械1" },
+            { 53, "IPC2:機械2" }
         };
 
         Dictionary<int, string> PlayMethodList = new Dictionary<int, string>()
@@ -93,10 +114,10 @@ namespace FakeChan
             { 1, "非同期(すぐに発声)"}
         };
 
-        Dictionary<int, methods> PlayMethodMap = new Dictionary<int, methods>()
+        Dictionary<int, Methods> PlayMethodMap = new Dictionary<int, Methods>()
         {
-            { 0, methods.sync },
-            { 1, methods.async}
+            { 0, Methods.sync },
+            { 1, Methods.async}
         };
 
         public Dictionary<int, string> AvatorNames
@@ -114,7 +135,7 @@ namespace FakeChan
                 return PlayMethodList;
             }
         }
-        public Dictionary<int, methods> PlayMethodsMap
+        public Dictionary<int, Methods> PlayMethodsMap
         {
             get
             {
@@ -168,6 +189,9 @@ namespace FakeChan
 
             HttpAddress2 = IPAddress.Parse("127.0.0.1");
             HttpPortNum2 = 50081;
+
+            IPCChannelName  = "BouyomiChan";
+            IPC2ChannelName = "BouyomiChan2";
 
             int cid = AvatorNameList.First().Key;
             Bouyomi2AssistantSeika = BouyomiVoiceList.ToDictionary(k => k.Key, v => cid);

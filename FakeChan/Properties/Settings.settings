@@ -8,5 +8,8 @@
     <Setting Name="UserSettings" Type="System.String" Scope="User">
       <Value Profile="(Default)">{}</Value>
     </Setting>
+    <Setting Name="SaveVersion" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">20210411</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -40,39 +40,39 @@ namespace FNF.Utility
 
         public void AddTalkTask(string sTalkText)
         {
-            if (OnAddTalkTask01 != null) OnAddTalkTask01(sTalkText);
+            OnAddTalkTask01?.Invoke(sTalkText);
         }
 
         public void AddTalkTask(string sTalkText, int iSpeed, int iVolume, int vType)
         {
-            if (OnAddTalkTask02 != null) OnAddTalkTask02(sTalkText, iSpeed, iVolume, vType);
+            OnAddTalkTask02?.Invoke(sTalkText, iSpeed, iVolume, vType);
         }
 
         public void AddTalkTask(string sTalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
-            if (OnAddTalkTask03 != null) OnAddTalkTask03(sTalkText, iSpeed, iTone, iVolume, vType);
+            OnAddTalkTask03?.Invoke(sTalkText, iSpeed, iTone, iVolume, vType);
         }
 
         public int AddTalkTask2(string sTalkText)
         {
-            if (OnAddTalkTask21 != null) OnAddTalkTask21(sTalkText);
+            OnAddTalkTask21?.Invoke(sTalkText);
             return 0;
         }
 
         public int AddTalkTask2(string sTalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
-            if (OnAddTalkTask23 != null) OnAddTalkTask23(sTalkText, iSpeed, iTone, iVolume, vType);
+            OnAddTalkTask23?.Invoke(sTalkText, iSpeed, iTone, iVolume, vType);
             return 0;
         }
 
         public void ClearTalkTasks()
         {
-            if (OnClearTalkTask != null) OnClearTalkTask();
+            OnClearTalkTask?.Invoke();
         }
 
         public void SkipTalkTask()
         {
-            if (OnSkipTalkTask != null) OnSkipTalkTask();
+            OnSkipTalkTask?.Invoke();
         }
 
     }

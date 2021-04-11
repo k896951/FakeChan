@@ -30,7 +30,7 @@ namespace FakeChan
         int taskId = 0;
         int ListenPort;
 
-        public methods PlayMethod { get; set; }
+        public Methods PlayMethod { get; set; }
 
         public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
         {
@@ -42,7 +42,7 @@ namespace FakeChan
 
         public void StartHttpTasks(IPAddress addr, int port)
         {
-            PlayMethod = methods.sync;
+            PlayMethod = Methods.sync;
 
             // HTTP リスナタスク起動
             HTTPListener = new HttpListener();
@@ -58,7 +58,14 @@ namespace FakeChan
         {
             // HTTP リスナタスク停止
             KeepListen = false;
-            HTTPListener?.Stop();
+            try
+            {
+                HTTPListener?.Stop();
+            }
+            catch(Exception)
+            {
+                //
+            }
         }
 
         public void SetTaskId(int tid)
@@ -113,33 +120,34 @@ namespace FakeChan
                         response.ContentType = "application/json; charset=utf-8";
 
                         voice = EditEffect.CheckVoiceChange((voice > 8 || voice == -1 ? 0 : voice), TalkText);
-
+                        int voiceIdx;
                         if (ListenPort == Config.HttpPortNum2)
                         {
-                            voice = voice + (Config.BouyomiVoiceWidth * 4);
+                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Http1] + voice;
                         }
                         else
                         {
-                            voice = voice + (Config.BouyomiVoiceWidth * 2);
+                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Http2] + voice;
                         }
 
                         // dispath url
                         switch (UrlPath)
                         {
                             case "/TALK":
-                                int cid = Config.B2Amap[voice];
+                                int cid = Config.B2Amap[voiceIdx];
                                 int tid = MessQue.count + 1;
-                                Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                                Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                                 switch (PlayMethod)
                                 {
-                                    case methods.sync:
+                                    case Methods.sync:
                                         MessageData talk = new MessageData()
                                         {
                                             Cid = cid,
                                             Message = EditEffect.ChangedTalkText,
                                             BouyomiVoice = voice,
+                                            BouyomiVoiceIdx = voiceIdx,
                                             TaskId = tid,
                                             Effects = Effects,
                                             Emotions = Emotions
@@ -147,7 +155,7 @@ namespace FakeChan
                                         MessQue.AddQueue(talk);
                                         break;
 
-                                    case methods.async:
+                                    case Methods.async:
                                         WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
                                         break;
                                 }
@@ -160,7 +168,11 @@ namespace FakeChan
                             case "/GETVOICELIST":
                                 sb.Clear();
                                 sb.AppendLine(@"{ ""voiceList"":[");
-                                sb.AppendLine("{" + string.Join(",", Config.BouyomiVoicesHttp.Select(v => string.Format(listFmt, v.Key, v.Value)).ToArray()) + "}");
+                                sb.Append(
+                                    string.Join(",", Config.BouyomiVoicesHttp.Select(v => string.Format(listFmt, v.Key, v.Value))
+                                                                             .Select(v => "{" + v + "}")
+                                                                             .ToArray())
+                                );
                                 sb.AppendLine(@"] }");
 
                                 byte[] responseListContent = Encoding.UTF8.GetBytes(sb.ToString());

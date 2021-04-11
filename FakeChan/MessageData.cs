@@ -8,6 +8,8 @@ namespace FakeChan
 
         public int BouyomiVoice { get; set; }
 
+        public int BouyomiVoiceIdx { get; set; }
+
         public int TaskId { get; set; }
 
         public string Message { get; set; }

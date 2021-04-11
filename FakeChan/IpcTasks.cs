@@ -19,8 +19,9 @@ namespace FakeChan
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         IpcServerChannel IpcCh = null;
         EditParamsBefore EditEffect = new EditParamsBefore();
+        string ChannelName;
 
-        public methods PlayMethod { get; set; }
+        public Methods PlayMethod { get; set; }
 
         public IpcTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
         {
@@ -28,7 +29,7 @@ namespace FakeChan
             MessQue = mq;
             WcfClient = wcf;
             ParamAssignList = Params;
-            PlayMethod = methods.sync;
+            PlayMethod = Methods.sync;
 
             ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
             ShareIpcObject.OnAddTalkTask01 += new FNF.Utility.BouyomiChanRemoting.CallEventHandlerAddTalkTask01(IPCAddTalkTask01);
@@ -41,13 +42,14 @@ namespace FakeChan
             ShareIpcObject.MessQue = MessQue;
         }
 
-        public bool StartIpcTasks()
+        public bool StartIpcTasks(string chName)
         {
+            ChannelName = chName;
             try
             {
                 if (IpcCh is null)
                 {
-                    IpcCh = new IpcServerChannel("BouyomiChan");
+                    IpcCh = new IpcServerChannel(chName);
                 }
                 IpcCh.IsSecured = false;
                 ChannelServices.RegisterChannel(IpcCh, false);
@@ -99,20 +101,30 @@ namespace FakeChan
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
             int voice = EditEffect.CheckVoiceChange((vType > 8 || vType == -1 ? 0 : vType), TalkText);
-
-            int cid = Config.B2Amap[voice];
             int tid = MessQue.count + 1;
-            Dictionary<string, decimal> Effects = ParamAssignList[voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = ParamAssignList[voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            int voiceIdx;
+            if (ChannelName == Config.IPC2ChannelName)
+            {
+                voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + voice;
+            }
+            else
+            {
+                voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
+            }
+
+            int cid = Config.B2Amap[voiceIdx];
+            Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
             switch (PlayMethod)
             {
-                case methods.sync:
+                case Methods.sync:
                     MessageData talk = new MessageData()
                     {
                         Cid = cid,
                         Message = EditEffect.ChangedTalkText,
                         BouyomiVoice = voice,
+                        BouyomiVoiceIdx = voiceIdx,
                         TaskId = tid,
                         Effects = Effects,
                         Emotions = Emotions
@@ -120,7 +132,7 @@ namespace FakeChan
                     MessQue.AddQueue(talk);
                     break;
 
-                case methods.async:
+                case Methods.async:
                     WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
                     break;
             }
