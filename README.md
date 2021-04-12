@@ -43,6 +43,10 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 棒読みちゃん連携のソフトウエアのほとんどはボイス0のみ使っているように見受けられます。  
 ![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210404-054646.png "話者マップ")
 
+## その他の使い方
+
+[偽装ちゃんと棒読みちゃんの混在方法](https://hgotoh.jp/wiki/doku.php/documents/tools/tools-206a)もどうぞ。
+
 ## 発声方法
 
 発声方法は以下があります。
