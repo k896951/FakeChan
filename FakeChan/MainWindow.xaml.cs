@@ -22,7 +22,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.0.0";
+        string versionStr = "Ver 1.0.1";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -110,6 +110,15 @@ namespace FakeChan
                     };
                     UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
                     UserData.Voice2Cid = Config.B2Amap;
+                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
+                    {
+                        {VoiceIndex.IPC1, true },
+                        {VoiceIndex.Socket1, true },
+                        {VoiceIndex.Http1, true },
+                        {VoiceIndex.IPC2, false },
+                        {VoiceIndex.Socket2, false },
+                        {VoiceIndex.Http2, false },
+                    };
                 }
 
                 // 古い版のデータだったら補正
@@ -130,6 +139,18 @@ namespace FakeChan
                         UserData.Voice2Cid[Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + idx] = Config.B2Amap[Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + idx];
                     }
                 }
+                if (UserData.LampSwitch == null)
+                {
+                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
+                    {
+                        {VoiceIndex.IPC1, true },
+                        {VoiceIndex.Socket1, true },
+                        {VoiceIndex.Http1, true },
+                        {VoiceIndex.IPC2, false },
+                        {VoiceIndex.Socket2, false },
+                        {VoiceIndex.Http2, false },
+                    };
+                }
 
             }
             catch (Exception e0)
@@ -142,6 +163,14 @@ namespace FakeChan
             // メッセージキューを使うよ！
             MessQueWrapper = new MessQueueWrapper();
 
+            // バックグラウンドタスク用オブジェクト
+            IpcTask   = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            IpcTask2  = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            SockTask  = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+
             LampList = new List<Ellipse>()
             {
                 EllipseIpc,
@@ -152,25 +181,12 @@ namespace FakeChan
                 EllipseIpc2,
             };
 
-            IpcTask   = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            SockTask  = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            IpcTask2  = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-
-            for (int idx = 0; idx < LampList.Count; idx++)
-            {
-                switch (idx)
-                {
-                    case 0: LampList[idx].Tag = true;  break;
-                    case 1: LampList[idx].Tag = true;  break;
-                    case 2: LampList[idx].Tag = true;  break;
-                    case 3: LampList[idx].Tag = false; break;
-                    case 4: LampList[idx].Tag = false; break;
-                    case 5: LampList[idx].Tag = false; break;
-                }
-            }
+            LampList[0].Tag = UserData.LampSwitch[VoiceIndex.IPC1];
+            LampList[1].Tag = UserData.LampSwitch[VoiceIndex.Socket1];
+            LampList[2].Tag = UserData.LampSwitch[VoiceIndex.Http1];
+            LampList[3].Tag = UserData.LampSwitch[VoiceIndex.Socket2];
+            LampList[4].Tag = UserData.LampSwitch[VoiceIndex.Http2];
+            LampList[5].Tag = UserData.LampSwitch[VoiceIndex.IPC2];
 
             MethodList = new List<ComboBox>()
             {
@@ -305,11 +321,13 @@ namespace FakeChan
                                 {
                                     LampList[idx].Fill = Brushes.LightGreen;
                                     LampList[idx].Tag = true;
+                                    UserData.LampSwitch[VoiceIndex.IPC1] = true;
                                 }
                                 else
                                 {
                                     LampList[idx].Fill = Brushes.Black;
                                     LampList[idx].Tag = false;
+                                    UserData.LampSwitch[VoiceIndex.IPC1] = false;
                                 }
                                 break;
 
@@ -317,24 +335,28 @@ namespace FakeChan
                                 SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
                                 LampList[idx].Fill = Brushes.LightGreen;
                                 LampList[idx].Tag = true;
+                                UserData.LampSwitch[VoiceIndex.Socket1] = true;
                                 break;
 
                             case 2:
                                 HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
                                 LampList[idx].Fill = Brushes.LightGreen;
                                 LampList[idx].Tag = true;
+                                UserData.LampSwitch[VoiceIndex.Http1] = true;
                                 break;
 
                             case 3:
                                 SockTask2.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
                                 LampList[idx].Fill = Brushes.LightGreen;
                                 LampList[idx].Tag = true;
+                                UserData.LampSwitch[VoiceIndex.Socket2] = true;
                                 break;
 
                             case 4:
                                 HttpTask2.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
                                 LampList[idx].Fill = Brushes.LightGreen;
                                 LampList[idx].Tag = true;
+                                UserData.LampSwitch[VoiceIndex.Http2] = true;
                                 break;
 
                             case 5:
@@ -342,11 +364,13 @@ namespace FakeChan
                                 {
                                     LampList[idx].Fill = Brushes.LightGreen;
                                     LampList[idx].Tag = true;
+                                    UserData.LampSwitch[VoiceIndex.IPC2] = true;
                                 }
                                 else
                                 {
                                     LampList[idx].Fill = Brushes.Black;
                                     LampList[idx].Tag = false;
+                                    UserData.LampSwitch[VoiceIndex.IPC2] = false;
                                 }
                                 break;
                         }
@@ -638,12 +662,12 @@ namespace FakeChan
             {
                 switch (lampNo)
                 {
-                    case 0: IpcTask.StopIpcTasks();      break;
-                    case 1: SockTask.StopSocketTasks();  break;
-                    case 2: HttpTask.StopHttpTasks();    break;
-                    case 3: SockTask2.StopSocketTasks(); break;
-                    case 4: HttpTask2.StopHttpTasks();   break;
-                    case 5: IpcTask2.StopIpcTasks();     break;
+                    case 0: IpcTask.StopIpcTasks();      UserData.LampSwitch[VoiceIndex.IPC1]    = false; break;
+                    case 1: SockTask.StopSocketTasks();  UserData.LampSwitch[VoiceIndex.Socket1] = false; break;
+                    case 2: HttpTask.StopHttpTasks();    UserData.LampSwitch[VoiceIndex.Http1]   = false; break;
+                    case 3: SockTask2.StopSocketTasks(); UserData.LampSwitch[VoiceIndex.Socket2] = false; break;
+                    case 4: HttpTask2.StopHttpTasks();   UserData.LampSwitch[VoiceIndex.Http2]   = false; break;
+                    case 5: IpcTask2.StopIpcTasks();     UserData.LampSwitch[VoiceIndex.IPC2]    = false; break;
                 }
             }
             else
@@ -655,17 +679,27 @@ namespace FakeChan
                         {
                             ep.Fill = Brushes.Black;
                             LampList[lampNo].Tag = false;
+                            UserData.LampSwitch[VoiceIndex.IPC1] = false;
+                        }
+                        else
+                        {
+                            UserData.LampSwitch[VoiceIndex.IPC1] = true;
                         }
                         break;
-                    case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    break;
-                    case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          break;
-                    case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;
-                    case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       break;
+                    case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    UserData.LampSwitch[VoiceIndex.Socket1] = true; break;
+                    case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          UserData.LampSwitch[VoiceIndex.Http1]   = true; break;
+                    case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); UserData.LampSwitch[VoiceIndex.Socket2] = true; break;
+                    case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       UserData.LampSwitch[VoiceIndex.Http2]   = true; break;
                     case 5:
                         if (!IpcTask2.StartIpcTasks(Config.IPC2ChannelName))
                         {
                             ep.Fill = Brushes.Black;
                             LampList[lampNo].Tag = false;
+                            UserData.LampSwitch[VoiceIndex.IPC2] = false;
+                        }
+                        else
+                        {
+                            UserData.LampSwitch[VoiceIndex.IPC2] = true;
                         }
                         break;
                 }

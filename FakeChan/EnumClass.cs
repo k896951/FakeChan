@@ -8,11 +8,11 @@
 
     public enum VoiceIndex
     {
-        IPC1 = 0,
-        Socket1,
-        Http1,
-        Socket2,
-        Http2,
-        IPC2
+        IPC1    = 0,
+        Socket1 = 1,
+        Http1   = 2,
+        Socket2 = 3,
+        Http2   = 4,
+        IPC2    = 5
     }
 }
