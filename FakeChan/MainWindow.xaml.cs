@@ -21,6 +21,8 @@ namespace FakeChan
     /// </summary>
     public partial class MainWindow : Window
     {
+        string titleStr = "偽装ちゃん";
+        string versionStr = "Ver 1.0.0";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -48,7 +50,7 @@ namespace FakeChan
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Title = "偽装ちゃん Ver 1.0.0";
+            Title = titleStr + " " + versionStr;
 
             try
             {
@@ -63,7 +65,19 @@ namespace FakeChan
                     throw new Exception("No Avators detected from AssistantSeika");
                 }
 
-                // 最後の設定値があれば読むよ！
+                // 設定色々
+                Config = new Configs(ref WcfClient);
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show("AssistantSeikaを起動していないか、AssistantSeikaが音声合成製品を認識していない可能性があります。" + "\n" + e0.Message, "AssistantSeikaの状態");
+                Application.Current.Shutdown();
+                return;
+            }
+
+            try
+            {
+                // 古いバージョンの設定値があればアップグレードするよ！
                 if (Properties.Settings.Default.UpgradeRequired)
                 {
                     Properties.Settings.Default.Upgrade();
@@ -71,6 +85,7 @@ namespace FakeChan
                     Properties.Settings.Default.Save();
                 }
 
+                // 設定値を取り込むよ！
                 UserData = new UserDefData();
                 if (Properties.Settings.Default.UserSettings != "")
                 {
@@ -79,54 +94,53 @@ namespace FakeChan
                     UserData = (UserDefData)uds.ReadObject(ms);
                     ms.Close();
                 }
+
+                // 設定値が取り込めない環境がある模様だ。対策するよ！
+                if (UserData is null)
+                {
+                    UserData = new UserDefData();
+                    UserData.MethodAssignList = new Dictionary<int, int>()
+                    {
+                        { 0, 0 },
+                        { 1, 0 },
+                        { 2, 0 },
+                        { 3, 0 },
+                        { 4, 0 },
+                        { 5, 0 },
+                    };
+                    UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
+                    UserData.Voice2Cid = Config.B2Amap;
+                }
+
+                // 古い版のデータだったら補正
+                if (!UserData.ParamAssignList.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
+                {
+                    UserData.ParamAssignList[Config.BouyomiVoiceIdx[VoiceIndex.IPC2]] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+                }
+
+                if (!UserData.MethodAssignList.ContainsKey(5))
+                {
+                    UserData.MethodAssignList[5] = 0;
+                }
+
+                if (!UserData.Voice2Cid.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
+                {
+                    for (int idx = 0; idx < Config.BouyomiVoiceWidth; idx++)
+                    {
+                        UserData.Voice2Cid[Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + idx] = Config.B2Amap[Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + idx];
+                    }
+                }
+
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "Sorry0");
+                MessageBox.Show(e0.Message, "設定値読み込みの問題");
                 Application.Current.Shutdown();
                 return;
             }
 
-            // 設定色々
-            Config = new Configs(ref WcfClient);
-
             // メッセージキューを使うよ！
             MessQueWrapper = new MessQueueWrapper();
-
-            // nullになる環境がある模様。対策する
-            if (UserData is null)
-            {
-                UserData = new UserDefData();
-                UserData.MethodAssignList = null;
-                UserData.ParamAssignList = null;
-                UserData.Voice2Cid = null;
-            }
-
-            if (UserData.ParamAssignList is null)
-            {
-                UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
-            }
-            if (!UserData.ParamAssignList.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
-            {
-                UserData.ParamAssignList[Config.BouyomiVoiceIdx[VoiceIndex.IPC2]] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
-            }
-
-            if (UserData.MethodAssignList is null)
-            {
-                UserData.MethodAssignList = new Dictionary<int, int>()
-                {
-                    { 0, 0 },
-                    { 1, 0 },
-                    { 2, 0 },
-                    { 3, 0 },
-                    { 4, 0 },
-                    { 5, 0 },
-                };
-            }
-            if (!UserData.MethodAssignList.ContainsKey(5))
-            {
-                UserData.MethodAssignList[5] = 0;
-            }
 
             LampList = new List<Ellipse>()
             {
@@ -176,18 +190,6 @@ namespace FakeChan
                 MethodList[idx].IsEnabled = true;
                 MethodList[idx].Tag = idx;
                 MethodList[idx].SelectedIndex = UserData.MethodAssignList[idx];
-            }
-
-            if (UserData.Voice2Cid is null)
-            {
-                UserData.Voice2Cid = Config.B2Amap;
-            }
-            if (!UserData.Voice2Cid.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
-            {
-                for (int idx = 0; idx < Config.BouyomiVoiceWidth; idx++)
-                {
-                    UserData.Voice2Cid[Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + idx] = Config.B2Amap[Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + idx];
-                }
             }
 
             MapAvatorsComboBoxList = new List<ComboBox>()
@@ -354,7 +356,7 @@ namespace FakeChan
             }
             catch (Exception e1)
             {
-                MessageBox.Show(e1.Message, "Sorry1");
+                MessageBox.Show(e1.Message, titleStr + " 1");
                 Application.Current.Shutdown();
             }
         }
