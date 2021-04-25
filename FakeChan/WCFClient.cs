@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
@@ -17,7 +16,6 @@ namespace FakeChan
         {
             ChannelAc = new ChannelFactory<IScAPIs>(new NetNamedPipeBinding(), new EndpointAddress(BaseAddr));
             ServiceAc = ChannelAc.CreateChannel();
-            (ServiceAc as IContextChannel).OperationTimeout = new TimeSpan(99, 99, 99);
 
             while (ChannelAc.State != CommunicationState.Opened)
             {
