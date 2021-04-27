@@ -8,54 +8,100 @@ namespace FakeChan
 {
     public class WCFClient
     {
-        IScAPIs ServiceAc;
-        ChannelFactory<IScAPIs> ChannelAc;
+        NetNamedPipeBinding Binding = new NetNamedPipeBinding();
+        TimeSpan keeptime = new TimeSpan(99, 99, 99);
 
         string BaseAddr = "net.pipe://localhost/EchoSeika/CentralGate/ApiEntry";
 
         public WCFClient()
         {
-            ChannelAc = new ChannelFactory<IScAPIs>(new NetNamedPipeBinding(), new EndpointAddress(BaseAddr));
-            ServiceAc = ChannelAc.CreateChannel();
-            (ServiceAc as IContextChannel).OperationTimeout = new TimeSpan(99, 99, 99);
-            while (ChannelAc.State != CommunicationState.Opened)
+        }
+
+        private ChannelFactory<IScAPIs> CreateChannelFactory()
+        {
+            var ans = new ChannelFactory<IScAPIs>(Binding, new EndpointAddress(BaseAddr));
+
+            while (ans.State != CommunicationState.Created)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
+
+            return ans;
+        }
+
+        private IScAPIs CreateChannel(ChannelFactory<IScAPIs> ChannelSc)
+        {
+            var ans = ChannelSc.CreateChannel();
+            (ans as IContextChannel).OperationTimeout = keeptime;
+
+            while (ChannelSc.State != CommunicationState.Opened)
+            {
+                Thread.Sleep(10);
+            }
+
+            return ans;
         }
 
         public string Version()
         {
-            return ServiceAc.Verson();
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.Verson();
+            cf.Close();
+            return ans;
         }
 
         public Dictionary<int, string> AvatorList()
         {
-            return ServiceAc.AvatorList().ToDictionary(k => k.Key, v => v.Key + " : " + v.Value);
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.AvatorList().ToDictionary(k => k.Key, v => v.Key + " : " + v.Value);
+            cf.Close();
+            return ans;
         }
 
         public Dictionary<int, Dictionary<string, string>> AvatorList2()
         {
-            return ServiceAc.AvatorList2();
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.AvatorList2();
+            cf.Close();
+            return ans;
         }
 
         public Dictionary<string, Dictionary<string, Dictionary<string, decimal>>> GetDefaultParams2(int cid)
         {
-            return ServiceAc.GetDefaultParams2(cid);
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.GetDefaultParams2(cid);
+            cf.Close();
+            return ans;
         }
 
         public Dictionary<string, Dictionary<string, Dictionary<string, decimal>>> GetCurrentParams2(int cid)
         {
-            return ServiceAc.GetCurrentParams2(cid);
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.GetCurrentParams2(cid);
+            cf.Close();
+            return ans;
         }
 
         public double Talk(int cid, string talktext, string filepath, Dictionary<string, decimal> effects, Dictionary<string, decimal> emotions)
         {
-            return ServiceAc.Talk(cid, talktext, filepath, effects, emotions);
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            var ans = api.Talk(cid, talktext, "", effects, emotions);
+            cf.Close();
+            return ans;
         }
+
         public void TalkAsync(int cid, string talktext, Dictionary<string, decimal> effects, Dictionary<string, decimal> emotions)
         {
-            ServiceAc.TalkAsync(cid, talktext, effects, emotions);
+            var cf = CreateChannelFactory();
+            var api = CreateChannel(cf);
+            api.TalkAsync(cid, talktext, effects, emotions);
+            cf.Close();
         }
 
     }
