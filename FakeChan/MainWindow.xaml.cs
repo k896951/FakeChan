@@ -22,7 +22,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.1.0";
+        string versionStr = "Ver 1.1.2";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -85,6 +85,16 @@ namespace FakeChan
                     Properties.Settings.Default.Save();
                 }
 
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show(e0.Message, "設定値読み込みの問題1");
+                Application.Current.Shutdown();
+                return;
+            }
+
+            try
+            {
                 // 設定値を取り込むよ！
                 UserData = new UserDefData();
                 if (Properties.Settings.Default.UserSettings != "")
@@ -94,11 +104,29 @@ namespace FakeChan
                     UserData = (UserDefData)uds.ReadObject(ms);
                     ms.Close();
                 }
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show(e0.Message, "設定値読み込みの問題2");
+                Application.Current.Shutdown();
+                return;
+            }
 
+            try
+            {
                 // 設定値が取り込めない環境がある模様だ。対策するよ！
                 if (UserData is null)
                 {
                     UserData = new UserDefData();
+                }
+
+                if (UserData.ParamAssignList is null)
+                {
+                    UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
+                }
+
+                if (UserData.MethodAssignList is null)
+                {
                     UserData.MethodAssignList = new Dictionary<int, int>()
                     {
                         { 0, 0 },
@@ -108,8 +136,15 @@ namespace FakeChan
                         { 4, 0 },
                         { 5, 0 },
                     };
-                    UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
+                }
+
+                if (UserData.Voice2Cid is null)
+                {
                     UserData.Voice2Cid = Config.B2Amap;
+                }
+
+                if (UserData.LampSwitch is null)
+                {
                     UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
                     {
                         {VoiceIndex.IPC1, true },
@@ -121,10 +156,25 @@ namespace FakeChan
                     };
                 }
 
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show(e0.Message, "設定値読み込みの問題3");
+                Application.Current.Shutdown();
+                return;
+            }
+
+            try
+            {
                 // 古い版のデータだったら補正
+                if (!Config.BouyomiVoiceIdx.ContainsKey(VoiceIndex.IPC2))
+                {
+                    Config.BouyomiVoiceIdx.Add(VoiceIndex.IPC2, 45);
+                }
+
                 if (!UserData.ParamAssignList.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
                 {
-                    UserData.ParamAssignList[Config.BouyomiVoiceIdx[VoiceIndex.IPC2]] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+                    UserData.ParamAssignList.Add(Config.BouyomiVoiceIdx[VoiceIndex.IPC2], new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>());
                 }
 
                 if (!UserData.MethodAssignList.ContainsKey(5))
@@ -139,6 +189,7 @@ namespace FakeChan
                         UserData.Voice2Cid[Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + idx] = Config.B2Amap[Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + idx];
                     }
                 }
+
                 if (UserData.LampSwitch == null)
                 {
                     UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
@@ -155,7 +206,7 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題");
+                MessageBox.Show(e0.Message, "設定値読み込みの問題4");
                 Application.Current.Shutdown();
                 return;
             }
