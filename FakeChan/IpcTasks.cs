@@ -4,8 +4,6 @@ using System.Linq;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace FakeChan
@@ -20,6 +18,9 @@ namespace FakeChan
         IpcServerChannel IpcCh = null;
         EditParamsBefore EditEffect = new EditParamsBefore();
         string ChannelName;
+
+        public delegate void CallEventHandlerCallAsyncTalk(MessageData talk);
+        public event CallEventHandlerCallAsyncTalk OnCallAsyncTalk;
 
         public Methods PlayMethod { get; set; }
 
@@ -56,7 +57,7 @@ namespace FakeChan
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "IPC error1");
+                MessageBox.Show(e.Message, "IPC Warning");
                 return false;
             }
             RemotingServices.Marshal(ShareIpcObject, "Remoting", typeof(FNF.Utility.BouyomiChanRemoting));
@@ -116,24 +117,25 @@ namespace FakeChan
             Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
             Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
+            MessageData talk = new MessageData()
+            {
+                Cid = cid,
+                Message = EditEffect.ChangedTalkText,
+                BouyomiVoice = voice,
+                BouyomiVoiceIdx = voiceIdx,
+                TaskId = tid,
+                Effects = Effects,
+                Emotions = Emotions
+            };
+
             switch (PlayMethod)
             {
                 case Methods.sync:
-                    MessageData talk = new MessageData()
-                    {
-                        Cid = cid,
-                        Message = EditEffect.ChangedTalkText,
-                        BouyomiVoice = voice,
-                        BouyomiVoiceIdx = voiceIdx,
-                        TaskId = tid,
-                        Effects = Effects,
-                        Emotions = Emotions
-                    };
                     MessQue.AddQueue(talk);
                     break;
 
                 case Methods.async:
-                    WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
+                    OnCallAsyncTalk?.Invoke(talk);
                     break;
             }
         }
@@ -157,14 +159,6 @@ namespace FakeChan
 
         private void IPCSkipTalkTask()
         {
-        }
-
-        private decimal Bouyomi2Othor(int BoValue, int BoMaxValue, decimal OtherMinValue, decimal OtherMaxValue)
-        {
-            decimal otherdisp = OtherMinValue < 0.0m ? decimal.Negate(OtherMinValue) : 0.0m;
-            decimal rate = (decimal)BoValue / BoMaxValue;
-
-            return rate * (OtherMaxValue + otherdisp) - otherdisp;
         }
 
     }

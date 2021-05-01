@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
-using System.Xml.Serialization;
 
 namespace FakeChan
 {
@@ -22,7 +20,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.1.2";
+        string versionStr = "Ver 1.1.3";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -221,6 +219,14 @@ namespace FakeChan
             SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
             HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
             HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+
+            // 非同期発声時のGUI操作用
+            IpcTask.OnCallAsyncTalk += TalkAsyncCall;
+            IpcTask2.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask2.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask2.OnCallAsyncTalk += TalkAsyncCall;
 
             LampList = new List<Ellipse>()
             {
@@ -493,6 +499,26 @@ namespace FakeChan
                 }
 
             }
+        }
+
+        private void TalkAsyncCall(MessageData talk)
+        {
+            Task.Run(() =>
+            {
+                Dictionary<int, string> bv = Config.BouyomiVoices;
+                Dictionary<int, string> an = Config.AvatorNames;
+                Dispatcher.Invoke(() =>
+                {
+                    IpcTask?.SetTaskId(talk.TaskId);
+                    IpcTask2?.SetTaskId(talk.TaskId);
+                    HttpTask?.SetTaskId(talk.TaskId);
+                    HttpTask2?.SetTaskId(talk.TaskId);
+                    TextBoxReceveText.Text = talk.Message;
+                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[talk.BouyomiVoiceIdx], an[talk.Cid]);
+                });
+
+                WcfClient.TalkAsync(talk.Cid, talk.Message, talk.Effects, talk.Emotions);
+            });
         }
 
         private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)

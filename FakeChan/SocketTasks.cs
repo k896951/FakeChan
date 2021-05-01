@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 
 namespace FakeChan
 {
@@ -24,6 +21,9 @@ namespace FakeChan
         TcpListener TcpIpListener;
         Action BGTcpListen;
         int ListenPort;
+
+        public delegate void CallEventHandlerCallAsyncTalk(MessageData talk);
+        public event CallEventHandlerCallAsyncTalk OnCallAsyncTalk;
 
         public Methods PlayMethod { get; set; }
 
@@ -141,24 +141,25 @@ namespace FakeChan
                                         Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                                         Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
+                                        MessageData talk = new MessageData()
+                                        {
+                                            Cid = cid,
+                                            Message = EditEffect.ChangedTalkText,
+                                            BouyomiVoice = voice,
+                                            BouyomiVoiceIdx = voiceIdx,
+                                            TaskId = tid,
+                                            Effects = Effects,
+                                            Emotions = Emotions
+                                        };
+
                                         switch (PlayMethod)
                                         {
                                             case Methods.sync:
-                                                MessageData talk = new MessageData()
-                                                {
-                                                    Cid = cid,
-                                                    Message = EditEffect.ChangedTalkText,
-                                                    BouyomiVoice = voice,
-                                                    BouyomiVoiceIdx = voiceIdx,
-                                                    TaskId = tid,
-                                                    Effects = Effects,
-                                                    Emotions = Emotions
-                                                };
                                                 MessQue.AddQueue(talk);
                                                 break;
 
                                             case Methods.async:
-                                                WcfClient.TalkAsync(cid, TalkText, Effects, Emotions);
+                                                OnCallAsyncTalk?.Invoke(talk);
                                                 break;
                                         }
 
