@@ -51,8 +51,6 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 [偽装ちゃんと棒読みちゃんの混在方法](https://hgotoh.jp/wiki/doku.php/documents/tools/tools-206a)もどうぞ。
 
-## 発声方法
-
 
 ## 自分のアプリから連携
 
