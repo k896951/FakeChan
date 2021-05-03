@@ -125,7 +125,7 @@ namespace FakeChan
                                                 TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
                                                 break;
                                         }
-                                        voice = EditEffect.CheckVoiceChange((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
+                                        voice = EditEffect.EditString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
 
                                         if (ListenPort == Config.SocketPortNum2)
                                         {

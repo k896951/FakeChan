@@ -23,18 +23,20 @@ namespace FakeChan
         public IPAddress HttpAddress2 { get; set; }
         public Int32 HttpPortNum2 { get; set; }
         public string IPCChannelName { get; set; }
-        public string IPC2ChannelName { get; set; }
+
+        public int TextLength { get; set; } = 20;
+        public bool AddSuffix { get; set; } = false;
+        public string AddSuffixStr { get; set; } = "(以下略";
 
         public readonly int BouyomiVoiceWidth = 9;
 
         public Dictionary<VoiceIndex, int> BouyomiVoiceIdx = new Dictionary<VoiceIndex, int>()
         {
-            { VoiceIndex.IPC1,      0 },
+            { VoiceIndex.IPC1,     0 },
             { VoiceIndex.Socket1,  9 },
             { VoiceIndex.Http1,   18 },
             { VoiceIndex.Socket2, 27 },
-            { VoiceIndex.Http2,   36 },
-            { VoiceIndex.IPC2,    45 }
+            { VoiceIndex.Http2,   36 }
         };
 
         Dictionary<int, string> BouyomiVoiceListHttp = new Dictionary<int, string>()
@@ -52,15 +54,15 @@ namespace FakeChan
 
         Dictionary<int, string> BouyomiVoiceList = new Dictionary<int, string>()
         {
-            {  0, "IPC:ボイス0" },
-            {  1, "IPC:女性1"},
-            {  2, "IPC:女性2"},
-            {  3, "IPC:男性1"},
-            {  4, "IPC:男性2"},
-            {  5, "IPC:中性" },
-            {  6, "IPC:ロボット" },
-            {  7, "IPC:機械1" },
-            {  8, "IPC:機械2" },
+            {  0, "IPC(BouyomiChan):ボイス0" },
+            {  1, "IPC(BouyomiChan):女性1"},
+            {  2, "IPC(BouyomiChan):女性2"},
+            {  3, "IPC(BouyomiChan):男性1"},
+            {  4, "IPC(BouyomiChan):男性2"},
+            {  5, "IPC(BouyomiChan):中性" },
+            {  6, "IPC(BouyomiChan):ロボット" },
+            {  7, "IPC(BouyomiChan):機械1" },
+            {  8, "IPC(BouyomiChan):機械2" },
             {  9, "Socket(50001):ボイス0" },
             { 10, "Socket(50001):女性1"},
             { 11, "Socket(50001):女性2"},
@@ -96,16 +98,7 @@ namespace FakeChan
             { 41, "HTTP(50081):中性" },
             { 42, "HTTP(50081):ロボット" },
             { 43, "HTTP(50081):機械1" },
-            { 44, "HTTP(50081):機械2" },
-            { 45, "IPC2:ボイス0" },
-            { 46, "IPC2:女性1"},
-            { 47, "IPC2:女性2"},
-            { 48, "IPC2:男性1"},
-            { 49, "IPC2:男性2"},
-            { 50, "IPC2:中性" },
-            { 51, "IPC2:ロボット" },
-            { 52, "IPC2:機械1" },
-            { 53, "IPC2:機械2" }
+            { 44, "HTTP(50081):機械2" }
         };
 
         Dictionary<int, string> PlayMethodList = new Dictionary<int, string>()
@@ -191,7 +184,6 @@ namespace FakeChan
             HttpPortNum2 = 50081;
 
             IPCChannelName  = "BouyomiChan";
-            IPC2ChannelName = "BouyomiChan2";
 
             int cid = AvatorNameList.First().Key;
             Bouyomi2AssistantSeika = BouyomiVoiceList.ToDictionary(k => k.Key, v => cid);

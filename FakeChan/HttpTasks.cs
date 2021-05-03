@@ -116,7 +116,7 @@ namespace FakeChan
 
                         response.ContentType = "application/json; charset=utf-8";
 
-                        voice = EditEffect.CheckVoiceChange((voice > 8 || voice == -1 ? 0 : voice), TalkText);
+                        voice = EditEffect.EditString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
                         int voiceIdx;
                         if (ListenPort == Config.HttpPortNum2)
                         {

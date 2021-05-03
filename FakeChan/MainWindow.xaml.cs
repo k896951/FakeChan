@@ -4,10 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -20,15 +22,15 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.1.3";
+        string versionStr = "Ver 1.2.0";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
-        IpcTasks IpcTask2 = null;
         SocketTasks SockTask = null;
         HttpTasks HttpTask = null;
         SocketTasks SockTask2 = null;
         HttpTasks HttpTask2 = null;
+        EditParamsBefore TestEdit = new EditParamsBefore();
 
         WCFClient WcfClient;
         DispatcherTimer KickTalker;
@@ -75,12 +77,12 @@ namespace FakeChan
 
             try
             {
-                // 古いバージョンの設定値があればアップグレードするよ！
+                // 古いバージョンの設定値のバージョンアップを試みる
                 if (Properties.Settings.Default.UpgradeRequired)
                 {
                     Properties.Settings.Default.Upgrade();
                     Properties.Settings.Default.UpgradeRequired = false;
-                    Properties.Settings.Default.Save();
+                    //Properties.Settings.Default.Save();
                 }
 
             }
@@ -112,18 +114,56 @@ namespace FakeChan
 
             try
             {
-                // 設定値が取り込めない環境がある模様だ。対策するよ！
+                // 古い版のデータだったら補正
+                // 設定値が取り込めない環境がある模様だ。対策する
+
                 if (UserData is null)
                 {
                     UserData = new UserDefData();
                 }
 
-                if (UserData.ParamAssignList is null)
+                if (UserData.AddSuffixStr is null)
+                {
+                    UserData.AddSuffix = false;
+                    UserData.AddSuffixStr = "(以下略";
+                    UserData.TextLength = 96;
+                }
+
+                if (UserData.MatchPattern1 is null)
+                {
+                    UserData.MatchPattern1 = @"([^0-9０-９])[8８]{3,}";
+                    UserData.ReplcaeStr1 = @"$1パチパチパチ";
+                }
+
+                if (UserData.MatchPattern2 is null)
+                {
+                    UserData.MatchPattern2 = @"([^a-zA-Zａ-ｚＡ-Ｚ])[WwＷｗ]{1,}";
+                    UserData.ReplcaeStr2 = @"$1ワラワラ";
+                }
+
+                if ((UserData.ParamAssignList is null) || (UserData.ParamAssignList.Count == 54))
                 {
                     UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
                 }
 
-                if (UserData.MethodAssignList is null)
+                if ((UserData.Voice2Cid is null) || UserData.Voice2Cid.ContainsKey(45))
+                {
+                    UserData.Voice2Cid = Config.B2Amap;
+                }
+
+                if ((UserData.LampSwitch is null)||(UserData.LampSwitch.Count == 6))
+                {
+                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
+                    {
+                        {VoiceIndex.IPC1, true },
+                        {VoiceIndex.Socket1, true },
+                        {VoiceIndex.Http1, true },
+                        {VoiceIndex.Socket2, false },
+                        {VoiceIndex.Http2, false },
+                    };
+                }
+
+                if ((UserData.MethodAssignList is null)|| (UserData.MethodAssignList.Count == 6))
                 {
                     UserData.MethodAssignList = new Dictionary<int, int>()
                     {
@@ -131,29 +171,9 @@ namespace FakeChan
                         { 1, 0 },
                         { 2, 0 },
                         { 3, 0 },
-                        { 4, 0 },
-                        { 5, 0 },
+                        { 4, 0 }
                     };
                 }
-
-                if (UserData.Voice2Cid is null)
-                {
-                    UserData.Voice2Cid = Config.B2Amap;
-                }
-
-                if (UserData.LampSwitch is null)
-                {
-                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
-                    {
-                        {VoiceIndex.IPC1, true },
-                        {VoiceIndex.Socket1, true },
-                        {VoiceIndex.Http1, true },
-                        {VoiceIndex.IPC2, false },
-                        {VoiceIndex.Socket2, false },
-                        {VoiceIndex.Http2, false },
-                    };
-                }
-
             }
             catch (Exception e0)
             {
@@ -162,59 +182,47 @@ namespace FakeChan
                 return;
             }
 
-            try
-            {
-                // 古い版のデータだったら補正
-                if (!Config.BouyomiVoiceIdx.ContainsKey(VoiceIndex.IPC2))
-                {
-                    Config.BouyomiVoiceIdx.Add(VoiceIndex.IPC2, 45);
-                }
-
-                if (!UserData.ParamAssignList.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
-                {
-                    UserData.ParamAssignList.Add(Config.BouyomiVoiceIdx[VoiceIndex.IPC2], new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>());
-                }
-
-                if (!UserData.MethodAssignList.ContainsKey(5))
-                {
-                    UserData.MethodAssignList[5] = 0;
-                }
-
-                if (!UserData.Voice2Cid.ContainsKey(Config.BouyomiVoiceIdx[VoiceIndex.IPC2]))
-                {
-                    for (int idx = 0; idx < Config.BouyomiVoiceWidth; idx++)
-                    {
-                        UserData.Voice2Cid[Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + idx] = Config.B2Amap[Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + idx];
-                    }
-                }
-
-                if (UserData.LampSwitch == null)
-                {
-                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
-                    {
-                        {VoiceIndex.IPC1, true },
-                        {VoiceIndex.Socket1, true },
-                        {VoiceIndex.Http1, true },
-                        {VoiceIndex.IPC2, false },
-                        {VoiceIndex.Socket2, false },
-                        {VoiceIndex.Http2, false },
-                    };
-                }
-
-            }
-            catch (Exception e0)
-            {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題4");
-                Application.Current.Shutdown();
-                return;
-            }
-
             // メッセージキューを使うよ！
             MessQueWrapper = new MessQueueWrapper();
 
+            // 設定2用
+            Config.TextLength = UserData.TextLength;
+            Config.AddSuffix = UserData.AddSuffix;
+            Config.AddSuffixStr = UserData.AddSuffixStr;
+
+            TextBoxTextLength.Text = Config.TextLength.ToString();
+            CheckBoxAddSuffix.IsChecked = Config.AddSuffix;
+            TextBoxAddSuffixStr.Text = Config.AddSuffixStr;
+            EditParamsBefore.LimitTextLength = Config.TextLength;
+            EditParamsBefore.IsUseSuffixString = Config.AddSuffix;
+            EditParamsBefore.SuffixString = Config.AddSuffixStr;
+
+            TextBoxMatchPatternStr1.Text = EditParamsBefore.MatchPattern1 = UserData.MatchPattern1;
+            TextBoxMatchPatternStr2.Text = EditParamsBefore.MatchPattern2 = UserData.MatchPattern2;
+            TextBoxMatchPatternStr3.Text = EditParamsBefore.MatchPattern3 = UserData.MatchPattern3;
+            TextBoxMatchPatternStr4.Text = EditParamsBefore.MatchPattern4 = UserData.MatchPattern4;
+            TextBoxMatchPatternStr5.Text = EditParamsBefore.MatchPattern5 = UserData.MatchPattern5;
+            TextBoxMatchPatternStr6.Text = EditParamsBefore.MatchPattern6 = UserData.MatchPattern6;
+            TextBoxMatchPatternStr7.Text = EditParamsBefore.MatchPattern7 = UserData.MatchPattern7;
+
+            TextBoxReplaceStr1.Text = EditParamsBefore.ReplcaeStr1 = UserData.ReplcaeStr1;
+            TextBoxReplaceStr2.Text = EditParamsBefore.ReplcaeStr2 = UserData.ReplcaeStr2;
+            TextBoxReplaceStr3.Text = EditParamsBefore.ReplcaeStr3 = UserData.ReplcaeStr3;
+            TextBoxReplaceStr4.Text = EditParamsBefore.ReplcaeStr4 = UserData.ReplcaeStr4;
+            TextBoxReplaceStr5.Text = EditParamsBefore.ReplcaeStr5 = UserData.ReplcaeStr5;
+            TextBoxReplaceStr6.Text = EditParamsBefore.ReplcaeStr6 = UserData.ReplcaeStr6;
+            TextBoxReplaceStr7.Text = EditParamsBefore.ReplcaeStr7 = UserData.ReplcaeStr7;
+
+            CheckBoxIsReplace1.IsChecked = EditParamsBefore.IsUseReplcae1 = UserData.IsUseReplcae1;
+            CheckBoxIsReplace2.IsChecked = EditParamsBefore.IsUseReplcae2 = UserData.IsUseReplcae2;
+            CheckBoxIsReplace3.IsChecked = EditParamsBefore.IsUseReplcae3 = UserData.IsUseReplcae3;
+            CheckBoxIsReplace4.IsChecked = EditParamsBefore.IsUseReplcae4 = UserData.IsUseReplcae4;
+            CheckBoxIsReplace5.IsChecked = EditParamsBefore.IsUseReplcae5 = UserData.IsUseReplcae5;
+            CheckBoxIsReplace6.IsChecked = EditParamsBefore.IsUseReplcae6 = UserData.IsUseReplcae6;
+            CheckBoxIsReplace7.IsChecked = EditParamsBefore.IsUseReplcae7 = UserData.IsUseReplcae7;
+
             // バックグラウンドタスク用オブジェクト
-            IpcTask   = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            IpcTask2  = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
             SockTask  = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
             SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
             HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
@@ -222,7 +230,6 @@ namespace FakeChan
 
             // 非同期発声時のGUI操作用
             IpcTask.OnCallAsyncTalk += TalkAsyncCall;
-            IpcTask2.OnCallAsyncTalk += TalkAsyncCall;
             SockTask.OnCallAsyncTalk += TalkAsyncCall;
             SockTask2.OnCallAsyncTalk += TalkAsyncCall;
             HttpTask.OnCallAsyncTalk += TalkAsyncCall;
@@ -234,8 +241,7 @@ namespace FakeChan
                 EllipseSocket,
                 EllipseHTTP,
                 EllipseSocket2,
-                EllipseHTTP2,
-                EllipseIpc2,
+                EllipseHTTP2
             };
 
             LampList[0].Tag = UserData.LampSwitch[VoiceIndex.IPC1];
@@ -243,7 +249,6 @@ namespace FakeChan
             LampList[2].Tag = UserData.LampSwitch[VoiceIndex.Http1];
             LampList[3].Tag = UserData.LampSwitch[VoiceIndex.Socket2];
             LampList[4].Tag = UserData.LampSwitch[VoiceIndex.Http2];
-            LampList[5].Tag = UserData.LampSwitch[VoiceIndex.IPC2];
 
             MethodList = new List<ComboBox>()
             {
@@ -251,8 +256,7 @@ namespace FakeChan
                 ComboBoxCallMethodSocket,
                 ComboBoxCallMethodHTTP,
                 ComboBoxCallMethodSocket2,
-                ComboBoxCallMethodHTTP2,
-                ComboBoxCallMethodIPC2
+                ComboBoxCallMethodHTTP2
             };
 
             for(int idx=0; idx < MethodList.Count; idx++)
@@ -311,16 +315,7 @@ namespace FakeChan
                 ComboBoxMapAvator45,
                 ComboBoxMapAvator46,
                 ComboBoxMapAvator47,
-                ComboBoxMapAvator48,
-                ComboBoxMapAvator50,
-                ComboBoxMapAvator51,
-                ComboBoxMapAvator52,
-                ComboBoxMapAvator53,
-                ComboBoxMapAvator54,
-                ComboBoxMapAvator55,
-                ComboBoxMapAvator56,
-                ComboBoxMapAvator57,
-                ComboBoxMapAvator58
+                ComboBoxMapAvator48
             };
 
             for (int idx = 0; idx < MapAvatorsComboBoxList.Count; idx++)
@@ -415,21 +410,6 @@ namespace FakeChan
                                 LampList[idx].Tag = true;
                                 UserData.LampSwitch[VoiceIndex.Http2] = true;
                                 break;
-
-                            case 5:
-                                if (IpcTask2.StartIpcTasks(Config.IPC2ChannelName))
-                                {
-                                    LampList[idx].Fill = Brushes.LightGreen;
-                                    LampList[idx].Tag = true;
-                                    UserData.LampSwitch[VoiceIndex.IPC2] = true;
-                                }
-                                else
-                                {
-                                    LampList[idx].Fill = Brushes.Black;
-                                    LampList[idx].Tag = false;
-                                    UserData.LampSwitch[VoiceIndex.IPC2] = false;
-                                }
-                                break;
                         }
                     }
                 }
@@ -457,7 +437,6 @@ namespace FakeChan
             IpcTask?.StopIpcTasks();
             HttpTask?.StopHttpTasks();
             SockTask2?.StopSocketTasks();
-            IpcTask2?.StopIpcTasks();
             HttpTask2?.StopHttpTasks();
         }
 
@@ -480,10 +459,9 @@ namespace FakeChan
                                 Dispatcher.Invoke(() =>
                                 {
                                     IpcTask?.SetTaskId(item.TaskId);
-                                    IpcTask2?.SetTaskId(item.TaskId);
                                     HttpTask?.SetTaskId(item.TaskId);
                                     HttpTask2?.SetTaskId(item.TaskId);
-                                    TextBoxReceveText.Text = item.Message;
+                                    TextBlockReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoiceIdx], an[item.Cid] );
                                 });
 
@@ -510,7 +488,6 @@ namespace FakeChan
                 Dispatcher.Invoke(() =>
                 {
                     IpcTask?.SetTaskId(talk.TaskId);
-                    IpcTask2?.SetTaskId(talk.TaskId);
                     HttpTask?.SetTaskId(talk.TaskId);
                     HttpTask2?.SetTaskId(talk.TaskId);
                     TextBoxReceveText.Text = talk.Message;
@@ -590,7 +567,6 @@ namespace FakeChan
                 case 2 : HttpTask.PlayMethod  = md; break;
                 case 3 : SockTask2.PlayMethod = md; break;
                 case 4 : HttpTask2.PlayMethod = md; break;
-                case 5 : IpcTask2.PlayMethod  = md; break;
                 default: break;
             }
         }
@@ -684,6 +660,7 @@ namespace FakeChan
 
             string text = TextBoxReceveText.Text;
             int voiceIdx = ((KeyValuePair<int, string>)ComboBoxBouyomiVoice.SelectedItem).Key;
+            int voice = 0;
 
             // See https://gist.github.com/pinzolo/2814091
             DispatcherFrame frame = new DispatcherFrame();
@@ -695,13 +672,15 @@ namespace FakeChan
             Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
             Dispatcher.PushFrame(frame);
 
+            TestEdit.EditString(voice, text);
+
             Task.Run(() =>
             {
                 int cid =  Config.B2Amap[voiceIdx];
                 Dictionary<string, decimal> Effects = UserData.ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                 Dictionary<string, decimal> Emotions = UserData.ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                WcfClient.Talk(cid, text, "", Effects, Emotions);
+                WcfClient.Talk(cid, TestEdit.ChangedTalkText, "", Effects, Emotions);
 
                 Dispatcher.Invoke(() =>
                 {
@@ -744,7 +723,6 @@ namespace FakeChan
                     case 2: HttpTask.StopHttpTasks();    UserData.LampSwitch[VoiceIndex.Http1]   = false; break;
                     case 3: SockTask2.StopSocketTasks(); UserData.LampSwitch[VoiceIndex.Socket2] = false; break;
                     case 4: HttpTask2.StopHttpTasks();   UserData.LampSwitch[VoiceIndex.Http2]   = false; break;
-                    case 5: IpcTask2.StopIpcTasks();     UserData.LampSwitch[VoiceIndex.IPC2]    = false; break;
                 }
             }
             else
@@ -767,22 +745,88 @@ namespace FakeChan
                     case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          UserData.LampSwitch[VoiceIndex.Http1]   = true; break;
                     case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); UserData.LampSwitch[VoiceIndex.Socket2] = true; break;
                     case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       UserData.LampSwitch[VoiceIndex.Http2]   = true; break;
-                    case 5:
-                        if (!IpcTask2.StartIpcTasks(Config.IPC2ChannelName))
-                        {
-                            ep.Fill = Brushes.Black;
-                            LampList[lampNo].Tag = false;
-                            UserData.LampSwitch[VoiceIndex.IPC2] = false;
-                        }
-                        else
-                        {
-                            UserData.LampSwitch[VoiceIndex.IPC2] = true;
-                        }
-                        break;
                 }
             }
 
         }
 
+        private void TextBox_MaxTextSizePreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        {
+            e.Handled = !new Regex("[0-9]").IsMatch(e.Text);
+        }
+
+        private void TextBox_MaxTextSizePreviewExecuted(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if (e.Command == ApplicationCommands.Paste)
+            {
+                e.Handled = !new Regex("[0-9]").IsMatch(tb.Text);
+            }
+        }
+
+        private void TextBoxTextLength_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            EditParamsBefore.LimitTextLength = UserData.TextLength = int.Parse(tb.Text);
+        }
+
+        private void TextBoxAddSuffixStr_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+
+            EditParamsBefore.SuffixString = UserData.AddSuffixStr = tb.Text;
+        }
+
+        private void CheckBoxAddSuffix_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+
+            EditParamsBefore.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
+        }
+
+        private void CheckBoxIsReplace_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            switch(cb.Name)
+            {
+                case "CheckBoxIsReplace1": EditParamsBefore.IsUseReplcae1 = UserData.IsUseReplcae1 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace2": EditParamsBefore.IsUseReplcae2 = UserData.IsUseReplcae2 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace3": EditParamsBefore.IsUseReplcae3 = UserData.IsUseReplcae3 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace4": EditParamsBefore.IsUseReplcae4 = UserData.IsUseReplcae4 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace5": EditParamsBefore.IsUseReplcae5 = UserData.IsUseReplcae5 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace6": EditParamsBefore.IsUseReplcae6 = UserData.IsUseReplcae6 = (bool)cb.IsChecked; break;
+                case "CheckBoxIsReplace7": EditParamsBefore.IsUseReplcae7 = UserData.IsUseReplcae7 = (bool)cb.IsChecked; break;
+            }
+        }
+
+        private void TextBoxMatchPatternStr_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            switch(tb.Name)
+            {
+                case "TextBoxMatchPatternStr1": EditParamsBefore.MatchPattern1 = UserData.MatchPattern1 = tb.Text; break;
+                case "TextBoxMatchPatternStr2": EditParamsBefore.MatchPattern2 = UserData.MatchPattern2 = tb.Text; break;
+                case "TextBoxMatchPatternStr3": EditParamsBefore.MatchPattern3 = UserData.MatchPattern3 = tb.Text; break;
+                case "TextBoxMatchPatternStr4": EditParamsBefore.MatchPattern4 = UserData.MatchPattern4 = tb.Text; break;
+                case "TextBoxMatchPatternStr5": EditParamsBefore.MatchPattern5 = UserData.MatchPattern5 = tb.Text; break;
+                case "TextBoxMatchPatternStr6": EditParamsBefore.MatchPattern6 = UserData.MatchPattern6 = tb.Text; break;
+                case "TextBoxMatchPatternStr7": EditParamsBefore.MatchPattern7 = UserData.MatchPattern7 = tb.Text; break;
+            }
+        }
+
+        private void TextBoxReplaceStr_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            switch (tb.Name)
+            {
+                case "TextBoxReplaceStr1": EditParamsBefore.ReplcaeStr1 = UserData.ReplcaeStr1 = tb.Text; break;
+                case "TextBoxReplaceStr2": EditParamsBefore.ReplcaeStr2 = UserData.ReplcaeStr2 = tb.Text; break;
+                case "TextBoxReplaceStr3": EditParamsBefore.ReplcaeStr3 = UserData.ReplcaeStr3 = tb.Text; break;
+                case "TextBoxReplaceStr4": EditParamsBefore.ReplcaeStr4 = UserData.ReplcaeStr4 = tb.Text; break;
+                case "TextBoxReplaceStr5": EditParamsBefore.ReplcaeStr5 = UserData.ReplcaeStr5 = tb.Text; break;
+                case "TextBoxReplaceStr6": EditParamsBefore.ReplcaeStr6 = UserData.ReplcaeStr6 = tb.Text; break;
+                case "TextBoxReplaceStr7": EditParamsBefore.ReplcaeStr7 = UserData.ReplcaeStr7 = tb.Text; break;
+            }
+        }
     }
 }

@@ -12,7 +12,6 @@
         Socket1 = 1,
         Http1   = 2,
         Socket2 = 3,
-        Http2   = 4,
-        IPC2    = 5
+        Http2   = 4
     }
 }

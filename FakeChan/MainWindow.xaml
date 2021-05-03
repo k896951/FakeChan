@@ -5,65 +5,99 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FakeChan"
         mc:Ignorable="d"
-        Title="偽装ちゃん Ver x.x.x" Height="380" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="380" Closing="Window_Closing">
+        Title="偽装ちゃん Ver x.x.x" Height="312" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="300" Closing="Window_Closing" ResizeMode="CanResizeWithGrip">
 
     <TabControl>
-        
-        <TabItem x:Name="Settings" Header="設定">
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="130"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="100"/>
-                </Grid.ColumnDefinitions>
+        <TabItem x:Name="Monitoring" Header="状態">
+            
+            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <GroupBox Header="受信インタフェース" Grid.Column="0" Grid.Row="0">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <WrapPanel Grid.Column="0" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseIpc" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="IPC: BouyomiChan" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="1" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseSocket" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Socket: 50001" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="2" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseHTTP" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="HTTP: 50080" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="3" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseSocket2" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Socket: 50002" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="4" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseHTTP2" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="HTTP: 50081" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="発声データ" Grid.Column="0" Grid.Row="1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Label Content="発声話者" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>
+                        <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="4"/>
+
+                        <Label Content="発声テキスト" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
+                        <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"/>
+                    </Grid>
+                </GroupBox>
+
+
+                <StackPanel  Grid.Column="0" Grid.Row="2"  VerticalAlignment="Bottom">
+                    <Label Content="偽装ちゃんは、棒読みちゃんの代わりにアプリから情報を受け取り、AssistantSeikaへ転送します。"/>
+                    <Label Content="怪しいツールじゃないよ！"/>
+                </StackPanel>
+
+            </Grid>
+        </TabItem>
+
+        <TabItem x:Name="Settings1" Header="話者設定">
+            <Grid>
+                <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Label Content="話者" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
-
-                <Label Content="再生テキスト" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                <TextBox x:Name="TextBoxReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"/>
-                <Button x:Name="ButtonTestTalk"  Content="テスト再生" Grid.Column="4" Grid.Row="2" Margin="2,1,1,1" IsEnabled="True" Width="Auto"  HorizontalAlignment="Left" Click="ButtonTestTalk_Click"/>
-
-                <WrapPanel Grid.Column="1" Grid.Row="3">
-                    <Ellipse x:Name="EllipseIpc" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="IPC(BouyomiChan)" />
-                </WrapPanel>
-                <WrapPanel Grid.Column="2" Grid.Row="3">
-                    <Ellipse x:Name="EllipseSocket" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="Socket(50001)" />
-                </WrapPanel>
-                <WrapPanel Grid.Column="3" Grid.Row="3">
-                    <Ellipse x:Name="EllipseHTTP" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="HTTP(50080)" />
-                </WrapPanel>
-
-                <WrapPanel Grid.Column="1" Grid.Row="4">
-                    <Ellipse x:Name="EllipseIpc2" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="IPC(BouyomiChan2)" />
-                </WrapPanel>
-                <WrapPanel Grid.Column="2" Grid.Row="4">
-                    <Ellipse x:Name="EllipseSocket2" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="Socket(50002)" />
-                </WrapPanel>
-                <WrapPanel Grid.Column="3" Grid.Row="4">
-                    <Ellipse x:Name="EllipseHTTP2" Fill="Black" Width="20" Height="20" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                    <Label Content="HTTP(50081)" />
-                </WrapPanel>
-
-                <GroupBox Header="音声パラメタ設定" Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="5">
+                <Expander Header="音声パラメタ設定" Grid.Column="0" Grid.Row="0">
                     <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
@@ -77,17 +111,21 @@
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="0" Grid.Row="0" Margin="2,1,1,1" Width="Auto"
+                            <TextBox x:Name="TextBoxReceveText" Text="" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="2,2,2,2"/>
+                            <Button x:Name="ButtonTestTalk"  Content="テスト再生" Grid.Column="2" Grid.Row="0" Margin="2,2,2,2" IsEnabled="True" Width="Auto"  HorizontalAlignment="Left" Click="ButtonTestTalk_Click"/>
+
+                            <ComboBox x:Name="ComboBoxBouyomiVoice" Grid.Column="0" Grid.Row="1" Margin="2,1,1,1" Width="Auto"
                                                                SelectedValuePath="Key"
                                                                DisplayMemberPath="Value"
                                                                IsReadOnly="True"
                                                                SelectionChanged="ComboBoxBouyomiVoice_SelectionChanged"/>
-                            <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="1" Margin="2,1,2,1" VerticalAlignment="Center"/>
-                            <Button x:Name="ButtonParamReset" Content="初期化" Grid.Column="2" Grid.Row="0" Click="ButtonParamReset_Click" Width="Auto" HorizontalAlignment="Right" />
+                            <Label x:Name="LabelSelectedAvator" Content="XXX" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="2,1,2,1" VerticalAlignment="Center"/>
+                            <Button x:Name="ButtonParamReset" Content="パラメタ初期化" Grid.Column="3" Grid.Row="1"  Margin="2,2,2,2" Click="ButtonParamReset_Click" Width="Auto" HorizontalAlignment="Right" />
 
-                            <StackPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3">
+                            <StackPanel Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="4">
                                 <ScrollViewer AutomationProperties.IsOffscreenBehavior="Offscreen" PanningMode="Both" Height="130" VerticalScrollBarVisibility="Auto">
                                     <StackPanel Margin="1,1,1,1">
                                         <WrapPanel x:Name="WrapPanelParams1" Margin="1,1,1,1" ></WrapPanel>
@@ -97,592 +135,657 @@
                             </StackPanel>
                         </Grid>
                     </StackPanel>
-                </GroupBox>
+                </Expander>
 
-                <Label Content="偽装ちゃんは、棒読みちゃんの代わりにアプリから情報を受け取り、AssistantSeikaへ転送します。怪しいツールじゃないよ！" Grid.Column="0" Grid.Row="6" Grid.ColumnSpan="5" Margin="2,1,2,1" HorizontalContentAlignment="Right"/>
+                <GroupBox Header="話者マップ" Grid.Column="0" Grid.Row="1">
+                    <TabControl Grid.Row="1">
+
+                        <TabItem Header="IPC(BouyomiChan)">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxCallMethodIPC"  Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     VerticalContentAlignment="Center"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch" SelectionChanged="ComboBoxCallMethod_SelectionChanged" />
+
+                                <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxMapAvator0"  Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator1"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性2" Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator2"  Grid.Column="3" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性1" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator3"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性2" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator4"  Grid.Column="3" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="中性" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator5"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="ロボット" Grid.Column="2" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator6"  Grid.Column="3" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator7"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator8"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="Socket(50001)">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxCallMethodSocket"  Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     VerticalContentAlignment="Center"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
+
+                                <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxMapAvator10"  Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator11"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性2" Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator12"  Grid.Column="3" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性1" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator13"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性2" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator14"  Grid.Column="3" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="中性" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator15"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="ロボット" Grid.Column="2" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator16"  Grid.Column="3" Grid.Row="4" Margin="2,1,1,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator17"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator18"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="Socket(50002)">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxCallMethodSocket2"  Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     VerticalContentAlignment="Center"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
+
+                                <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxMapAvator30"  Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator31"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性2" Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator32"  Grid.Column="3" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性1" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator33"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性2" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator34"  Grid.Column="3" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="中性" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator35"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="ロボット" Grid.Column="2" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator36"  Grid.Column="3" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator37"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator38"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="HTTP(50080)">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxCallMethodHTTP"  Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     VerticalContentAlignment="Center"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
+
+                                <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxMapAvator20"  Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator21"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性2" Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator22"  Grid.Column="3" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性1" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator23"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性2" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator24"  Grid.Column="3" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="中性" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator25"  Grid.Column="1" Grid.Row="4" Margin="2,1,1,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="ロボット" Grid.Column="2" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator26"  Grid.Column="3" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator27"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator28"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+
+                        <TabItem Header="HTTP(50081)">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxCallMethodHTTP2"  Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3" Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     VerticalContentAlignment="Center"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
+
+                                <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                                <ComboBox x:Name="ComboBoxMapAvator40"  Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator41"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="女性2" Grid.Column="2" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator42"  Grid.Column="3" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性1" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator43"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="男性2" Grid.Column="2" Grid.Row="3" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator44"  Grid.Column="3" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="中性" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator45"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="ロボット" Grid.Column="2" Grid.Row="4" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator46"  Grid.Column="3" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator47"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                                <Label Content="機械2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                                <ComboBox x:Name="ComboBoxMapAvator48"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
+                                                                                                     IsReadOnly="True"
+                                                                                                     SnapsToDevicePixels="True"
+                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
+                                                                                                     HorizontalAlignment="Stretch"
+                                                                                                     HorizontalContentAlignment="Stretch"/>
+                            </Grid>
+                        </TabItem>
+
+                    </TabControl>
+                </GroupBox>
+            </Grid>
+
+        </TabItem>
+
+        <TabItem x:Name="Settings2" Header="置換設定">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+
+                <Label Content="置換　順位 1" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr1" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr1"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace1" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+
+                <Label Content="置換　順位 2" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr2" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr2"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace2" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+                
+                <Label Content="置換　順位 3" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr3" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr3"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace3" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+
+                <Label Content="置換　順位 4" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr4" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr4"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace4" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+                
+                <Label Content="置換　順位 5" Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr5" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr5"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace5" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+
+                <Label Content="置換　順位 6" Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr6" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr6"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace6" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+
+                <Label Content="置換　順位 7" Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxMatchPatternStr7" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
+                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxReplaceStr7"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
+                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <CheckBox x:Name="CheckBoxIsReplace7" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
+                </Grid>
+
+                <Label Content="切捨て　最後" Grid.Column="0" Grid.Row="9" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="文字数制限" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox  x:Name="TextBoxTextLength" Text="" Grid.Column="1" Grid.Row="0" MaxLength="6" Width="100" VerticalAlignment="Center" VerticalContentAlignment="Center" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="TextBox_MaxTextSizePreviewTextInput" CommandManager.PreviewExecuted="TextBox_MaxTextSizePreviewExecuted" TextChanged="TextBoxTextLength_TextChanged"/>
+                    <Label Content="置換後、この文字数を越えた部分は切り捨てます" Grid.Column="2" Grid.Row="0"/>
+                </Grid>
+
+                <Grid Grid.Column="1" Grid.Row="10" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Label Content="切捨て時に付与" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="TextBoxAddSuffixStr" Text="" Grid.Column="1" Grid.Row="0" Width="150" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxAddSuffixStr_TextChanged"/>
+                    <CheckBox x:Name="CheckBoxAddSuffix" Grid.Column="2" Grid.Row="0" Content="適用する" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxAddSuffix_Click" />
+                </Grid>
 
             </Grid>
+
         </TabItem>
 
-        <TabItem x:Name="avatorMap" Header="話者マップ">
-            
-            <TabControl>
-                <TabItem Header="IPC">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodIPC"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectionChanged="ComboBoxCallMethod_SelectionChanged" />
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator0"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator1"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator2"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator3"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator4"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator5"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator6"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator7"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator8"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-                
-                <TabItem Header="Socket(50001)">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodSocket"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator10"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator11"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator12"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator13"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator14"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator15"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator16"  Grid.Column="1" Grid.Row="7" Margin="2,1,1,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator17"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator18"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-                
-                <TabItem Header="HTTP(50080)">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodHTTP"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator20"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator21"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator22"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator23"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator24"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator25"  Grid.Column="1" Grid.Row="6" Margin="2,1,1,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator26"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator27"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator28"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-                
-                <TabItem Header="Socket(50002)">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodSocket2"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator30"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator31"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator32"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator33"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator34"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator35"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator36"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator37"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator38"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-                
-                <TabItem Header="HTTP(50081)">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodHTTP2"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectedIndex="-1" SelectionChanged="ComboBoxCallMethod_SelectionChanged"/>
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator40"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator41"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator42"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator43"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator44"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator45"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator46"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator47"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator48"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-
-                <TabItem Header="IPC2">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Label Content="発声方法" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethodIPC2"  Grid.Column="1" Grid.Row="0"  Margin="2,5,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     VerticalContentAlignment="Center"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch" SelectionChanged="ComboBoxCallMethod_SelectionChanged" />
-
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapAvator50"  Grid.Column="1" Grid.Row="1"  Margin="2,5,2,5" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator51"  Grid.Column="1" Grid.Row="2" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="女性2" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator52"  Grid.Column="1" Grid.Row="3" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator53"  Grid.Column="1" Grid.Row="4" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="男性2" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator54"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="中性" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator55"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="ロボット" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator56"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator57"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                        <Label Content="機械2" Grid.Column="0" Grid.Row="9" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapAvator58"  Grid.Column="1" Grid.Row="9" Margin="2,1,2,1" SelectedValuePath="Key" DisplayMemberPath="Value"
-                                                                                                     IsReadOnly="True"
-                                                                                                     SnapsToDevicePixels="True"
-                                                                                                     SelectionChanged="ComboBoxMapAvator_SelectionChanged"
-                                                                                                     HorizontalAlignment="Stretch"
-                                                                                                     HorizontalContentAlignment="Stretch"/>
-                    </Grid>
-                </TabItem>
-
-            </TabControl>
-            
-        </TabItem>
-        
-        <TabItem x:Name="Settings2" Header="設定２">
-            <Label Content="誰かが何か気の利いた事を追加してくれるに違いない"/>
-        </TabItem>
     </TabControl>
+
 </Window>

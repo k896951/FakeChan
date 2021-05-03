@@ -50,7 +50,7 @@ namespace FakeChan
             {
                 if (IpcCh is null)
                 {
-                    IpcCh = new IpcServerChannel(chName);
+                    IpcCh = new IpcServerChannel(ChannelName);
                 }
                 IpcCh.IsSecured = false;
                 ChannelServices.RegisterChannel(IpcCh, false);
@@ -101,17 +101,9 @@ namespace FakeChan
 
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
-            int voice = EditEffect.CheckVoiceChange((vType > 8 || vType == -1 ? 0 : vType), TalkText);
+            int voice = EditEffect.EditString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
             int tid = MessQue.count + 1;
-            int voiceIdx;
-            if (ChannelName == Config.IPC2ChannelName)
-            {
-                voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC2] + voice;
-            }
-            else
-            {
-                voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
-            }
+            int voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
 
             int cid = Config.B2Amap[voiceIdx];
             Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
