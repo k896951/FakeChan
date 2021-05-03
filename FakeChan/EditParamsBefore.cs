@@ -143,23 +143,31 @@ namespace FakeChan
 
         private void CheckSpeedTag(string talkText)
         {
-            string s = talkText.Substring(0, 2);
-            sb1.Append(talkText.Substring(2));
+            string s = talkText;
 
-            switch (s)
+            if (sb1.Length > 2)
             {
-                case "y)": ChangedVoiceNo = 1; break;
-                case "b)": ChangedVoiceNo = 2; break;
-                case "h)": ChangedVoiceNo = 3; break;
-                case "d)": ChangedVoiceNo = 4; break;
-                case "a)": ChangedVoiceNo = 5; break;
-                case "r)": ChangedVoiceNo = 6; break;
-                case "t)": ChangedVoiceNo = 7; break;
-                case "g)": ChangedVoiceNo = 8; break;
-                default:
-                    sb1.Clear();
-                    sb1.Append(talkText);
-                    break;
+                s = talkText.Substring(0, 2);
+                sb1.Append(talkText.Substring(2));
+                switch (s)
+                {
+                    case "y)": ChangedVoiceNo = 1; break;
+                    case "b)": ChangedVoiceNo = 2; break;
+                    case "h)": ChangedVoiceNo = 3; break;
+                    case "d)": ChangedVoiceNo = 4; break;
+                    case "a)": ChangedVoiceNo = 5; break;
+                    case "r)": ChangedVoiceNo = 6; break;
+                    case "t)": ChangedVoiceNo = 7; break;
+                    case "g)": ChangedVoiceNo = 8; break;
+                    default:
+                        sb1.Clear();
+                        sb1.Append(talkText);
+                        break;
+                }
+            }
+            else
+            {
+                sb1.Append(talkText);
             }
         }
     }
