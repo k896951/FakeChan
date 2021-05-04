@@ -22,7 +22,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.2.0";
+        string versionStr = "Ver 1.2.1";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -672,7 +672,7 @@ namespace FakeChan
             Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
             Dispatcher.PushFrame(frame);
 
-            TestEdit.EditString(voice, text);
+            TestEdit.EditInputString(voice, text);
 
             Task.Run(() =>
             {
@@ -767,7 +767,23 @@ namespace FakeChan
         private void TextBoxTextLength_TextChanged(object sender, TextChangedEventArgs e)
         {
             TextBox tb = sender as TextBox;
-            EditParamsBefore.LimitTextLength = UserData.TextLength = int.Parse(tb.Text);
+            int len;
+            if (int.TryParse(tb.Text, out len))
+            {
+                if (len < 1) len = 1;
+            }
+            else
+            {
+                len = 1;
+            }
+
+            EditParamsBefore.LimitTextLength = UserData.TextLength = len;
+        }
+
+        private void TextBoxTextLength_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox tb = sender as TextBox;
+            if ((tb.Text == "0")|| (tb.Text == "")) tb.Text = "1";
         }
 
         private void TextBoxAddSuffixStr_TextChanged(object sender, TextChangedEventArgs e)
@@ -828,5 +844,6 @@ namespace FakeChan
                 case "TextBoxReplaceStr7": EditParamsBefore.ReplcaeStr7 = UserData.ReplcaeStr7 = tb.Text; break;
             }
         }
+
     }
 }

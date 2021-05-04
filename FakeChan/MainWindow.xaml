@@ -767,7 +767,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Label Content="文字数制限" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox  x:Name="TextBoxTextLength" Text="" Grid.Column="1" Grid.Row="0" MaxLength="6" Width="100" VerticalAlignment="Center" VerticalContentAlignment="Center" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="TextBox_MaxTextSizePreviewTextInput" CommandManager.PreviewExecuted="TextBox_MaxTextSizePreviewExecuted" TextChanged="TextBoxTextLength_TextChanged"/>
+                    <TextBox  x:Name="TextBoxTextLength" Text="" Grid.Column="1" Grid.Row="0" MaxLength="6" Width="100" VerticalAlignment="Center" VerticalContentAlignment="Center" InputMethod.IsInputMethodEnabled="False" PreviewTextInput="TextBox_MaxTextSizePreviewTextInput" CommandManager.PreviewExecuted="TextBox_MaxTextSizePreviewExecuted" TextChanged="TextBoxTextLength_TextChanged" LostFocus="TextBoxTextLength_LostFocus"/>
                     <Label Content="置換後、この文字数を越えた部分は切り捨てます" Grid.Column="2" Grid.Row="0"/>
                 </Grid>
 

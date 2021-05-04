@@ -16,7 +16,7 @@ namespace FakeChan
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         IpcServerChannel IpcCh = null;
-        EditParamsBefore EditEffect = new EditParamsBefore();
+        EditParamsBefore EditInputText = new EditParamsBefore();
         string ChannelName;
 
         public delegate void CallEventHandlerCallAsyncTalk(MessageData talk);
@@ -101,7 +101,7 @@ namespace FakeChan
 
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
-            int voice = EditEffect.EditString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
+            int voice = EditInputText.EditInputString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
             int tid = MessQue.count + 1;
             int voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
 
@@ -112,7 +112,7 @@ namespace FakeChan
             MessageData talk = new MessageData()
             {
                 Cid = cid,
-                Message = EditEffect.ChangedTalkText,
+                Message = EditInputText.ChangedTalkText,
                 BouyomiVoice = voice,
                 BouyomiVoiceIdx = voiceIdx,
                 TaskId = tid,

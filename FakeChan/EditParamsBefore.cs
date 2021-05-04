@@ -11,10 +11,7 @@ namespace FakeChan
     {
         public int ChangedVoiceNo { get; private set; }
 
-        public string ChangedTalkText {
-            get { return sb1.ToString(); }
-            private set { }
-        }
+        public string ChangedTalkText { get; private set; }
 
         public static int LimitTextLength { get; set; }
         public static bool IsUseSuffixString { get; set; }
@@ -44,131 +41,78 @@ namespace FakeChan
         public static bool IsUseReplcae6 { get; set; }
         public static bool IsUseReplcae7 { get; set; }
 
-        private StringBuilder sb1 = new StringBuilder();
-
-        public int EditString(int orgVoice, string talkText)
+        public int EditInputString(int orgVoice, string talkText)
         {
+            string s = talkText;
+
             ChangedVoiceNo = orgVoice;
 
-            sb1.Clear();
-            CheckSpeedTag(talkText);
+            s = CheckSpeedTag(s);
+            s = ReplaceString(s);
+            s = CutString(s);
 
-            string text2 = sb1.ToString();
-            if (IsUseReplcae1)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern1, ReplcaeStr1);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae2)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern2, ReplcaeStr2);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae3)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern3, ReplcaeStr3);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae4)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern4, ReplcaeStr4);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae5)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern5, ReplcaeStr5);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae6)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern6, ReplcaeStr6);
-                }
-                catch (Exception)
-                {
-                }
-            }
-            if (IsUseReplcae7)
-            {
-                try
-                {
-                    text2 = Regex.Replace(text2, MatchPattern7, ReplcaeStr7);
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            sb1.Clear();
-            sb1.Append(text2);
-
-            if (sb1.Length > LimitTextLength)
-            {
-                sb1.Remove(LimitTextLength, sb1.Length - LimitTextLength);
-
-                if (IsUseSuffixString)
-                {
-                    sb1.Append(SuffixString);
-                }
-            }
+            ChangedTalkText = s;
 
             return ChangedVoiceNo;
         }
 
-        private void CheckSpeedTag(string talkText)
+        private string CheckSpeedTag(string talkText)
         {
             string s = talkText;
 
-            if (sb1.Length > 2)
+            if (s.Length > 2)
             {
-                s = talkText.Substring(0, 2);
-                sb1.Append(talkText.Substring(2));
-                switch (s)
+                string s2 = s.Substring(0, 2);
+                switch (s2)
                 {
-                    case "y)": ChangedVoiceNo = 1; break;
-                    case "b)": ChangedVoiceNo = 2; break;
-                    case "h)": ChangedVoiceNo = 3; break;
-                    case "d)": ChangedVoiceNo = 4; break;
-                    case "a)": ChangedVoiceNo = 5; break;
-                    case "r)": ChangedVoiceNo = 6; break;
-                    case "t)": ChangedVoiceNo = 7; break;
-                    case "g)": ChangedVoiceNo = 8; break;
-                    default:
-                        sb1.Clear();
-                        sb1.Append(talkText);
-                        break;
+                    case "y)": ChangedVoiceNo = 1; s = s.Substring(2); break;
+                    case "b)": ChangedVoiceNo = 2; s = s.Substring(2); break;
+                    case "h)": ChangedVoiceNo = 3; s = s.Substring(2); break;
+                    case "d)": ChangedVoiceNo = 4; s = s.Substring(2); break;
+                    case "a)": ChangedVoiceNo = 5; s = s.Substring(2); break;
+                    case "r)": ChangedVoiceNo = 6; s = s.Substring(2); break;
+                    case "t)": ChangedVoiceNo = 7; s = s.Substring(2); break;
+                    case "g)": ChangedVoiceNo = 8; s = s.Substring(2); break;
+                    default: break;
                 }
             }
-            else
+
+            return s;
+        }
+
+        private string ReplaceString(string talkText)
+        {
+            string s = talkText;
+
+            if (s.Length != 0)
             {
-                sb1.Append(talkText);
+                if (IsUseReplcae1) try { s = Regex.Replace(s, MatchPattern1, ReplcaeStr1); } catch (Exception) { }
+                if (IsUseReplcae2) try { s = Regex.Replace(s, MatchPattern2, ReplcaeStr2); } catch (Exception) { }
+                if (IsUseReplcae3) try { s = Regex.Replace(s, MatchPattern3, ReplcaeStr3); } catch (Exception) { }
+                if (IsUseReplcae4) try { s = Regex.Replace(s, MatchPattern4, ReplcaeStr4); } catch (Exception) { }
+                if (IsUseReplcae5) try { s = Regex.Replace(s, MatchPattern5, ReplcaeStr5); } catch (Exception) { }
+                if (IsUseReplcae6) try { s = Regex.Replace(s, MatchPattern6, ReplcaeStr6); } catch (Exception) { }
+                if (IsUseReplcae7) try { s = Regex.Replace(s, MatchPattern7, ReplcaeStr7); } catch (Exception) { }
             }
+
+            return s;
+        }
+
+        private string CutString(string talkText)
+        {
+            StringBuilder sb = new StringBuilder(talkText);
+
+            if (sb.Length > LimitTextLength)
+            {
+                sb.Remove(LimitTextLength, sb.Length - LimitTextLength);
+
+                if (IsUseSuffixString)
+                {
+                    sb.Append(SuffixString);
+                }
+            }
+
+            return sb.ToString();
         }
     }
 }

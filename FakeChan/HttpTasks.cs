@@ -14,7 +14,7 @@ namespace FakeChan
         Configs Config;
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
-        EditParamsBefore EditEffect = new EditParamsBefore();
+        EditParamsBefore EditInputText = new EditParamsBefore();
 
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
 
@@ -116,7 +116,7 @@ namespace FakeChan
 
                         response.ContentType = "application/json; charset=utf-8";
 
-                        voice = EditEffect.EditString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
+                        voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
                         int voiceIdx;
                         if (ListenPort == Config.HttpPortNum2)
                         {
@@ -139,7 +139,7 @@ namespace FakeChan
                                 MessageData talk = new MessageData()
                                 {
                                     Cid = cid,
-                                    Message = EditEffect.ChangedTalkText,
+                                    Message = EditInputText.ChangedTalkText,
                                     BouyomiVoice = voice,
                                     BouyomiVoiceIdx = voiceIdx,
                                     TaskId = tid,
