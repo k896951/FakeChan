@@ -27,6 +27,7 @@ namespace FakeChan
         public int TextLength { get; set; } = 20;
         public bool AddSuffix { get; set; } = false;
         public string AddSuffixStr { get; set; } = "(以下略";
+        public bool IsRandomVoice { get; set; } = false;
 
         public readonly int BouyomiVoiceWidth = 9;
 

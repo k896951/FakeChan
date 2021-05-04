@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FakeChan"
         mc:Ignorable="d"
-        Title="偽装ちゃん Ver x.x.x" Height="312" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="300" Closing="Window_Closing" ResizeMode="CanResizeWithGrip">
+        Title="偽装ちゃん Ver x.x.x" Height="354" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="300" Closing="Window_Closing" ResizeMode="CanResizeWithGrip">
 
     <TabControl>
 
@@ -93,6 +93,7 @@
         <TabItem x:Name="Settings1" Header="話者設定">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
@@ -606,6 +607,22 @@
                         </TabItem>
 
                     </TabControl>
+                </GroupBox>
+
+                <GroupBox Header="シャッフル" Grid.Column="0" Grid.Row="2">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox x:Name="CheckBoxRandomVoice" Content="棒読みちゃん音声(ボイス0～機械2)をランダムに割り当てし直す" Click="CheckBoxRandomVoice_Click" />
+                    </Grid>
+
                 </GroupBox>
             </Grid>
 

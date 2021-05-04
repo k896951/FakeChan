@@ -14,6 +14,7 @@ namespace FakeChan
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
         EditParamsBefore EditInputText = new EditParamsBefore();
+        int seed = Environment.TickCount;
 
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
 
@@ -126,6 +127,12 @@ namespace FakeChan
                                                 break;
                                         }
                                         voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
+                                        if (Config.IsRandomVoice)
+                                        {
+                                            Random r = new Random(seed++);
+                                            voice = r.Next(0, 9);
+                                            if (seed == int.MaxValue) seed = 0;
+                                        }
 
                                         if (ListenPort == Config.SocketPortNum2)
                                         {

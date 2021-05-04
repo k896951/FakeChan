@@ -18,6 +18,7 @@ namespace FakeChan
         IpcServerChannel IpcCh = null;
         EditParamsBefore EditInputText = new EditParamsBefore();
         string ChannelName;
+        int seed = Environment.TickCount;
 
         public delegate void CallEventHandlerCallAsyncTalk(MessageData talk);
         public event CallEventHandlerCallAsyncTalk OnCallAsyncTalk;
@@ -102,6 +103,13 @@ namespace FakeChan
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
             int voice = EditInputText.EditInputString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
+            if (Config.IsRandomVoice)
+            {
+                Random r = new Random(seed++);
+                voice = r.Next(0, 9);
+                if (seed == int.MaxValue) seed = 0;
+            }
+
             int tid = MessQue.count + 1;
             int voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
 

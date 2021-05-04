@@ -22,7 +22,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.2.2";
+        string versionStr = "Ver 1.2.3";
         Configs Config;
         MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
@@ -196,6 +196,8 @@ namespace FakeChan
             EditParamsBefore.LimitTextLength = Config.TextLength;
             EditParamsBefore.IsUseSuffixString = Config.AddSuffix;
             EditParamsBefore.SuffixString = Config.AddSuffixStr;
+
+            CheckBoxRandomVoice.IsChecked = Config.IsRandomVoice = UserData.IsRandomVoice;
 
             TextBoxMatchPatternStr1.Text = EditParamsBefore.MatchPattern1 = UserData.MatchPattern1;
             TextBoxMatchPatternStr2.Text = EditParamsBefore.MatchPattern2 = UserData.MatchPattern2;
@@ -845,5 +847,11 @@ namespace FakeChan
             }
         }
 
+        private void CheckBoxRandomVoice_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+
+            Config.IsRandomVoice = UserData.IsRandomVoice = (bool)cb.IsChecked;
+        }
     }
 }

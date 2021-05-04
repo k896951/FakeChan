@@ -14,6 +14,8 @@ namespace FakeChan
         [DataMember] public bool AddSuffix;
         [DataMember] public string AddSuffixStr;
 
+        [DataMember] public bool IsRandomVoice;
+
         [DataMember] public string MatchPattern1;
         [DataMember] public string MatchPattern2;
         [DataMember] public string MatchPattern3;

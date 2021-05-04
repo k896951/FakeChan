@@ -15,6 +15,7 @@ namespace FakeChan
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
         EditParamsBefore EditInputText = new EditParamsBefore();
+        int seed = Environment.TickCount;
 
         Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
 
@@ -117,6 +118,13 @@ namespace FakeChan
                         response.ContentType = "application/json; charset=utf-8";
 
                         voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
+                        if (Config.IsRandomVoice)
+                        {
+                            Random r = new Random(seed++);
+                            voice = r.Next(0, 9);
+                            if (seed == int.MaxValue) seed = 0;
+                        }
+
                         int voiceIdx;
                         if (ListenPort == Config.HttpPortNum2)
                         {
