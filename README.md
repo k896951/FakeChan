@@ -19,30 +19,30 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 偽装ちゃんが起動すると、通信を受け付けてコメントを読み上げ可能になります。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210503-141939.png "偽装ちゃん起動直後")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210510-115351.png "偽装ちゃん起動直後")
 
-話者設定タブで使用するインタフェース（棒読みちゃん連携方法）の設定を行います。
+話者設定タブで使用する受信インタフェース（棒読みちゃん連携方法）の設定を行います。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210503-142343.png "話者マップ")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210510-115600.png "話者マップ")
 
 話者マップで使用するインタフェースのタブを選択し、発声方法と棒読みちゃんのボイス0～8に音声合成製品を紐付けします。  
 棒読みちゃん連携のソフトウエアのほとんどはボイス0のみ使っているように見受けられます。ツイキャスコメントビューアー（閲覧君）は1番（女性1）を使用するようです。
 
-音声パラメタ設定を展開すると紐付けした音声合成製品のパラメタを編集できます。
-
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210503-142423.png "音声パラメタ編集")
-
-発声方法は以下があります。
+発声方法には以下があります。
 - 同期を選ぶと、メッセージはキューに入り、順次AssistantSeikaに発声指示を出します。
 - 非同期を選ぶと、キューを使用せずすぐAssistantSeikaに発声指示を出します。
 
 再生に使う音声合成製品は、同期と非同期で異なるものを指定してください。同じ音声合成製品を指定するのは無意味です。
 
+音声設定タブで音声合成製品のパラメタを編集できます。
+
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210510-115816.png "音声パラメタ編集")
+
 テスト再生ボタンを押すと、再生テキストにあるテキストを設定したパラメタを適用して再生します。パラメタのテストで利用してください。
 
-音声合成製品へ渡す前にテキスト情報を編集できます。
+置換設定タブで音声合成製品へ渡す前にテキスト情報を編集できます。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210503-144218.png "置換設定")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210510-120134.png "置換設定")
 
 正規表現による置換が優先順位1～7の順に実施されます。適用する置換にはチェックを入れてください。  
 最後に指定の文字数で切捨てが行われます。 
