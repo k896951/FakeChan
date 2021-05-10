@@ -37,6 +37,8 @@ namespace FakeChan
         WCFClient WcfClient;
         DispatcherTimer KickTalker;
 
+        Dictionary<int, string> LonelyAvatorNames;
+        List<int> LonelyCidList;
         int LonelyCount = 0;
         int LonelyCid;
 
@@ -319,7 +321,9 @@ namespace FakeChan
             try
             {
                 // 読み上げバックグラウンドタスク起動
-                LonelyCid = Config.AvatorNames.First().Key;
+                LonelyAvatorNames = Config.AvatorNames;
+                LonelyCidList = LonelyAvatorNames.Select(c => c.Key).ToList();
+                LonelyCid = LonelyCidList[r.Next(0, LonelyCidList.Count)];
                 LonelyCount = 0;
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
@@ -438,7 +442,6 @@ namespace FakeChan
                                 });
 
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
-                                LonelyCid = item.Cid;
                                 LonelyCount = 0;
                             }
 
@@ -454,7 +457,7 @@ namespace FakeChan
             }
             else
             {
-                r.Next(0, QuietMessageKeyMax); // 乱数生成を出来るだけ続けさせる
+                LonelyCid = LonelyCidList[r.Next(0, LonelyCidList.Count)]; // 乱数生成を出来るだけ続けさせる
                 if (!UserData.IsSilentAvator && UserData.QuietMessages.ContainsKey(LonelyCount))
                 {
                     int cnt = LonelyCount;
