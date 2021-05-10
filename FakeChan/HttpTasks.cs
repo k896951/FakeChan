@@ -14,10 +14,9 @@ namespace FakeChan
         Configs Config;
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
+        UserDefData UserData;
         EditParamsBefore EditInputText = new EditParamsBefore();
-        int seed = Environment.TickCount;
-
-        Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
+        Random r = new Random(Environment.TickCount);
 
         bool KeepListen = false;
         HttpListener HTTPListener;
@@ -30,12 +29,12 @@ namespace FakeChan
 
         public Methods PlayMethod { get; set; }
 
-        public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
+        public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref UserDefData UsrData)
         {
             Config = cfg;
             MessQue = mq;
             WcfClient = wcf;
-            ParamAssignList = Params;
+            UserData = UsrData;
         }
 
         public void StartHttpTasks(IPAddress addr, int port)
@@ -78,6 +77,11 @@ namespace FakeChan
                 StringBuilder sb = new StringBuilder();
                 string listFmt = @"""id"":{0}, ""kind"":""AquesTalk"", ""name"":""{1}"", ""alias"":""""";
 
+                List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
+                int cnt = CidList.Count;
+                int cid;
+                int ListenIf;
+
                 while (KeepListen) // とりあえずの待ち受け構造
                 {
                     try
@@ -117,40 +121,49 @@ namespace FakeChan
 
                         response.ContentType = "application/json; charset=utf-8";
 
-                        voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
-                        if (Config.IsRandomVoice)
-                        {
-                            Random r = new Random(seed++);
-                            voice = r.Next(0, 9);
-                            if (seed == int.MaxValue) seed = 0;
-                        }
-
-                        int voiceIdx;
                         if (ListenPort == Config.HttpPortNum2)
                         {
-                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Http1] + voice;
+                            ListenIf = (int)ListenInterface.Http2;
                         }
                         else
                         {
-                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Http2] + voice;
+                            ListenIf = (int)ListenInterface.Http1;
+                        }
+
+                        voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
+
+                        if (UserData.IsRandomVoice)
+                        {
+                            voice = r.Next(0, 9);
+                            cid = UserData.SelectedCid[ListenIf][voice];
+                        }
+                        else if (UserData.IsRandomAvator)
+                        {
+                            cid = CidList[r.Next(0, cnt)];
+                            if (Config.AvatorNames.ContainsKey(cid))
+                            {
+                                UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                            }
+                        }
+                        else
+                        {
+                            cid = UserData.SelectedCid[ListenIf][voice];
                         }
 
                         // dispath url
                         switch (UrlPath)
                         {
                             case "/TALK":
-                                int cid = Config.B2Amap[voiceIdx];
-                                int tid = MessQue.count + 1;
-                                Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                                Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                                 MessageData talk = new MessageData()
                                 {
                                     Cid = cid,
                                     Message = EditInputText.ChangedTalkText,
                                     BouyomiVoice = voice,
-                                    BouyomiVoiceIdx = voiceIdx,
-                                    TaskId = tid,
+                                    ListenInterface = ListenIf,
+                                    TaskId = MessQue.count + 1,
                                     Effects = Effects,
                                     Emotions = Emotions
                                 };
@@ -166,7 +179,7 @@ namespace FakeChan
                                         break;
                                 }
 
-                                byte[] responseTalkContent = Encoding.UTF8.GetBytes("{" + string.Format(@"""taskId"":{0}", tid) + "}");
+                                byte[] responseTalkContent = Encoding.UTF8.GetBytes("{" + string.Format(@"""taskId"":{0}", talk.TaskId) + "}");
                                 response.OutputStream.Write(responseTalkContent, 0, responseTalkContent.Length);
                                 response.Close();
                                 break;
@@ -175,9 +188,9 @@ namespace FakeChan
                                 sb.Clear();
                                 sb.AppendLine(@"{ ""voiceList"":[");
                                 sb.Append(
-                                    string.Join(",", Config.BouyomiVoicesHttp.Select(v => string.Format(listFmt, v.Key, v.Value))
-                                                                             .Select(v => "{" + v + "}")
-                                                                             .ToArray())
+                                    string.Join(",", Config.AvatorNames.Select(v => string.Format(listFmt, v.Key, v.Value))
+                                                                       .Select(v => "{" + v + "}")
+                                                                       .ToArray())
                                 );
                                 sb.AppendLine(@"] }");
 

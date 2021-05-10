@@ -6,15 +6,18 @@ namespace FakeChan
     [DataContract]
     public class UserDefData
     {
-        [DataMember] public Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
-        [DataMember] public Dictionary<int, int> MethodAssignList;
-        [DataMember] public Dictionary<int, int> Voice2Cid;
-        [DataMember] public Dictionary<VoiceIndex, bool> LampSwitch;
+        [DataMember] public Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>> VoiceParams;
+        [DataMember] public Dictionary<int, Dictionary<int, int>> SelectedCid;
+        [DataMember] public Dictionary<int, int> SelectedCallMethod;
+        [DataMember] public Dictionary<int, bool> InterfaceSwitch;
+        [DataMember] public Dictionary<int, List<string>> QuietMessages;
+
+        [DataMember] public bool IsRandomVoice;
+        [DataMember] public bool IsRandomAvator;
+        [DataMember] public bool IsSilentAvator;
         [DataMember] public int TextLength;
         [DataMember] public bool AddSuffix;
         [DataMember] public string AddSuffixStr;
-
-        [DataMember] public bool IsRandomVoice;
 
         [DataMember] public string MatchPattern1;
         [DataMember] public string MatchPattern2;

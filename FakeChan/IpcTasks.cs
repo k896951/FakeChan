@@ -13,24 +13,24 @@ namespace FakeChan
         Configs Config;
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
-        Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
+        UserDefData UserData;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         IpcServerChannel IpcCh = null;
         EditParamsBefore EditInputText = new EditParamsBefore();
         string ChannelName;
-        int seed = Environment.TickCount;
+        Random r = new Random(Environment.TickCount);
 
         public delegate void CallEventHandlerCallAsyncTalk(MessageData talk);
         public event CallEventHandlerCallAsyncTalk OnCallAsyncTalk;
 
         public Methods PlayMethod { get; set; }
 
-        public IpcTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
+        public IpcTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref UserDefData UsrData)
         {
             Config = cfg;
             MessQue = mq;
+            UserData = UsrData;
             WcfClient = wcf;
-            ParamAssignList = Params;
             PlayMethod = Methods.sync;
 
             ShareIpcObject = new FNF.Utility.BouyomiChanRemoting();
@@ -102,28 +102,39 @@ namespace FakeChan
 
         private void IPCAddTalkTask03(string TalkText, int iSpeed, int iTone, int iVolume, int vType)
         {
+            int cid;
+            List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
+            int cnt = CidList.Count;
+            int ListenIf = (int)ListenInterface.IPC1;
             int voice = EditInputText.EditInputString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
-            if (Config.IsRandomVoice)
+            if (UserData.IsRandomVoice)
             {
-                Random r = new Random(seed++);
                 voice = r.Next(0, 9);
-                if (seed == int.MaxValue) seed = 0;
+                cid = UserData.SelectedCid[ListenIf][voice];
+            }
+            else if (UserData.IsRandomAvator)
+            {
+                cid = CidList[r.Next(0, cnt)];
+                if (Config.AvatorNames.ContainsKey(cid))
+                {
+                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                }
+            }
+            else
+            {
+                cid = UserData.SelectedCid[ListenIf][voice];
             }
 
-            int tid = MessQue.count + 1;
-            int voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.IPC1] + voice;
-
-            int cid = Config.B2Amap[voiceIdx];
-            Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-            Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+            Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
             MessageData talk = new MessageData()
             {
                 Cid = cid,
                 Message = EditInputText.ChangedTalkText,
                 BouyomiVoice = voice,
-                BouyomiVoiceIdx = voiceIdx,
-                TaskId = tid,
+                ListenInterface = ListenIf,
+                TaskId = MessQue.count + 1,
                 Effects = Effects,
                 Emotions = Emotions
             };

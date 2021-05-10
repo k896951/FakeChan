@@ -62,12 +62,12 @@
     </ApplicationDefinition>
     <Compile Include="BouyomiChanRemoting.cs" />
     <Compile Include="Configs.cs" />
+    <Compile Include="ConstClass.cs" />
     <Compile Include="EditParamsBefore.cs" />
     <Compile Include="EnumClass.cs" />
     <Compile Include="IpcTasks.cs" />
     <Compile Include="MessageData.cs" />
     <Compile Include="MessQueueWrapper.cs" />
-    <Compile Include="Settings.cs" />
     <Compile Include="HttpTasks.cs" />
     <Compile Include="SocketTasks.cs" />
     <Compile Include="UserDefData.cs" />
@@ -107,9 +107,20 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="QuietMessages.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties quietmessages_1json__JsonSchema="https://bitbucket.org/atlassianlabs/atlascode/raw/main/resources/schemas/pipelines-schema.json" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

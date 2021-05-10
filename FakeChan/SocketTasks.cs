@@ -13,10 +13,9 @@ namespace FakeChan
         Configs Config;
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
+        UserDefData UserData;
         EditParamsBefore EditInputText = new EditParamsBefore();
-        int seed = Environment.TickCount;
-
-        Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> ParamAssignList;
+        Random r = new Random(Environment.TickCount);
 
         bool KeepListen = false;
         TcpListener TcpIpListener;
@@ -28,12 +27,12 @@ namespace FakeChan
 
         public Methods PlayMethod { get; set; }
 
-        public SocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>> Params)
+        public SocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref UserDefData UsrData)
         {
             Config = cfg;
             MessQue = mq;
             WcfClient = wcf;
-            ParamAssignList = Params;
+            UserData = UsrData;
         }
 
         public void StartSocketTasks(IPAddress addr, int port)
@@ -78,7 +77,7 @@ namespace FakeChan
                         Int16 iCommand;
                         Int16 iVoice;
                         int voice;
-                        int voiceIdx;
+                        int ListenIf;
                         byte bCode;
                         Int32 iLength;
                         string TalkText = "";
@@ -86,6 +85,10 @@ namespace FakeChan
                         byte[] iCommandBuff;
                         byte[] iVoiceBuff;
                         byte[] iLengthBuff;
+
+                        List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
+                        int cnt = CidList.Count;
+                        int cid;
 
                         using (NetworkStream ns = client.GetStream())
                         {
@@ -126,35 +129,46 @@ namespace FakeChan
                                                 TalkText = System.Text.Encoding.Unicode.GetString(TalkTextBuff, 0, iLength);
                                                 break;
                                         }
-                                        voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
-                                        if (Config.IsRandomVoice)
-                                        {
-                                            Random r = new Random(seed++);
-                                            voice = r.Next(0, 9);
-                                            if (seed == int.MaxValue) seed = 0;
-                                        }
 
                                         if (ListenPort == Config.SocketPortNum2)
                                         {
-                                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Socket2] + voice;
+                                            ListenIf = (int)ListenInterface.Socket2;
                                         }
                                         else
                                         {
-                                            voiceIdx = Config.BouyomiVoiceIdx[VoiceIndex.Socket1] + voice;
+                                            ListenIf = (int)ListenInterface.Socket1;
                                         }
 
-                                        int cid = Config.B2Amap[voiceIdx];
-                                        int tid = MessQue.count + 1;
-                                        Dictionary<string, decimal> Effects = ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                                        Dictionary<string, decimal> Emotions = ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
+
+                                        if (UserData.IsRandomVoice)
+                                        {
+                                            voice = r.Next(0, 9);
+                                            cid = UserData.SelectedCid[ListenIf][voice];
+                                        }
+                                        else if (UserData.IsRandomAvator)
+                                        {
+                                            cid = CidList[r.Next(0, cnt)];
+                                            if (Config.AvatorNames.ContainsKey(cid))
+                                            {
+                                                UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            cid = UserData.SelectedCid[ListenIf][voice];
+                                        }
+
+                                        Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
                                         MessageData talk = new MessageData()
                                         {
                                             Cid = cid,
                                             Message = EditInputText.ChangedTalkText,
                                             BouyomiVoice = voice,
-                                            BouyomiVoiceIdx = voiceIdx,
-                                            TaskId = tid,
+                                            ListenInterface = ListenIf,
+                                            TaskId = MessQue.count + 1,
                                             Effects = Effects,
                                             Emotions = Emotions
                                         };

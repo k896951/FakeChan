@@ -8,7 +8,7 @@ namespace FakeChan
 
         public int BouyomiVoice { get; set; }
 
-        public int BouyomiVoiceIdx { get; set; }
+        public int ListenInterface { get; set; }
 
         public int TaskId { get; set; }
 

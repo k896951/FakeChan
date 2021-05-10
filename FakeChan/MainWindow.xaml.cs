@@ -21,27 +21,29 @@ namespace FakeChan
     /// </summary>
     public partial class MainWindow : Window
     {
-        string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.2.3";
+        string titleStr = "偽装ちゃん(仮)　";
+        string versionStr = "Ver 1.3.0";
+        MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
-        MessQueueWrapper MessQueWrapper;
         IpcTasks IpcTask = null;
         SocketTasks SockTask = null;
         HttpTasks HttpTask = null;
         SocketTasks SockTask2 = null;
         HttpTasks HttpTask2 = null;
         EditParamsBefore TestEdit = new EditParamsBefore();
+        Random r = new Random(Environment.TickCount);
+        int QuietMessageKeyMax;
 
         WCFClient WcfClient;
         DispatcherTimer KickTalker;
-        List<ComboBox> MapAvatorsComboBoxList;
-        List<Ellipse> LampList;
-        List<ComboBox> MethodList;
 
-        public UserDefData UserData;
+        int LonelyCount = 0;
+        int LonelyCid;
 
         bool ReEntry;
         object lockObj = new object();
+
+        public UserDefData UserData;
 
         public MainWindow()
         {
@@ -114,12 +116,66 @@ namespace FakeChan
 
             try
             {
+                // 設定値を取り込むよ！
+                UserData.QuietMessages = Config.MessageLoader();
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show(e0.Message, "設定値読み込みの問題3");
+                Application.Current.Shutdown();
+                return;
+            }
+
+            try
+            {
                 // 古い版のデータだったら補正
                 // 設定値が取り込めない環境がある模様だ。対策する
 
                 if (UserData is null)
                 {
                     UserData = new UserDefData();
+                }
+
+                if (UserData.VoiceParams is null)
+                {
+                    UserData.VoiceParams = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>>();
+                    UserData.SelectedCid = new Dictionary<int, Dictionary<int, int>>();
+                    UserData.SelectedCallMethod = new Dictionary<int, int>();
+
+                    foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
+                    {
+                        UserData.VoiceParams[(int)InterfaceIdx] = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
+                        UserData.SelectedCid[(int)InterfaceIdx] = new Dictionary<int, int>();
+                        UserData.SelectedCallMethod[(int)InterfaceIdx] = (int)Methods.sync;
+
+                        foreach (BouyomiVoice BouIdx in Enum.GetValues(typeof(BouyomiVoice)))
+                        {
+                            UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+                            UserData.SelectedCid[(int)InterfaceIdx][(int)BouIdx] = Config.AvatorNames.First().Key;
+
+                            foreach (int cid in Config.AvatorNames.Keys)
+                            {
+                                UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
+                            }
+                        }
+                    }
+                }
+
+                if (UserData.InterfaceSwitch is null)
+                {
+                    UserData.InterfaceSwitch = new Dictionary<int, bool>()
+                        {
+                            {0, true },
+                            {1, true },
+                            {2, true },
+                            {3, false },
+                            {4, false }
+                        };
+                }
+
+                if(UserData.QuietMessages is null)
+                {
+                    UserData.QuietMessages = new Dictionary<int, List<string>>();
                 }
 
                 if (UserData.AddSuffixStr is null)
@@ -133,72 +189,97 @@ namespace FakeChan
                 {
                     UserData.MatchPattern1 = @"([^0-9０-９])[8８]{3,}";
                     UserData.ReplcaeStr1 = @"$1パチパチパチ";
+                    UserData.IsUseReplcae1 = true;
                 }
 
                 if (UserData.MatchPattern2 is null)
                 {
                     UserData.MatchPattern2 = @"([^a-zA-Zａ-ｚＡ-Ｚ])[WwＷｗ]{1,}";
                     UserData.ReplcaeStr2 = @"$1ワラワラ";
+                    UserData.IsUseReplcae2 = true;
                 }
 
-                if ((UserData.ParamAssignList is null) || (UserData.ParamAssignList.Count == 54))
+                if (UserData.MatchPattern3 is null)
                 {
-                    UserData.ParamAssignList = UserData.ParamAssignList = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
-                }
-
-                if ((UserData.Voice2Cid is null) || UserData.Voice2Cid.ContainsKey(45))
-                {
-                    UserData.Voice2Cid = Config.B2Amap;
-                }
-
-                if ((UserData.LampSwitch is null)||(UserData.LampSwitch.Count == 6))
-                {
-                    UserData.LampSwitch = new Dictionary<VoiceIndex, bool>()
-                    {
-                        {VoiceIndex.IPC1, true },
-                        {VoiceIndex.Socket1, true },
-                        {VoiceIndex.Http1, true },
-                        {VoiceIndex.Socket2, false },
-                        {VoiceIndex.Http2, false },
-                    };
-                }
-
-                if ((UserData.MethodAssignList is null)|| (UserData.MethodAssignList.Count == 6))
-                {
-                    UserData.MethodAssignList = new Dictionary<int, int>()
-                    {
-                        { 0, 0 },
-                        { 1, 0 },
-                        { 2, 0 },
-                        { 3, 0 },
-                        { 4, 0 }
-                    };
+                    UserData.MatchPattern3 = @"https*\:\/\/[^\t 　]{1,}";
+                    UserData.ReplcaeStr3 = @"URL省略";
+                    UserData.IsUseReplcae3 = true;
                 }
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題3");
+                MessageBox.Show(e0.Message, "設定値読み込みの問題4");
                 Application.Current.Shutdown();
                 return;
             }
 
-            // メッセージキューを使うよ！
-            MessQueWrapper = new MessQueueWrapper();
+            // サイレントメッセージ最大待ち時間
+            QuietMessageKeyMax = UserData.QuietMessages.Max(c => c.Key);
 
-            // 設定2用
-            Config.TextLength = UserData.TextLength;
-            Config.AddSuffix = UserData.AddSuffix;
-            Config.AddSuffixStr = UserData.AddSuffixStr;
+            // バックグラウンドタスク用オブジェクト
+            IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
 
-            TextBoxTextLength.Text = Config.TextLength.ToString();
-            CheckBoxAddSuffix.IsChecked = Config.AddSuffix;
-            TextBoxAddSuffixStr.Text = Config.AddSuffixStr;
-            EditParamsBefore.LimitTextLength = Config.TextLength;
-            EditParamsBefore.IsUseSuffixString = Config.AddSuffix;
-            EditParamsBefore.SuffixString = Config.AddSuffixStr;
+            // 非同期発声時のGUI操作用
+            IpcTask.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask2.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask2.OnCallAsyncTalk += TalkAsyncCall;
 
-            CheckBoxRandomVoice.IsChecked = Config.IsRandomVoice = UserData.IsRandomVoice;
+            // 話者設定 コンボボックス設定
+            ComboBoxInterface.ItemsSource = null;
+            ComboBoxInterface.ItemsSource = ConstClass.BouyomiInterface;
+            ComboBoxInterface.DisplayMemberPath = "LabelData";
+            ComboBoxInterface.SelectedValuePath = "ValueData";
 
+            ComboBoxCallMethod.ItemsSource = null;
+            ComboBoxCallMethod.ItemsSource = ConstClass.BouyomiCallMethod;
+            ComboBoxCallMethod.DisplayMemberPath = "LabelData";
+            ComboBoxCallMethod.SelectedValuePath = "ValueData";
+
+            List<ComboBox> MapAvatorsComboBoxList = new List<ComboBox>()
+            {
+                ComboBoxMapVoice0,
+                ComboBoxMapVoice1,
+                ComboBoxMapVoice2,
+                ComboBoxMapVoice3,
+                ComboBoxMapVoice4,
+                ComboBoxMapVoice5,
+                ComboBoxMapVoice6,
+                ComboBoxMapVoice7,
+                ComboBoxMapVoice8
+            };
+            for (int idx = 0; idx < MapAvatorsComboBoxList.Count; idx++)
+            {
+                MapAvatorsComboBoxList[idx].ItemsSource = null;
+                MapAvatorsComboBoxList[idx].ItemsSource = Config.AvatorNames;
+                MapAvatorsComboBoxList[idx].IsEnabled = true;
+                MapAvatorsComboBoxList[idx].Tag = idx;
+            }
+
+            CheckBoxRandomVoice.IsChecked = UserData.IsRandomVoice;
+
+            ComboBoxInterface.SelectedIndex = (int)ListenInterface.IPC1;
+
+            // 音声設定 コンボボックス設定
+            ComboBoxEditInterface.ItemsSource = null;
+            ComboBoxEditInterface.DisplayMemberPath = "LabelData";
+            ComboBoxEditInterface.SelectedValuePath = "ValueData";
+            ComboBoxEditInterface.ItemsSource = ConstClass.BouyomiInterface;
+
+            ComboBoxEditBouyomiVoice.ItemsSource = null;
+            ComboBoxEditBouyomiVoice.DisplayMemberPath = "LabelData";
+            ComboBoxEditBouyomiVoice.SelectedValuePath = "ValueData";
+            ComboBoxEditBouyomiVoice.ItemsSource = ConstClass.BouyomiVoiceName;
+
+            ComboBoxEditInterface.SelectedIndex = 0;
+            ComboBoxEditBouyomiVoice.SelectedIndex = 0;
+
+            // 置換設定 テキストボックス設定
             TextBoxMatchPatternStr1.Text = EditParamsBefore.MatchPattern1 = UserData.MatchPattern1;
             TextBoxMatchPatternStr2.Text = EditParamsBefore.MatchPattern2 = UserData.MatchPattern2;
             TextBoxMatchPatternStr3.Text = EditParamsBefore.MatchPattern3 = UserData.MatchPattern3;
@@ -223,199 +304,89 @@ namespace FakeChan
             CheckBoxIsReplace6.IsChecked = EditParamsBefore.IsUseReplcae6 = UserData.IsUseReplcae6;
             CheckBoxIsReplace7.IsChecked = EditParamsBefore.IsUseReplcae7 = UserData.IsUseReplcae7;
 
-            // バックグラウンドタスク用オブジェクト
-            IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            SockTask  = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            HttpTask  = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
-            HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData.ParamAssignList);
+            TextBoxTextLength.Text           = UserData.TextLength.ToString();
+            EditParamsBefore.LimitTextLength = UserData.TextLength;
+            CheckBoxAddSuffix.IsChecked      = EditParamsBefore.IsUseSuffixString = UserData.AddSuffix;
+            TextBoxAddSuffixStr.Text         = EditParamsBefore.SuffixString = UserData.AddSuffixStr;
 
-            // 非同期発声時のGUI操作用
-            IpcTask.OnCallAsyncTalk += TalkAsyncCall;
-            SockTask.OnCallAsyncTalk += TalkAsyncCall;
-            SockTask2.OnCallAsyncTalk += TalkAsyncCall;
-            HttpTask.OnCallAsyncTalk += TalkAsyncCall;
-            HttpTask2.OnCallAsyncTalk += TalkAsyncCall;
-
-            LampList = new List<Ellipse>()
-            {
-                EllipseIpc,
-                EllipseSocket,
-                EllipseHTTP,
-                EllipseSocket2,
-                EllipseHTTP2
-            };
-
-            LampList[0].Tag = UserData.LampSwitch[VoiceIndex.IPC1];
-            LampList[1].Tag = UserData.LampSwitch[VoiceIndex.Socket1];
-            LampList[2].Tag = UserData.LampSwitch[VoiceIndex.Http1];
-            LampList[3].Tag = UserData.LampSwitch[VoiceIndex.Socket2];
-            LampList[4].Tag = UserData.LampSwitch[VoiceIndex.Http2];
-
-            MethodList = new List<ComboBox>()
-            {
-                ComboBoxCallMethodIPC,
-                ComboBoxCallMethodSocket,
-                ComboBoxCallMethodHTTP,
-                ComboBoxCallMethodSocket2,
-                ComboBoxCallMethodHTTP2
-            };
-
-            for(int idx=0; idx < MethodList.Count; idx++)
-            {
-                MethodList[idx].ItemsSource = null;
-                MethodList[idx].ItemsSource = Config.PlayMethods;
-                MethodList[idx].SelectedIndex = -1;
-                MethodList[idx].IsEnabled = true;
-                MethodList[idx].Tag = idx;
-                MethodList[idx].SelectedIndex = UserData.MethodAssignList[idx];
-            }
-
-            MapAvatorsComboBoxList = new List<ComboBox>()
-            {
-                ComboBoxMapAvator0,
-                ComboBoxMapAvator1,
-                ComboBoxMapAvator2,
-                ComboBoxMapAvator3,
-                ComboBoxMapAvator4,
-                ComboBoxMapAvator5,
-                ComboBoxMapAvator6,
-                ComboBoxMapAvator7,
-                ComboBoxMapAvator8,
-                ComboBoxMapAvator10,
-                ComboBoxMapAvator11,
-                ComboBoxMapAvator12,
-                ComboBoxMapAvator13,
-                ComboBoxMapAvator14,
-                ComboBoxMapAvator15,
-                ComboBoxMapAvator16,
-                ComboBoxMapAvator17,
-                ComboBoxMapAvator18,
-                ComboBoxMapAvator20,
-                ComboBoxMapAvator21,
-                ComboBoxMapAvator22,
-                ComboBoxMapAvator23,
-                ComboBoxMapAvator24,
-                ComboBoxMapAvator25,
-                ComboBoxMapAvator26,
-                ComboBoxMapAvator27,
-                ComboBoxMapAvator28,
-                ComboBoxMapAvator30,
-                ComboBoxMapAvator31,
-                ComboBoxMapAvator32,
-                ComboBoxMapAvator33,
-                ComboBoxMapAvator34,
-                ComboBoxMapAvator35,
-                ComboBoxMapAvator36,
-                ComboBoxMapAvator37,
-                ComboBoxMapAvator38,
-                ComboBoxMapAvator40,
-                ComboBoxMapAvator41,
-                ComboBoxMapAvator42,
-                ComboBoxMapAvator43,
-                ComboBoxMapAvator44,
-                ComboBoxMapAvator45,
-                ComboBoxMapAvator46,
-                ComboBoxMapAvator47,
-                ComboBoxMapAvator48
-            };
-
-            for (int idx = 0; idx < MapAvatorsComboBoxList.Count; idx++)
-            {
-                MapAvatorsComboBoxList[idx].ItemsSource = null;
-                MapAvatorsComboBoxList[idx].ItemsSource = Config.AvatorNames;
-                MapAvatorsComboBoxList[idx].SelectedIndex = -1;
-                MapAvatorsComboBoxList[idx].IsEnabled = true;
-                MapAvatorsComboBoxList[idx].Tag = idx;
-            }
-
-            Dictionary<int, string> avators = Config.AvatorNames;
-            Dictionary<int, int> v2c = UserData.Voice2Cid.ToDictionary(k => k.Key, v => v.Value);
-            foreach (var v2cItem in v2c)
-            {
-                if (avators.ContainsKey(v2cItem.Value))
-                {
-                    int idx = 0;
-                    foreach (KeyValuePair<int, string> listItem in MapAvatorsComboBoxList[v2cItem.Key].Items)
-                    {
-                        if (v2cItem.Value == listItem.Key) break;
-                        idx++;
-                    }
-                    MapAvatorsComboBoxList[v2cItem.Key].SelectedIndex = idx;
-                }
-                else
-                {
-                    MapAvatorsComboBoxList[v2cItem.Key].SelectedIndex = 0;
-                }
-            }
-
-            ComboBoxBouyomiVoice.ItemsSource = null;
-            ComboBoxBouyomiVoice.ItemsSource = Config.BouyomiVoices;
-            ComboBoxBouyomiVoice.SelectedIndex = 0;
+            // 状態 受信インタフェース
+            EllipseIpc.Tag     = 0;
+            EllipseSocket.Tag  = 1;
+            EllipseHTTP.Tag    = 2;
+            EllipseSocket2.Tag = 3;
+            EllipseHTTP2.Tag   = 4;
 
             try
             {
                 // 読み上げバックグラウンドタスク起動
+                LonelyCid = Config.AvatorNames.First().Key;
+                LonelyCount = 0;
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
                 KickTalker.Interval = new TimeSpan(0, 0, 1);
                 ReEntry = true;
                 KickTalker.Start();
 
-                // 通信受付口バックグラウンドタスク起動
-                for (int idx=0; idx < LampList.Count; idx++)
+                // 受信インタフェース バックグラウンドタスク起動
+
+                if ((UserData.InterfaceSwitch[(int)ListenInterface.IPC1] == true) && IpcTask.StartIpcTasks(Config.IPCChannelName))
                 {
-                    bool sw = (bool)LampList[idx].Tag;
-                    if (sw)
-                    {
-                        switch (idx)
-                        {
-                            case 0:
-                                if (IpcTask.StartIpcTasks(Config.IPCChannelName))
-                                {
-                                    LampList[idx].Fill = Brushes.LightGreen;
-                                    LampList[idx].Tag = true;
-                                    UserData.LampSwitch[VoiceIndex.IPC1] = true;
-                                }
-                                else
-                                {
-                                    LampList[idx].Fill = Brushes.Black;
-                                    LampList[idx].Tag = false;
-                                    UserData.LampSwitch[VoiceIndex.IPC1] = false;
-                                }
-                                break;
-
-                            case 1:
-                                SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
-                                LampList[idx].Fill = Brushes.LightGreen;
-                                LampList[idx].Tag = true;
-                                UserData.LampSwitch[VoiceIndex.Socket1] = true;
-                                break;
-
-                            case 2:
-                                HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
-                                LampList[idx].Fill = Brushes.LightGreen;
-                                LampList[idx].Tag = true;
-                                UserData.LampSwitch[VoiceIndex.Http1] = true;
-                                break;
-
-                            case 3:
-                                SockTask2.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
-                                LampList[idx].Fill = Brushes.LightGreen;
-                                LampList[idx].Tag = true;
-                                UserData.LampSwitch[VoiceIndex.Socket2] = true;
-                                break;
-
-                            case 4:
-                                HttpTask2.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
-                                LampList[idx].Fill = Brushes.LightGreen;
-                                LampList[idx].Tag = true;
-                                UserData.LampSwitch[VoiceIndex.Http2] = true;
-                                break;
-                        }
-                    }
+                    EllipseIpc.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.IPC1] = true;
+                }
+                else
+                {
+                    EllipseIpc.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.IPC1] = false;
                 }
 
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Socket1] == true)
+                {
+                    SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);
+                    EllipseSocket.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket1] = true;
+                }
+                else
+                {
+                    EllipseSocket.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket1] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Http1] == true)
+                {
+                    HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);
+                    EllipseHTTP.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http1] = true;
+                }
+                else
+                {
+                    EllipseHTTP.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http1] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Socket2] == true)
+                {
+                    SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2);
+                    EllipseSocket2.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket2] = true;
+                }
+                else
+                {
+                    EllipseSocket2.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket2] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Http2] == true)
+                {
+                    HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);
+                    EllipseHTTP2.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http2] = true;
+                }
+                else
+                {
+                    EllipseHTTP2.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http2] = false;
+                }
             }
             catch (Exception e1)
             {
@@ -454,7 +425,6 @@ namespace FakeChan
 
                         Task.Run(() =>
                         {
-                            Dictionary<int, string> bv = Config.BouyomiVoices;
                             Dictionary<int, string> an = Config.AvatorNames;
                             foreach (var item in MessQueWrapper.QueueRef().GetConsumingEnumerable())
                             {
@@ -464,28 +434,46 @@ namespace FakeChan
                                     HttpTask?.SetTaskId(item.TaskId);
                                     HttpTask2?.SetTaskId(item.TaskId);
                                     TextBlockReceveText.Text = item.Message;
-                                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[item.BouyomiVoiceIdx], an[item.Cid] );
+                                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
                                 });
 
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                                LonelyCid = item.Cid;
+                                LonelyCount = 0;
                             }
 
-                            IpcTask.SetTaskId(0);
+                            IpcTask?.SetTaskId(0);
+                            HttpTask?.SetTaskId(0);
+                            HttpTask2?.SetTaskId(0);
 
                             ReEntry = true;
                         });
 
                     }
                 }
-
             }
+            else
+            {
+                r.Next(0, QuietMessageKeyMax); // 乱数生成を出来るだけ続けさせる
+                if (!UserData.IsSilentAvator && UserData.QuietMessages.ContainsKey(LonelyCount))
+                {
+                    int cnt = LonelyCount;
+                    int idx = r.Next(0, UserData.QuietMessages[cnt].Count);
+                    Task.Run(() =>
+                    {
+                        WcfClient.Talk(LonelyCid, UserData.QuietMessages[cnt][idx], "", null, null);
+                    });
+                }
+                LonelyCount++;
+                if (LonelyCount > QuietMessageKeyMax) LonelyCount = 0;
+            }
+
         }
 
         private void TalkAsyncCall(MessageData talk)
         {
             Task.Run(() =>
             {
-                Dictionary<int, string> bv = Config.BouyomiVoices;
                 Dictionary<int, string> an = Config.AvatorNames;
                 Dispatcher.Invoke(() =>
                 {
@@ -493,263 +481,45 @@ namespace FakeChan
                     HttpTask?.SetTaskId(talk.TaskId);
                     HttpTask2?.SetTaskId(talk.TaskId);
                     TextBoxReceveText.Text = talk.Message;
-                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1}", bv[talk.BouyomiVoiceIdx], an[talk.Cid]);
+                    TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[talk.ListenInterface], ConstClass.BouyomiVoiceMap[talk.BouyomiVoice], an[talk.Cid]);
                 });
 
                 WcfClient.TalkAsync(talk.Cid, talk.Message, talk.Effects, talk.Emotions);
             });
         }
 
-        private void ComboBoxMapAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            int voiceIdx = (int)cb.Tag;
-            int cid = ((KeyValuePair<int, string>)cb.SelectedItem).Key;
-
-            Config.B2Amap[voiceIdx] = cid;
-            UserData.Voice2Cid[voiceIdx] = cid;
-
-            if (!UserData.ParamAssignList.ContainsKey(voiceIdx))
-            {
-                UserData.ParamAssignList[voiceIdx] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
-            }
-
-            if (!UserData.ParamAssignList[voiceIdx].ContainsKey(cid))
-            {
-                UserData.ParamAssignList[voiceIdx].Add(cid, new Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>());
-                UserData.ParamAssignList[voiceIdx][cid].Add("effect", new Dictionary<string, Dictionary<string, decimal>>());
-                UserData.ParamAssignList[voiceIdx][cid].Add("emotion", new Dictionary<string, Dictionary<string, decimal>>());
-                foreach (var item1 in Config.AvatorEffectParams(cid))
-                {
-                    UserData.ParamAssignList[voiceIdx][cid]["effect"].Add(item1.Key, new Dictionary<string, decimal>());
-                    foreach ( var item2 in item1.Value)
-                    {
-                        UserData.ParamAssignList[voiceIdx][cid]["effect"][item1.Key].Add(item2.Key, item2.Value);
-                    }
-                }
-                foreach (var item1 in Config.AvatorEmotionParams(cid))
-                {
-                    UserData.ParamAssignList[voiceIdx][cid]["emotion"].Add(item1.Key, new Dictionary<string, decimal>());
-                    foreach (var item2 in item1.Value)
-                    {
-                        UserData.ParamAssignList[voiceIdx][cid]["emotion"][item1.Key].Add(item2.Key, item2.Value);
-                    }
-                }
-            }
-
-            if (ComboBoxBouyomiVoice.SelectedIndex != voiceIdx)
-            {
-                ComboBoxBouyomiVoice.SelectedIndex = voiceIdx;
-            }
-            else
-            {
-                UpdateEditParamPanel(voiceIdx, Config.B2Amap[voiceIdx]);
-            }
-        }
-
-        private void ComboBoxBouyomiVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            int voiceIdx = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
-
-            UpdateEditParamPanel(voiceIdx, Config.B2Amap[voiceIdx]);
-        }
-
-        private void ComboBoxCallMethod_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            int idx = (int)cb.Tag;
-
-            Methods md = Config.PlayMethodsMap[cb.SelectedIndex];
-
-            UserData.MethodAssignList[idx] = cb.SelectedIndex;
-            switch (idx)
-            {
-                case 0 : IpcTask.PlayMethod   = md; break;
-                case 1 : SockTask.PlayMethod  = md; break;
-                case 2 : HttpTask.PlayMethod  = md; break;
-                case 3 : SockTask2.PlayMethod = md; break;
-                case 4 : HttpTask2.PlayMethod = md; break;
-                default: break;
-            }
-        }
-
-        private void ButtonParamReset_Click(object sender, RoutedEventArgs e)
-        {
-            int voiceIdx = Convert.ToInt32(ComboBoxBouyomiVoice.SelectedValue);
-            int cid = Config.B2Amap[voiceIdx];
-            foreach(var item1 in Config.AvatorEffectParams(cid))
-            {
-                foreach(var item2 in item1.Value)
-                {
-                    UserData.ParamAssignList[voiceIdx][cid]["effect"][item1.Key][item2.Key] = item2.Value;
-                }
-            }
-            foreach (var item1 in Config.AvatorEmotionParams(cid))
-            {
-                foreach (var item2 in item1.Value)
-                {
-                    UserData.ParamAssignList[voiceIdx][cid]["emotion"][item1.Key][item2.Key] = item2.Value;
-                }
-            }
-            UpdateEditParamPanel(voiceIdx, cid);
-        }
-
-        private void UpdateEditParamPanel(int voiceIdx, int cid)
-        {
-            LabelSelectedAvator.Content = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
-            WrapPanelParams1.Children.Clear();
-            WrapPanelParams2.Children.Clear();
-            Dictionary<string, Dictionary<string, decimal>> effect = UserData.ParamAssignList[voiceIdx][cid]["effect"];
-            Dictionary<string, Dictionary<string, decimal>> emotion = UserData.ParamAssignList[voiceIdx][cid]["emotion"];
-
-            ReSetupParams(cid, ref effect,  WrapPanelParams1.Children);
-            ReSetupParams(cid, ref emotion, WrapPanelParams2.Children);
-        }
-
-        private void ReSetupParams(int cid, ref Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
-        {
-            foreach(var param in @params)
-            {
-                StackPanel sp = new StackPanel();
-                Label lb = new Label();
-                TextBlock tb = new TextBlock();
-
-                sp.Orientation = Orientation.Vertical;
-                sp.Margin = new Thickness(2, 0, 2, 2);
-                sp.Background = new SolidColorBrush(Color.FromArgb(0xff, 253, 252, 227));
-
-                // パラメタ名
-                lb.HorizontalAlignment = HorizontalAlignment.Left;
-                lb.Content = param.Key;
-
-                // スライダー
-                Slider sl = new Slider();
-                sl.Name = param.Key;
-                sl.Width = 100;
-                sl.Minimum = Convert.ToDouble(param.Value["min"]);
-                sl.Maximum = Convert.ToDouble(param.Value["max"]);
-                sl.SelectionStart = Convert.ToDouble(param.Value["min"]);
-                sl.SelectionEnd = Convert.ToDouble(param.Value["max"]);
-                sl.Value = Convert.ToDouble(param.Value["value"]);
-                sl.TickFrequency = Convert.ToDouble(param.Value["step"]);
-                sl.LargeChange = Convert.ToDouble(param.Value["step"]);
-                sl.SmallChange = Convert.ToDouble(param.Value["step"]);
-                sl.IsSnapToTickEnabled = true;
-
-                sl.ValueChanged += (sender, args) => {
-                    param.Value["value"] = Convert.ToDecimal(sl.Value);
-                };
-
-                // 数値（表示）
-                Binding myBinding = new Binding("Value");
-                myBinding.Source = sl;
-                tb.SetBinding(TextBlock.TextProperty, myBinding);
-                tb.HorizontalAlignment = HorizontalAlignment.Center;
-
-                sp.Children.Add(lb);
-                sp.Children.Add(sl);
-                sp.Children.Add(tb);
-
-                panel.Add(sp);
-            }
-        }
-
-        private void ButtonTestTalk_Click(object sender, RoutedEventArgs e)
-        {
-            TextBoxReceveText.IsEnabled = false;
-            ButtonTestTalk.IsEnabled = false;
-            ComboBoxBouyomiVoice.IsEnabled = false;
-
-            string text = TextBoxReceveText.Text;
-            int voiceIdx = ((KeyValuePair<int, string>)ComboBoxBouyomiVoice.SelectedItem).Key;
-            int voice = 0;
-
-            // See https://gist.github.com/pinzolo/2814091
-            DispatcherFrame frame = new DispatcherFrame();
-            var callback = new DispatcherOperationCallback(obj =>
-            {
-                ((DispatcherFrame)obj).Continue = false;
-                return null;
-            });
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
-            Dispatcher.PushFrame(frame);
-
-            TestEdit.EditInputString(voice, text);
-
-            Task.Run(() =>
-            {
-                int cid =  Config.B2Amap[voiceIdx];
-                Dictionary<string, decimal> Effects = UserData.ParamAssignList[voiceIdx][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                Dictionary<string, decimal> Emotions = UserData.ParamAssignList[voiceIdx][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
-
-                WcfClient.Talk(cid, TestEdit.ChangedTalkText, "", Effects, Emotions);
-
-                Dispatcher.Invoke(() =>
-                {
-                    TextBoxReceveText.IsEnabled = true;
-                    ButtonTestTalk.IsEnabled = true;
-                    ComboBoxBouyomiVoice.IsEnabled = true;
-                });
-            });
-        }
-
         private void EllipseConnect_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            int lampNo = 0;
             Ellipse ep = sender as Ellipse;
+            int swNo = (int)ep.Tag;
+            bool sw = UserData.InterfaceSwitch[swNo];
 
-            for(lampNo = 0; lampNo < LampList.Count; lampNo++)
-            {
-                if (ep.Equals(LampList[lampNo])) break;
-            }
-
-            bool sw = (bool)LampList[lampNo].Tag;
+            ep.Fill = sw ? Brushes.Black : Brushes.LightGreen;
 
             if (sw)
             {
-                ep.Fill = Brushes.Black;
-            }
-            else
-            {
-                ep.Fill = Brushes.LightGreen;
-            }
-
-            LampList[lampNo].Tag = !sw;
-
-            if (sw)
-            {
-                switch (lampNo)
+                UserData.InterfaceSwitch[swNo] = false;
+                switch (swNo)
                 {
-                    case 0: IpcTask.StopIpcTasks();      UserData.LampSwitch[VoiceIndex.IPC1]    = false; break;
-                    case 1: SockTask.StopSocketTasks();  UserData.LampSwitch[VoiceIndex.Socket1] = false; break;
-                    case 2: HttpTask.StopHttpTasks();    UserData.LampSwitch[VoiceIndex.Http1]   = false; break;
-                    case 3: SockTask2.StopSocketTasks(); UserData.LampSwitch[VoiceIndex.Socket2] = false; break;
-                    case 4: HttpTask2.StopHttpTasks();   UserData.LampSwitch[VoiceIndex.Http2]   = false; break;
+                    case 0: IpcTask.StopIpcTasks();      break;
+                    case 1: SockTask.StopSocketTasks();  break;
+                    case 2: HttpTask.StopHttpTasks();    break;
+                    case 3: SockTask2.StopSocketTasks(); break;
+                    case 4: HttpTask2.StopHttpTasks();   break;
                 }
             }
             else
             {
-                switch (lampNo)
+                UserData.InterfaceSwitch[swNo] = true;
+                switch (swNo)
                 {
-                    case 0:
-                        if (!IpcTask.StartIpcTasks(Config.IPCChannelName))
-                        {
-                            ep.Fill = Brushes.Black;
-                            LampList[lampNo].Tag = false;
-                            UserData.LampSwitch[VoiceIndex.IPC1] = false;
-                        }
-                        else
-                        {
-                            UserData.LampSwitch[VoiceIndex.IPC1] = true;
-                        }
-                        break;
-                    case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    UserData.LampSwitch[VoiceIndex.Socket1] = true; break;
-                    case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          UserData.LampSwitch[VoiceIndex.Http1]   = true; break;
-                    case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); UserData.LampSwitch[VoiceIndex.Socket2] = true; break;
-                    case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       UserData.LampSwitch[VoiceIndex.Http2]   = true; break;
+                    case 0:if (!IpcTask.StartIpcTasks(Config.IPCChannelName)) { ep.Fill = Brushes.Black; UserData.InterfaceSwitch[swNo] = false; } break;
+                    case 1: SockTask.StartSocketTasks(Config.SocketAddress, Config.SocketPortNum);    break;
+                    case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          break;
+                    case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;
+                    case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       break;
                 }
             }
-
         }
 
         private void TextBox_MaxTextSizePreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
@@ -847,11 +617,252 @@ namespace FakeChan
             }
         }
 
-        private void CheckBoxRandomVoice_Click(object sender, RoutedEventArgs e)
+        private void CheckBoxRandomVoice_Checked(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            switch (cb.Name)
+            {
+                case "CheckBoxRandomVoice":
+                    UserData.IsRandomVoice          = true;
+                    CheckBoxRandomAvator.IsChecked = UserData.IsRandomAvator = false;
+                    break;
+
+                case "CheckBoxRandomAvator":
+                    UserData.IsRandomAvator      = true;
+                    CheckBoxRandomVoice.IsChecked = UserData.IsRandomVoice   = false;
+                    break;
+            }
+        }
+
+        private void CheckBoxRandom_Click(object sender, RoutedEventArgs e)
         {
             CheckBox cb = sender as CheckBox;
 
-            Config.IsRandomVoice = UserData.IsRandomVoice = (bool)cb.IsChecked;
+            if ((bool)cb.IsChecked) return;
+
+            switch (cb.Name)
+            {
+                case "CheckBoxRandomVoice":  UserData.IsRandomVoice  = false; break;
+                case "CheckBoxRandomAvator": UserData.IsRandomAvator = false; break;
+            }
         }
+
+        private void ComboBoxInterface_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxInterface.SelectedIndex == -1) return;
+
+            int ListenIf = (int)ComboBoxInterface.SelectedValue;
+            ComboBoxCallMethod.SelectedIndex = UserData.SelectedCallMethod[ListenIf];
+
+            SetupVoiceMapGUI();
+        }
+
+        private void ComboBoxCallMethod_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxCallMethod.SelectedIndex == -1) return;
+
+            int ListenIf = (int)ComboBoxInterface.SelectedValue;
+            UserData.SelectedCallMethod[ListenIf] = (int)ComboBoxCallMethod.SelectedValue;
+            switch(ListenIf)
+            {
+                case 0: IpcTask.PlayMethod   = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 1: SockTask.PlayMethod  = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 2: HttpTask.PlayMethod  = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 3: SockTask2.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 4: HttpTask2.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+            }
+        }
+
+        private void ComboBoxMapVoice0_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+
+            if (ComboBoxInterface.SelectedIndex == -1) return;
+            if (cb.SelectedIndex == -1) return;
+            if (cb.Tag is null) return;
+
+            int ListenIf = (int)ComboBoxInterface.SelectedValue;
+            UserData.SelectedCid[ListenIf][(int)cb.Tag] = (int)cb.SelectedValue;
+        }
+
+        private void SetupVoiceMapGUI()
+        {
+            int ListenIf = (int)ComboBoxInterface.SelectedValue;
+            List<int> ListCid = Config.AvatorNames.Select(v => v.Key).ToList();
+            for (int idx = 0; idx < ListCid.Count; idx++)
+            {
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.voice0] == ListCid[idx]) ComboBoxMapVoice0.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female1] == ListCid[idx]) ComboBoxMapVoice1.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female2] == ListCid[idx]) ComboBoxMapVoice2.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.male1] == ListCid[idx]) ComboBoxMapVoice3.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.male2] == ListCid[idx]) ComboBoxMapVoice4.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.nogender] == ListCid[idx]) ComboBoxMapVoice5.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.robot] == ListCid[idx]) ComboBoxMapVoice6.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine1] == ListCid[idx]) ComboBoxMapVoice7.SelectedIndex = idx;
+                if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine2] == ListCid[idx]) ComboBoxMapVoice8.SelectedIndex = idx;
+            }
+            if (ComboBoxMapVoice0.SelectedIndex == -1) { ComboBoxMapVoice0.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.voice0] = ListCid[0]; }
+            if (ComboBoxMapVoice1.SelectedIndex == -1) { ComboBoxMapVoice1.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female1] = ListCid[0]; }
+            if (ComboBoxMapVoice2.SelectedIndex == -1) { ComboBoxMapVoice2.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female2] = ListCid[0]; }
+            if (ComboBoxMapVoice3.SelectedIndex == -1) { ComboBoxMapVoice3.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.male1] = ListCid[0]; }
+            if (ComboBoxMapVoice4.SelectedIndex == -1) { ComboBoxMapVoice4.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.male2] = ListCid[0]; }
+            if (ComboBoxMapVoice5.SelectedIndex == -1) { ComboBoxMapVoice5.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.nogender] = ListCid[0]; }
+            if (ComboBoxMapVoice6.SelectedIndex == -1) { ComboBoxMapVoice6.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.robot] = ListCid[0]; }
+            if (ComboBoxMapVoice7.SelectedIndex == -1) { ComboBoxMapVoice7.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine1] = ListCid[0]; }
+            if (ComboBoxMapVoice8.SelectedIndex == -1) { ComboBoxMapVoice8.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine2] = ListCid[0]; }
+        }
+
+        private void ComboBoxEditInterface_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxEditInterface.SelectedIndex == -1) return;
+            if (ComboBoxEditBouyomiVoice.SelectedIndex == -1) return;
+            UpdateEditParamPanel();
+        }
+
+        private void ComboBoxEditBouyomiVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ComboBoxEditBouyomiVoice.SelectedIndex == -1) return;
+            UpdateEditParamPanel();
+        }
+
+        private void ButtonParamReset_Click(object sender, RoutedEventArgs e)
+        {
+            int ListenIf = (int)ComboBoxEditInterface.SelectedValue;
+            int BouVoice = (int)ComboBoxEditBouyomiVoice.SelectedValue;
+            int cid = UserData.SelectedCid[ListenIf][BouVoice];
+
+            foreach (var item1 in Config.AvatorEffectParams(cid))
+            {
+                foreach (var item2 in item1.Value)
+                {
+                    UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            foreach (var item1 in Config.AvatorEmotionParams(cid))
+            {
+                foreach (var item2 in item1.Value)
+                {
+                    UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            UpdateEditParamPanel();
+        }
+
+        private void ButtonTestTalk_Click(object sender, RoutedEventArgs e)
+        {
+            int ListenIf = (int)ComboBoxEditInterface.SelectedValue;
+            int BouVoice = (int)ComboBoxEditBouyomiVoice.SelectedValue;
+            int cid = UserData.SelectedCid[ListenIf][BouVoice];
+
+            TextBoxReceveText.IsEnabled = false;
+            ComboBoxEditInterface.IsEnabled = false;
+            ComboBoxEditBouyomiVoice.IsEnabled = false;
+            ButtonParamReset.IsEnabled = false;
+            ButtonTestTalk.IsEnabled = false;
+
+            // See https://gist.github.com/pinzolo/2814091
+            DispatcherFrame frame = new DispatcherFrame();
+            var callback = new DispatcherOperationCallback(obj =>
+            {
+                ((DispatcherFrame)obj).Continue = false;
+                return null;
+            });
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, callback, frame);
+            Dispatcher.PushFrame(frame);
+
+            string text = TextBoxReceveText.Text;
+
+            TestEdit.EditInputString(BouVoice, text);
+
+            Task.Run(() =>
+            {
+                Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+
+                WcfClient.Talk(cid, TestEdit.ChangedTalkText, "", Effects, Emotions);
+
+                Dispatcher.Invoke(() =>
+                {
+                    TextBoxReceveText.IsEnabled = true;
+                    ComboBoxEditInterface.IsEnabled = true;
+                    ComboBoxEditBouyomiVoice.IsEnabled = true;
+                    ButtonParamReset.IsEnabled = true;
+                    ButtonTestTalk.IsEnabled = true;
+                });
+            });
+        }
+
+        private void CheckBoxIsSilent_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+
+            UserData.IsSilentAvator = (bool)cb.IsChecked;
+        }
+
+        private void UpdateEditParamPanel()
+        {
+            int ListenIf = (int)ComboBoxEditInterface.SelectedValue;
+            int BouVoice = (int)ComboBoxEditBouyomiVoice.SelectedValue;
+            int cid = UserData.SelectedCid[ListenIf][BouVoice];
+
+            TextBlockAvatorName.Text = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
+
+            WrapPanelParams1.Children.Clear();
+            WrapPanelParams2.Children.Clear();
+            Dictionary<string, Dictionary<string, decimal>> effect = UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"];
+            Dictionary<string, Dictionary<string, decimal>> emotion = UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"];
+
+            ReSetupParams(cid, ref effect,  WrapPanelParams1.Children);
+            ReSetupParams(cid, ref emotion, WrapPanelParams2.Children);
+        }
+
+        private void ReSetupParams(int cid, ref Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
+        {
+            foreach (var param in @params)
+            {
+                StackPanel sp = new StackPanel();
+                Label lb = new Label();
+                TextBlock tb = new TextBlock();
+
+                sp.Orientation = Orientation.Vertical;
+                sp.Margin = new Thickness(2, 0, 2, 2);
+                sp.Background = new SolidColorBrush(Color.FromArgb(0xff, 253, 252, 227));
+
+                // パラメタ名
+                lb.HorizontalAlignment = HorizontalAlignment.Left;
+                lb.Content = param.Key;
+
+                // スライダー
+                Slider sl = new Slider();
+                sl.Name = param.Key;
+                sl.Width = 100;
+                sl.Minimum = Convert.ToDouble(param.Value["min"]);
+                sl.Maximum = Convert.ToDouble(param.Value["max"]);
+                sl.SelectionStart = Convert.ToDouble(param.Value["min"]);
+                sl.SelectionEnd = Convert.ToDouble(param.Value["max"]);
+                sl.Value = Convert.ToDouble(param.Value["value"]);
+                sl.TickFrequency = Convert.ToDouble(param.Value["step"]);
+                sl.LargeChange = Convert.ToDouble(param.Value["step"]);
+                sl.SmallChange = Convert.ToDouble(param.Value["step"]);
+                sl.IsSnapToTickEnabled = true;
+
+                sl.ValueChanged += (sender, args) => {
+                    param.Value["value"] = Convert.ToDecimal(sl.Value);
+                };
+
+                // 数値（表示）
+                Binding myBinding = new Binding("Value");
+                myBinding.Source = sl;
+                tb.SetBinding(TextBlock.TextProperty, myBinding);
+                tb.HorizontalAlignment = HorizontalAlignment.Center;
+
+                sp.Children.Add(lb);
+                sp.Children.Add(sl);
+                sp.Children.Add(tb);
+
+                panel.Add(sp);
+            }
+        }
+
     }
 }
