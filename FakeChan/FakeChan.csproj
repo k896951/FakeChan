@@ -69,6 +69,7 @@
     <Compile Include="MessageData.cs" />
     <Compile Include="MessQueueWrapper.cs" />
     <Compile Include="HttpTasks.cs" />
+    <Compile Include="ReplaceDefinition.cs" />
     <Compile Include="SocketTasks.cs" />
     <Compile Include="UserDefData.cs" />
     <Compile Include="WCFClient.cs" />

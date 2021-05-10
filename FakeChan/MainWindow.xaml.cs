@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -22,7 +24,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん(仮)　";
-        string versionStr = "Ver 1.3.1";
+        string versionStr = "Ver 1.3.2";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -32,7 +34,7 @@ namespace FakeChan
         HttpTasks HttpTask2 = null;
         EditParamsBefore TestEdit = new EditParamsBefore();
         Random r = new Random(Environment.TickCount);
-        int QuietMessageKeyMax;
+        ObservableCollection<ReplaceDefinition> Regexs;
 
         WCFClient WcfClient;
         DispatcherTimer KickTalker;
@@ -41,6 +43,7 @@ namespace FakeChan
         List<int> LonelyCidList;
         int LonelyCount = 0;
         int LonelyCid;
+        int QuietMessageKeyMax;
 
         bool ReEntry;
         object lockObj = new object();
@@ -187,25 +190,14 @@ namespace FakeChan
                     UserData.TextLength = 96;
                 }
 
-                if (UserData.MatchPattern1 is null)
+                if (UserData.ReplaceDefs is null)
                 {
-                    UserData.MatchPattern1 = @"([^0-9０-９])[8８]{3,}";
-                    UserData.ReplcaeStr1 = @"$1パチパチパチ";
-                    UserData.IsUseReplcae1 = true;
-                }
-
-                if (UserData.MatchPattern2 is null)
-                {
-                    UserData.MatchPattern2 = @"([^a-zA-Zａ-ｚＡ-Ｚ])[WwＷｗ]{1,}";
-                    UserData.ReplcaeStr2 = @"$1ワラワラ";
-                    UserData.IsUseReplcae2 = true;
-                }
-
-                if (UserData.MatchPattern3 is null)
-                {
-                    UserData.MatchPattern3 = @"https*\:\/\/[^\t 　]{1,}";
-                    UserData.ReplcaeStr3 = @"URL省略";
-                    UserData.IsUseReplcae3 = true;
+                    UserData.ReplaceDefs = new List<ReplaceDefinition>();
+                    UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"([^0-9０-９])[8８]{3,}",            ReplaceText = @"$1パチパチパチ" });
+                    UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"^[8８]{3,}",                        ReplaceText = @"パチパチパチ" });
+                    UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"([^a-zA-Zａ-ｚＡ-Ｚ])[WwＷｗ]{1,}", ReplaceText = @"$1わらわら" });
+                    UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"^[WwＷｗ]{2,}",                     ReplaceText = @"わらわら" });
+                    UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"https*:\/\/[^\t 　]{1,}",           ReplaceText = @"URL省略" });
                 }
             }
             catch (Exception e0)
@@ -282,34 +274,15 @@ namespace FakeChan
             ComboBoxEditBouyomiVoice.SelectedIndex = 0;
 
             // 置換設定 テキストボックス設定
-            TextBoxMatchPatternStr1.Text = EditParamsBefore.MatchPattern1 = UserData.MatchPattern1;
-            TextBoxMatchPatternStr2.Text = EditParamsBefore.MatchPattern2 = UserData.MatchPattern2;
-            TextBoxMatchPatternStr3.Text = EditParamsBefore.MatchPattern3 = UserData.MatchPattern3;
-            TextBoxMatchPatternStr4.Text = EditParamsBefore.MatchPattern4 = UserData.MatchPattern4;
-            TextBoxMatchPatternStr5.Text = EditParamsBefore.MatchPattern5 = UserData.MatchPattern5;
-            TextBoxMatchPatternStr6.Text = EditParamsBefore.MatchPattern6 = UserData.MatchPattern6;
-            TextBoxMatchPatternStr7.Text = EditParamsBefore.MatchPattern7 = UserData.MatchPattern7;
-
-            TextBoxReplaceStr1.Text = EditParamsBefore.ReplcaeStr1 = UserData.ReplcaeStr1;
-            TextBoxReplaceStr2.Text = EditParamsBefore.ReplcaeStr2 = UserData.ReplcaeStr2;
-            TextBoxReplaceStr3.Text = EditParamsBefore.ReplcaeStr3 = UserData.ReplcaeStr3;
-            TextBoxReplaceStr4.Text = EditParamsBefore.ReplcaeStr4 = UserData.ReplcaeStr4;
-            TextBoxReplaceStr5.Text = EditParamsBefore.ReplcaeStr5 = UserData.ReplcaeStr5;
-            TextBoxReplaceStr6.Text = EditParamsBefore.ReplcaeStr6 = UserData.ReplcaeStr6;
-            TextBoxReplaceStr7.Text = EditParamsBefore.ReplcaeStr7 = UserData.ReplcaeStr7;
-
-            CheckBoxIsReplace1.IsChecked = EditParamsBefore.IsUseReplcae1 = UserData.IsUseReplcae1;
-            CheckBoxIsReplace2.IsChecked = EditParamsBefore.IsUseReplcae2 = UserData.IsUseReplcae2;
-            CheckBoxIsReplace3.IsChecked = EditParamsBefore.IsUseReplcae3 = UserData.IsUseReplcae3;
-            CheckBoxIsReplace4.IsChecked = EditParamsBefore.IsUseReplcae4 = UserData.IsUseReplcae4;
-            CheckBoxIsReplace5.IsChecked = EditParamsBefore.IsUseReplcae5 = UserData.IsUseReplcae5;
-            CheckBoxIsReplace6.IsChecked = EditParamsBefore.IsUseReplcae6 = UserData.IsUseReplcae6;
-            CheckBoxIsReplace7.IsChecked = EditParamsBefore.IsUseReplcae7 = UserData.IsUseReplcae7;
-
             TextBoxTextLength.Text           = UserData.TextLength.ToString();
             EditParamsBefore.LimitTextLength = UserData.TextLength;
             CheckBoxAddSuffix.IsChecked      = EditParamsBefore.IsUseSuffixString = UserData.AddSuffix;
             TextBoxAddSuffixStr.Text         = EditParamsBefore.SuffixString = UserData.AddSuffixStr;
+            Regexs = new ObservableCollection<ReplaceDefinition>(UserData.ReplaceDefs);
+            DataGridRepDefs.DataContext = null;
+            DataGridRepDefs.DataContext = Regexs;
+            if (UserData.ReplaceDefs.Count != 0) DataGridRepDefs.SelectedIndex = 0;
+            EditParamsBefore.CopyRegExs(ref Regexs);
 
             // 状態 受信インタフェース
             EllipseIpc.Tag     = 0;
@@ -401,6 +374,7 @@ namespace FakeChan
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            UserData.ReplaceDefs = new List<ReplaceDefinition>(Regexs);
             DataContractJsonSerializer uds = new DataContractJsonSerializer(typeof(UserDefData));
             MemoryStream ms = new MemoryStream();
             uds.WriteObject(ms, UserData);
@@ -573,51 +547,6 @@ namespace FakeChan
             CheckBox cb = sender as CheckBox;
 
             EditParamsBefore.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
-        }
-
-        private void CheckBoxIsReplace_Click(object sender, RoutedEventArgs e)
-        {
-            CheckBox cb = sender as CheckBox;
-            switch(cb.Name)
-            {
-                case "CheckBoxIsReplace1": EditParamsBefore.IsUseReplcae1 = UserData.IsUseReplcae1 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace2": EditParamsBefore.IsUseReplcae2 = UserData.IsUseReplcae2 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace3": EditParamsBefore.IsUseReplcae3 = UserData.IsUseReplcae3 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace4": EditParamsBefore.IsUseReplcae4 = UserData.IsUseReplcae4 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace5": EditParamsBefore.IsUseReplcae5 = UserData.IsUseReplcae5 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace6": EditParamsBefore.IsUseReplcae6 = UserData.IsUseReplcae6 = (bool)cb.IsChecked; break;
-                case "CheckBoxIsReplace7": EditParamsBefore.IsUseReplcae7 = UserData.IsUseReplcae7 = (bool)cb.IsChecked; break;
-            }
-        }
-
-        private void TextBoxMatchPatternStr_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox tb = sender as TextBox;
-            switch(tb.Name)
-            {
-                case "TextBoxMatchPatternStr1": EditParamsBefore.MatchPattern1 = UserData.MatchPattern1 = tb.Text; break;
-                case "TextBoxMatchPatternStr2": EditParamsBefore.MatchPattern2 = UserData.MatchPattern2 = tb.Text; break;
-                case "TextBoxMatchPatternStr3": EditParamsBefore.MatchPattern3 = UserData.MatchPattern3 = tb.Text; break;
-                case "TextBoxMatchPatternStr4": EditParamsBefore.MatchPattern4 = UserData.MatchPattern4 = tb.Text; break;
-                case "TextBoxMatchPatternStr5": EditParamsBefore.MatchPattern5 = UserData.MatchPattern5 = tb.Text; break;
-                case "TextBoxMatchPatternStr6": EditParamsBefore.MatchPattern6 = UserData.MatchPattern6 = tb.Text; break;
-                case "TextBoxMatchPatternStr7": EditParamsBefore.MatchPattern7 = UserData.MatchPattern7 = tb.Text; break;
-            }
-        }
-
-        private void TextBoxReplaceStr_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextBox tb = sender as TextBox;
-            switch (tb.Name)
-            {
-                case "TextBoxReplaceStr1": EditParamsBefore.ReplcaeStr1 = UserData.ReplcaeStr1 = tb.Text; break;
-                case "TextBoxReplaceStr2": EditParamsBefore.ReplcaeStr2 = UserData.ReplcaeStr2 = tb.Text; break;
-                case "TextBoxReplaceStr3": EditParamsBefore.ReplcaeStr3 = UserData.ReplcaeStr3 = tb.Text; break;
-                case "TextBoxReplaceStr4": EditParamsBefore.ReplcaeStr4 = UserData.ReplcaeStr4 = tb.Text; break;
-                case "TextBoxReplaceStr5": EditParamsBefore.ReplcaeStr5 = UserData.ReplcaeStr5 = tb.Text; break;
-                case "TextBoxReplaceStr6": EditParamsBefore.ReplcaeStr6 = UserData.ReplcaeStr6 = tb.Text; break;
-                case "TextBoxReplaceStr7": EditParamsBefore.ReplcaeStr7 = UserData.ReplcaeStr7 = tb.Text; break;
-            }
         }
 
         private void CheckBoxRandomVoice_Checked(object sender, RoutedEventArgs e)
@@ -867,5 +796,45 @@ namespace FakeChan
             }
         }
 
+        private void ButtonInsert_Click(object sender, RoutedEventArgs e)
+        {
+            DataGrid dg = DataGridRepDefs;
+
+            Regexs.Insert(dg.SelectedIndex, new ReplaceDefinition());
+        }
+
+        private void ButtonDelete_Click(object sender, RoutedEventArgs e)
+        {
+            DataGrid dg = DataGridRepDefs;
+
+            Regexs.Remove(dg.SelectedItem as ReplaceDefinition);
+        }
+
+        private void ButtonMoveUp_Click(object sender, RoutedEventArgs e)
+        {
+            DataGrid dg = DataGridRepDefs;
+
+            if (dg.SelectedIndex > 0)
+            {
+                var x1 = Regexs[dg.SelectedIndex - 1] as ReplaceDefinition;
+                var x2 = x1.Clone();
+
+                Regexs.Insert(dg.SelectedIndex + 1, x2);
+                Regexs.Remove(x1);
+            }
+        }
+
+        private void ButtonMoveDn_Click(object sender, RoutedEventArgs e)
+        {
+            DataGrid dg = DataGridRepDefs;
+
+            if (dg.SelectedIndex < (dg.Items.Count - 1))
+            {
+                var x1 = Regexs[dg.SelectedIndex + 1] as ReplaceDefinition;
+                var x2 = x1.Clone();
+                Regexs.Insert(dg.SelectedIndex, x2);
+                Regexs.Remove(x1);
+            }
+        }
     }
 }

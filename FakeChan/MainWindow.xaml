@@ -10,7 +10,7 @@
     <TabControl>
 
         <TabItem x:Name="Monitoring" Header="状態">
-            
+
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <Grid.RowDefinitions>
@@ -274,7 +274,7 @@
                                                                SelectionChanged="ComboBoxEditBouyomiVoice_SelectionChanged"/>
 
                         <TextBlock x:Name="TextBlockAvatorName" Text="⇒ xxxxx(xxx)" Grid.Column="4" Grid.Row="1" Margin="2,2,2,2" VerticalAlignment="Center"/>
-                        
+
                         <Button x:Name="ButtonParamReset" Content="パラメタ初期化" Grid.Column="0" Grid.Row="2"  Margin="2,2,2,2" Click="ButtonParamReset_Click" Width="Auto" HorizontalAlignment="Right" />
 
                         <StackPanel Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="5">
@@ -325,153 +325,41 @@
         <TabItem x:Name="Settings2" Header="置換設定">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="50*"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
+                <Button x:Name="ButtonInsert" Content="追加"  Grid.Column="0" Grid.Row="0" Margin="2,2,2,2" Click="ButtonInsert_Click" />
+                <Button x:Name="ButtonDelete" Content="削除"  Grid.Column="1" Grid.Row="0" Margin="2,2,2,2" Click="ButtonDelete_Click" />
+                <Button x:Name="ButtonMoveUp" Content="↑移動"  Grid.Column="2" Grid.Row="0" Margin="2,2,2,2" Click="ButtonMoveUp_Click" />
+                <Button x:Name="ButtonMoveDn" Content="↓移動"  Grid.Column="3" Grid.Row="0" Margin="2,2,2,2" Click="ButtonMoveDn_Click" />
 
-                <Label Content="置換　順位 1" Grid.Column="0" Grid.Row="1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr1" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr1"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace1" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
+                <DataGrid x:Name="DataGridRepDefs" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="5" ItemsSource="{Binding}" VerticalContentAlignment="Center" Margin="3,3,3,3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" AutoGenerateColumns="False" IsManipulationEnabled="True" AreRowDetailsFrozen="True" CanUserReorderColumns="False" CanUserResizeRows="False" CanUserSortColumns="False" RowHeaderWidth="15" HeadersVisibility="Column">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="適用" CanUserResize="False" CanUserReorder="False" >
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding Apply, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
 
-                <Label Content="置換　順位 2" Grid.Column="0" Grid.Row="2" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr2" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr2"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace2" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
-                
-                <Label Content="置換　順位 3" Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr3" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr3"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace3" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
+                        <DataGridTextColumn Header="dummy" IsReadOnly="True" Visibility="Hidden" CanUserSort="False" CanUserReorder="False"/>
+                        <DataGridTextColumn Header="マッチングパターン" Binding="{Binding MatchingPattern}" Width="45*" CanUserSort="False" CanUserReorder="False"/>
+                        <DataGridTextColumn Header="置換内容"           Binding="{Binding ReplaceText}" Width="45*" CanUserSort="False" CanUserReorder="False"/>
+                    </DataGrid.Columns>
+                </DataGrid>
 
-                <Label Content="置換　順位 4" Grid.Column="0" Grid.Row="4" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="4" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr4" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"  TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr4"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace4" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
-                
-                <Label Content="置換　順位 5" Grid.Column="0" Grid.Row="5" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="5" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr5" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr5"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace5" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
-
-                <Label Content="置換　順位 6" Grid.Column="0" Grid.Row="6" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="6" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr6" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr6"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace6" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
-
-                <Label Content="置換　順位 7" Grid.Column="0" Grid.Row="7" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="7" Grid.ColumnSpan="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Content="s/" Grid.Column="0" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxMatchPatternStr7" Text="" Grid.Column="1" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxMatchPatternStr_TextChanged"/>
-                    <Label Content="/" Grid.Column="2" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <TextBox x:Name="TextBoxReplaceStr7"      Text="" Grid.Column="3" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="TextBoxReplaceStr_TextChanged"/>
-                    <Label Content="/g" Grid.Column="4" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                    <CheckBox x:Name="CheckBoxIsReplace7" Content="適用する" Grid.Column="5" Grid.Row="0" Margin="1,1,1,1" VerticalAlignment="Center" VerticalContentAlignment="Center" Click="CheckBoxIsReplace_Click"/>
-                </Grid>
-
-                <Label Content="切捨て　最後" Grid.Column="0" Grid.Row="9" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-                <Grid Grid.Column="1" Grid.Row="9" Grid.ColumnSpan="2">
+                <Grid Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -482,7 +370,7 @@
                     <Label Content="置換後、この文字数を越えた部分は切り捨てます" Grid.Column="2" Grid.Row="0"/>
                 </Grid>
 
-                <Grid Grid.Column="1" Grid.Row="10" Grid.ColumnSpan="2">
+                <Grid Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>

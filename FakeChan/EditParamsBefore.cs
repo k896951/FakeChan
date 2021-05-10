@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,29 +18,12 @@ namespace FakeChan
         public static bool IsUseSuffixString { get; set; }
         public static string SuffixString { get; set; }
 
-        public static string MatchPattern1 { get; set; }
-        public static string MatchPattern2 { get; set; }
-        public static string MatchPattern3 { get; set; }
-        public static string MatchPattern4 { get; set; }
-        public static string MatchPattern5 { get; set; }
-        public static string MatchPattern6 { get; set; }
-        public static string MatchPattern7 { get; set; }
+        static ObservableCollection<ReplaceDefinition> Regexs;
 
-        public static string ReplcaeStr1 { get; set; }
-        public static string ReplcaeStr2 { get; set; }
-        public static string ReplcaeStr3 { get; set; }
-        public static string ReplcaeStr4 { get; set; }
-        public static string ReplcaeStr5 { get; set; }
-        public static string ReplcaeStr6 { get; set; }
-        public static string ReplcaeStr7 { get; set; }
-
-        public static bool IsUseReplcae1 { get; set; }
-        public static bool IsUseReplcae2 { get; set; }
-        public static bool IsUseReplcae3 { get; set; }
-        public static bool IsUseReplcae4 { get; set; }
-        public static bool IsUseReplcae5 { get; set; }
-        public static bool IsUseReplcae6 { get; set; }
-        public static bool IsUseReplcae7 { get; set; }
+        public static void CopyRegExs(ref ObservableCollection<ReplaceDefinition> rx)
+        {
+            Regexs = rx;
+        }
 
         public int EditInputString(int orgVoice, string talkText)
         {
@@ -86,13 +70,13 @@ namespace FakeChan
 
             if (s.Length != 0)
             {
-                if (IsUseReplcae1) try { s = Regex.Replace(s, MatchPattern1, ReplcaeStr1); } catch (Exception) { }
-                if (IsUseReplcae2) try { s = Regex.Replace(s, MatchPattern2, ReplcaeStr2); } catch (Exception) { }
-                if (IsUseReplcae3) try { s = Regex.Replace(s, MatchPattern3, ReplcaeStr3); } catch (Exception) { }
-                if (IsUseReplcae4) try { s = Regex.Replace(s, MatchPattern4, ReplcaeStr4); } catch (Exception) { }
-                if (IsUseReplcae5) try { s = Regex.Replace(s, MatchPattern5, ReplcaeStr5); } catch (Exception) { }
-                if (IsUseReplcae6) try { s = Regex.Replace(s, MatchPattern6, ReplcaeStr6); } catch (Exception) { }
-                if (IsUseReplcae7) try { s = Regex.Replace(s, MatchPattern7, ReplcaeStr7); } catch (Exception) { }
+                for (int idx = 0; idx < Regexs.Count; idx++)
+                {
+                    if (Regexs[idx].Apply)
+                    {
+                        try { s = Regex.Replace(s, Regexs[idx].MatchingPattern, Regexs[idx].ReplaceText); } catch (Exception) { }
+                    }
+                }
             }
 
             return s;
