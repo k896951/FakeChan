@@ -24,7 +24,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.3.3";
+        string versionStr = "Ver 1.3.4";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -633,6 +633,8 @@ namespace FakeChan
 
             int ListenIf = (int)ComboBoxInterface.SelectedValue;
             UserData.SelectedCid[ListenIf][(int)cb.Tag] = (int)cb.SelectedValue;
+
+            UpdateEditParamPanel();
         }
 
         private void SetupVoiceMapGUI()
@@ -751,9 +753,15 @@ namespace FakeChan
 
         private void UpdateEditParamPanel()
         {
-            int ListenIf = (int)ComboBoxEditInterface.SelectedValue;
-            int BouVoice = (int)ComboBoxEditBouyomiVoice.SelectedValue;
-            int cid = UserData.SelectedCid[ListenIf][BouVoice];
+            int ListenIf;
+            int BouVoice;
+            int cid;
+
+            if (ComboBoxEditInterface.SelectedIndex == -1) return;
+
+            ListenIf = (int)ComboBoxEditInterface.SelectedValue;
+            BouVoice = (int)ComboBoxEditBouyomiVoice.SelectedValue;
+            cid = UserData.SelectedCid[ListenIf][BouVoice];
 
             TextBlockAvatorName.Text = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
 
