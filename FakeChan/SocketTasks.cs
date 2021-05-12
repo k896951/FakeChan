@@ -140,23 +140,21 @@ namespace FakeChan
                                         }
 
                                         voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
+                                        cid = UserData.SelectedCid[ListenIf][voice];
+                                        switch (UserData.RandomVoiceMethod[ListenIf])
+                                        {
+                                            case 1:
+                                                voice = r.Next(0, 9);
+                                                cid = UserData.SelectedCid[ListenIf][voice];
+                                                break;
 
-                                        if (UserData.IsRandomVoice)
-                                        {
-                                            voice = r.Next(0, 9);
-                                            cid = UserData.SelectedCid[ListenIf][voice];
-                                        }
-                                        else if (UserData.IsRandomAvator)
-                                        {
-                                            cid = CidList[r.Next(0, cnt)];
-                                            if (Config.AvatorNames.ContainsKey(cid))
-                                            {
-                                                UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            cid = UserData.SelectedCid[ListenIf][voice];
+                                            case 2:
+                                                cid = CidList[r.Next(0, cnt)];
+                                                if (Config.AvatorNames.ContainsKey(cid))
+                                                {
+                                                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                                                }
+                                                break;
                                         }
 
                                         Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);

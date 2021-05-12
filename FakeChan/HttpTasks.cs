@@ -131,23 +131,21 @@ namespace FakeChan
                         }
 
                         voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
+                        cid = UserData.SelectedCid[ListenIf][voice];
+                        switch (UserData.RandomVoiceMethod[ListenIf])
+                        {
+                            case 1:
+                                voice = r.Next(0, 9);
+                                cid = UserData.SelectedCid[ListenIf][voice];
+                                break;
 
-                        if (UserData.IsRandomVoice)
-                        {
-                            voice = r.Next(0, 9);
-                            cid = UserData.SelectedCid[ListenIf][voice];
-                        }
-                        else if (UserData.IsRandomAvator)
-                        {
-                            cid = CidList[r.Next(0, cnt)];
-                            if (Config.AvatorNames.ContainsKey(cid))
-                            {
-                                UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                            }
-                        }
-                        else
-                        {
-                            cid = UserData.SelectedCid[ListenIf][voice];
+                            case 2:
+                                cid = CidList[r.Next(0, cnt)];
+                                if (Config.AvatorNames.ContainsKey(cid))
+                                {
+                                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                                }
+                                break;
                         }
 
                         // dispath url

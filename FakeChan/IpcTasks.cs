@@ -107,22 +107,22 @@ namespace FakeChan
             int cnt = CidList.Count;
             int ListenIf = (int)ListenInterface.IPC1;
             int voice = EditInputText.EditInputString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
-            if (UserData.IsRandomVoice)
+
+            cid = UserData.SelectedCid[ListenIf][voice];
+            switch (UserData.RandomVoiceMethod[ListenIf])
             {
-                voice = r.Next(0, 9);
-                cid = UserData.SelectedCid[ListenIf][voice];
-            }
-            else if (UserData.IsRandomAvator)
-            {
-                cid = CidList[r.Next(0, cnt)];
-                if (Config.AvatorNames.ContainsKey(cid))
-                {
-                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                }
-            }
-            else
-            {
-                cid = UserData.SelectedCid[ListenIf][voice];
+                case 1:
+                    voice = r.Next(0, 9);
+                    cid = UserData.SelectedCid[ListenIf][voice];
+                    break;
+
+                case 2:
+                    cid = CidList[r.Next(0, cnt)];
+                    if (Config.AvatorNames.ContainsKey(cid))
+                    {
+                        UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                    }
+                    break;
             }
 
             Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);

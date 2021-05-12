@@ -12,8 +12,10 @@ namespace FakeChan
         [DataMember] public Dictionary<int, bool> InterfaceSwitch;
         [DataMember] public Dictionary<int, List<string>> QuietMessages;
 
-        [DataMember] public bool IsRandomVoice;
-        [DataMember] public bool IsRandomAvator;
+        [DataMember] public Dictionary<int, int> RandomVoiceMethod;
+
+        //[DataMember] public bool IsRandomVoice;
+        //[DataMember] public bool IsRandomAvator;
         [DataMember] public bool IsSilentAvator;
         [DataMember] public int TextLength;
         [DataMember] public bool AddSuffix;

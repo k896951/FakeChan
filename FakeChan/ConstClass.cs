@@ -72,6 +72,13 @@ namespace FakeChan
             new ComboListDataBouyomiVoice("機械2",     BouyomiVoice.voice0    ),
         };
 
+        public static Dictionary<int, string> RandomAssignMethod = new Dictionary<int, string>()
+        {
+            { 0, "ランダム適用しない" },
+            { 1, "ボイス0～機械2をランダムに適用する" },
+            { 2, "音声合成製品話者をランダムに適用する" }
+        };
+
         public static Dictionary<int, string> BouyomiVoiceMap = new Dictionary<int, string>()
         {
             { 0, "ボイス0"  },

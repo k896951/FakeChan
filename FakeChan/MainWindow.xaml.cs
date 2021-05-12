@@ -23,8 +23,8 @@ namespace FakeChan
     /// </summary>
     public partial class MainWindow : Window
     {
-        string titleStr = "偽装ちゃん(仮)　";
-        string versionStr = "Ver 1.3.2";
+        string titleStr = "偽装ちゃん";
+        string versionStr = "Ver 1.3.3";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -42,7 +42,6 @@ namespace FakeChan
         Dictionary<int, string> LonelyAvatorNames;
         List<int> LonelyCidList;
         int LonelyCount = 0;
-        int LonelyCid;
         int QuietMessageKeyMax;
 
         bool ReEntry;
@@ -178,6 +177,18 @@ namespace FakeChan
                         };
                 }
 
+                if(UserData.RandomVoiceMethod is null)
+                {
+                    UserData.RandomVoiceMethod = new Dictionary<int, int>()
+                    {
+                        { 0, 0 },
+                        { 1, 0 },
+                        { 2, 0 },
+                        { 3, 0 },
+                        { 4, 0 }
+                    };
+                }
+
                 if(UserData.QuietMessages is null)
                 {
                     UserData.QuietMessages = new Dictionary<int, List<string>>();
@@ -208,7 +219,23 @@ namespace FakeChan
             }
 
             // サイレントメッセージ最大待ち時間
-            QuietMessageKeyMax = UserData.QuietMessages.Max(c => c.Key);
+            if (UserData.QuietMessages.Count != 0)
+            {
+                QuietMessageKeyMax = UserData.QuietMessages.Max(c => c.Key);
+                if (QuietMessageKeyMax > (2 * 24 * 60 * 60))
+                {
+                    QuietMessageKeyMax = 2 * 24 * 60 * 60; // 2日間
+                    UserData.QuietMessages = UserData.QuietMessages.Where(c => c.Key <= QuietMessageKeyMax).ToDictionary(c =>c.Key, v=>v.Value);
+                }
+
+                CheckBoxIsSilent.IsChecked = UserData.IsSilentAvator;
+            }
+            else
+            {
+                QuietMessageKeyMax = 0;
+                CheckBoxIsSilent.IsChecked = false;
+                CheckBoxIsSilent.IsEnabled = false;
+            }
 
             // バックグラウンドタスク用オブジェクト
             IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
@@ -255,7 +282,9 @@ namespace FakeChan
                 MapAvatorsComboBoxList[idx].Tag = idx;
             }
 
-            CheckBoxRandomVoice.IsChecked = UserData.IsRandomVoice;
+            ComboBoxRandomAssignVoice.ItemsSource = null;
+            ComboBoxRandomAssignVoice.ItemsSource = ConstClass.RandomAssignMethod;
+            ComboBoxRandomAssignVoice.SelectedIndex = UserData.RandomVoiceMethod[(int)ListenInterface.IPC1];
 
             ComboBoxInterface.SelectedIndex = (int)ListenInterface.IPC1;
 
@@ -296,7 +325,6 @@ namespace FakeChan
                 // 読み上げバックグラウンドタスク起動
                 LonelyAvatorNames = Config.AvatorNames;
                 LonelyCidList = LonelyAvatorNames.Select(c => c.Key).ToList();
-                LonelyCid = LonelyCidList[r.Next(0, LonelyCidList.Count)];
                 LonelyCount = 0;
                 KickTalker = new DispatcherTimer();
                 KickTalker.Tick += new EventHandler(KickTalker_Tick);
@@ -411,6 +439,7 @@ namespace FakeChan
                                     IpcTask?.SetTaskId(item.TaskId);
                                     HttpTask?.SetTaskId(item.TaskId);
                                     HttpTask2?.SetTaskId(item.TaskId);
+                                    TextBlockTweetCounter.Text = "0";
                                     TextBlockReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
                                 });
@@ -431,18 +460,36 @@ namespace FakeChan
             }
             else
             {
-                LonelyCid = LonelyCidList[r.Next(0, LonelyCidList.Count)]; // 乱数生成を出来るだけ続けさせる
-                if (!UserData.IsSilentAvator && UserData.QuietMessages.ContainsKey(LonelyCount))
+                if (QuietMessageKeyMax != 0)
                 {
                     int cnt = LonelyCount;
-                    int idx = r.Next(0, UserData.QuietMessages[cnt].Count);
                     Task.Run(() =>
                     {
-                        WcfClient.Talk(LonelyCid, UserData.QuietMessages[cnt][idx], "", null, null);
+                        Dispatcher.Invoke(() =>
+                        {
+                            string s = (!UserData.IsSilentAvator && UserData.QuietMessages.ContainsKey(cnt)) ? "match" : "";
+                            TextBlockTweetCounter.Text = string.Format(@"{0} ({1} Sec) {2}", TimeSpan.FromSeconds(cnt), cnt, s);
+                            TextBlockTweetMuteStatus.Text = UserData.IsSilentAvator ? "はい" : "いいえ";
+                        });
                     });
+                    if (!UserData.IsSilentAvator && UserData.QuietMessages.ContainsKey(cnt))
+                    {
+                        int cid = LonelyCidList[r.Next(0, LonelyCidList.Count)];
+                        int idx = r.Next(0, UserData.QuietMessages[cnt].Count);
+                        Task.Run(() =>
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                TextBlockReceveText.Text = UserData.QuietMessages[cnt][idx];
+                                TextBlockAvatorText.Text = string.Format(@"⇒ {0}", LonelyAvatorNames[cid]);
+                                //Console.WriteLine(@"{0}-{1} : {2}", cnt, idx, UserData.QuietMessages[cnt][idx]);
+                            });
+                            WcfClient.Talk(cid, UserData.QuietMessages[cnt][idx], "", null, null);
+                        });
+                    }
+                    LonelyCount++;
+                    if (LonelyCount > QuietMessageKeyMax) LonelyCount = 0;
                 }
-                LonelyCount++;
-                if (LonelyCount > QuietMessageKeyMax) LonelyCount = 0;
             }
 
         }
@@ -549,42 +596,13 @@ namespace FakeChan
             EditParamsBefore.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
         }
 
-        private void CheckBoxRandomVoice_Checked(object sender, RoutedEventArgs e)
-        {
-            CheckBox cb = sender as CheckBox;
-            switch (cb.Name)
-            {
-                case "CheckBoxRandomVoice":
-                    UserData.IsRandomVoice          = true;
-                    CheckBoxRandomAvator.IsChecked = UserData.IsRandomAvator = false;
-                    break;
-
-                case "CheckBoxRandomAvator":
-                    UserData.IsRandomAvator      = true;
-                    CheckBoxRandomVoice.IsChecked = UserData.IsRandomVoice   = false;
-                    break;
-            }
-        }
-
-        private void CheckBoxRandom_Click(object sender, RoutedEventArgs e)
-        {
-            CheckBox cb = sender as CheckBox;
-
-            if ((bool)cb.IsChecked) return;
-
-            switch (cb.Name)
-            {
-                case "CheckBoxRandomVoice":  UserData.IsRandomVoice  = false; break;
-                case "CheckBoxRandomAvator": UserData.IsRandomAvator = false; break;
-            }
-        }
-
         private void ComboBoxInterface_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ComboBoxInterface.SelectedIndex == -1) return;
 
             int ListenIf = (int)ComboBoxInterface.SelectedValue;
             ComboBoxCallMethod.SelectedIndex = UserData.SelectedCallMethod[ListenIf];
+            ComboBoxRandomAssignVoice.SelectedIndex = UserData.RandomVoiceMethod[ListenIf];
 
             SetupVoiceMapGUI();
         }
@@ -835,6 +853,12 @@ namespace FakeChan
                 Regexs.Insert(dg.SelectedIndex, x2);
                 Regexs.Remove(x1);
             }
+        }
+
+        private void ComboBoxRandomAssignVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+            UserData.RandomVoiceMethod[ComboBoxInterface.SelectedIndex] = cb.SelectedIndex;
         }
     }
 }

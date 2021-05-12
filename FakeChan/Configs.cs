@@ -15,6 +15,7 @@ namespace FakeChan
         WCFClient api = null;
 
         Dictionary<int, string> AvatorNameList;
+        Dictionary<int, string> AvatorNameList2;
         Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> AvatorParamList;
         string QuietMessageFilename = "QuietMessages.json";
 
@@ -39,7 +40,8 @@ namespace FakeChan
         public Configs(ref WCFClient wcf)
         {
             api = wcf;
-            AvatorNameList = api.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
+            //AvatorNameList = api.AvatorList2().ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
+            AvatorNameList = api.AvatorList2().Where(v => (v.Value["prod"] != "SAPI") || ((v.Value["prod"] == "SAPI") && (!v.Value["name"].StartsWith("CeVIO-")))).ToDictionary(k => k.Key, v => string.Format(@"{0} : {1}({2})", v.Key, v.Value["name"], v.Value["prod"]));
             AvatorParamList = AvatorNameList.ToDictionary(k => k.Key, v => api.GetDefaultParams2(v.Key));
 
             SocketAddress = IPAddress.Parse("127.0.0.1");
