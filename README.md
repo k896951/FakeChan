@@ -62,7 +62,7 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 音声合成製品へ渡す前にテキスト情報を編集できます。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210510-120134.png "置換設定")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210513-023805.png "置換設定")
 
 正規表現による置換が一覧先頭から順に実施されます。適用する置換にはチェックを入れてください。  
 最後に指定の文字数で切捨てが行われます。 
