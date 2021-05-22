@@ -4,6 +4,8 @@
              xmlns:local="clr-namespace:FakeChan"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <Style x:Key="window_style" TargetType="Window">
+            <Setter Property="Icon" Value="pack://application:,,,/FakeChan;component/Resources/icon1b.ico"/>
+        </Style>
     </Application.Resources>
 </Application>

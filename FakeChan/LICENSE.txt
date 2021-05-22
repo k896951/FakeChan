@@ -1,0 +1,22 @@
+﻿Copyright(c) 2021 k896951(tomason510@gmail.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+----
+
+Copyright (c) 2021 k896951(tomason510@gmail.com)
+
+以下に定める条件に従い、本ソフトウエアおよび関連文書のファイル(以下“ソフトウエア”)の複製を取得した人全員に対し、無償で無制限にソフトウエアを扱う事を許可します。
+ソフトウエアの複製を使用、複写、変更、結合、掲載、頒布、サブライセンス、および(または)販売する権利、ソフトウエアの提供相手に同じ事を許可する権利も無制限に含まれます。
+
+上記の著作権表示および本許諾表示を、ソフトウエアの全ての複製もしくは重要部分に記載するものとします。
+
+ソフトウエアは「現状のまま」で明示・暗黙にかかわらず、何の保証も無く提供されます。
+ここで言う保証とは、商品性、特定目的への適合性、および権利非侵害に関する保証も含みますが、それらに限定はされません。
+作者または著作権者は、契約行為、不法行為、またはそれ以外であっても、
+ソフトウエアに起因または関連して、もしくはソフトウエアの使用やその他で生じる一切の請求や損害その他の義務について、何の責任も負わないものとします。

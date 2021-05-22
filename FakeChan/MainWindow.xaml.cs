@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Json;
@@ -11,8 +12,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 
@@ -24,7 +27,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 1.3.4";
+        string versionStr = "Ver 2.0.1";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -76,7 +79,7 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show("AssistantSeikaを起動していないか、AssistantSeikaが音声合成製品を認識していない可能性があります。" + "\n" + e0.Message, "AssistantSeikaの状態");
+                MessageBox.Show("前提ソフトウエアであるAssistantSeikaを起動していないか、AssistantSeikaが音声合成製品を認識していない可能性があります。" + "\n" + e0.Message, "AssistantSeikaの状態");
                 Application.Current.Shutdown();
                 return;
             }
@@ -460,9 +463,10 @@ namespace FakeChan
             }
             else
             {
+                int cnt = LonelyCount;
+
                 if (QuietMessageKeyMax != 0)
                 {
-                    int cnt = LonelyCount;
                     Task.Run(() =>
                     {
                         Dispatcher.Invoke(() =>
@@ -487,9 +491,30 @@ namespace FakeChan
                             WcfClient.Talk(cid, UserData.QuietMessages[cnt][idx], "", null, null);
                         });
                     }
-                    LonelyCount++;
-                    if (LonelyCount > QuietMessageKeyMax) LonelyCount = 0;
                 }
+
+                // アイコン変化にもつかう
+                switch (LonelyCount)
+                {
+                    case 300:
+                        this.Icon = BitmapFrame.Create(new Uri("pack://Application:,,,/Resources/icon2b.ico", UriKind.RelativeOrAbsolute));
+                        break;
+
+                    case 600:
+                        this.Icon = BitmapFrame.Create(new Uri("pack://Application:,,,/Resources/icon3.ico", UriKind.RelativeOrAbsolute));
+                        break;
+                }
+
+                LonelyCount++;
+                if ((QuietMessageKeyMax == 0) && (LonelyCount > 600))
+                {
+                    LonelyCount = 0;
+                }
+                else if (LonelyCount > QuietMessageKeyMax)
+                {
+                    LonelyCount = 0;
+                }
+
             }
 
         }
@@ -867,6 +892,12 @@ namespace FakeChan
         {
             ComboBox cb = sender as ComboBox;
             UserData.RandomVoiceMethod[ComboBoxInterface.SelectedIndex] = cb.SelectedIndex;
+        }
+
+        private void Hyperlink_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Hyperlink hl = sender as Hyperlink;
+            Process.Start(hl.NavigateUri.ToString());
         }
     }
 }
