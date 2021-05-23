@@ -1,11 +1,18 @@
 # 偽装ちゃん
 
-偽装ちゃん(FakeChan)は、棒読みちゃん(BouyomiChan)のフリをしてテキストを受け取りAssistantSeika経由で音声合成製品に渡します。  
+<p align="center">
+  <image src="https://user-images.githubusercontent.com/22530106/119243859-9f354b00-bba5-11eb-8df7-c98c9721796e.png">
+</p>
+偽装ちゃん(FakeChan)は、
+
+  棒読みちゃん(BouyomiChan)のフリをしてテキストを受け取りAssistantSeika経由で音声合成製品に渡します。 
 コメントビュアーが棒読みちゃん呼び出しをサポートしていれば、棒読みちゃん替わりに利用できます。
 
 …つまり、棒読みちゃんを停止して偽装ちゃんを実行すれば、棒読みちゃんから呼び出せなかった音声合成製品を呼び出せます。
 
 ![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210331-165343.png "ダイアグラム")
+
+
 
 ## バイナリどこだよ？
 
