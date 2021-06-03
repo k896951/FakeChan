@@ -221,6 +221,31 @@ namespace FakeChan
                 return;
             }
 
+            try
+            {
+                // 以前より話者が増えていた場合、その話者の音声パラメタを初期化
+
+                foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
+                {
+                    foreach (BouyomiVoice BouIdx in Enum.GetValues(typeof(BouyomiVoice)))
+                    {
+                        foreach (int cid in Config.AvatorNames.Keys)
+                        {
+                            if (!UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx].ContainsKey(cid))
+                            {
+                                UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception e0)
+            {
+                MessageBox.Show(e0.Message, "設定値読み込みの問題5");
+                Application.Current.Shutdown();
+                return;
+            }
+
             // サイレントメッセージ最大待ち時間
             if (UserData.QuietMessages.Count != 0)
             {
