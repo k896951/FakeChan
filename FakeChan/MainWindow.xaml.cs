@@ -223,7 +223,7 @@ namespace FakeChan
 
             try
             {
-                // 以前より話者が増えていた場合、その話者音声パラメタを初期化
+                // 以前より話者が増えていた場合、その話者の音声パラメタを初期化
 
                 foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
                 {
