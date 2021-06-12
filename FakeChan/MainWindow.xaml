@@ -407,6 +407,25 @@
 
         </TabItem>
 
+        <TabItem x:Name="Settings3" Header="アプリ設定">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label Content="アプリ名称" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox x:Name="TextBoxAppName" Text="偽装ちゃん" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="5,2,2,5" TextChanged="TextBoxAppName_TextChanged"/>
+            </Grid>
+
+        </TabItem>
+
+
+
     </TabControl>
 
 </Window>

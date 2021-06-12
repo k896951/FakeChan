@@ -57,6 +57,7 @@ namespace FakeChan
             HttpPortNum2 = 50081;
 
             IPCChannelName  = "BouyomiChan";
+
         }
 
         public Dictionary<string, Dictionary<string, Dictionary<string, decimal>>> AvatorParams(int cid)

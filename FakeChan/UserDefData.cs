@@ -22,5 +22,8 @@ namespace FakeChan
         [DataMember] public string AddSuffixStr;
 
         [DataMember] public List<ReplaceDefinition> ReplaceDefs;
+
+        [DataMember] public string FakeChanAppName;
+
     }
 }

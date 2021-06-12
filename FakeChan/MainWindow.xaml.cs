@@ -27,7 +27,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.3";
+        string versionStr = "Ver 2.0.4";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -59,7 +59,7 @@ namespace FakeChan
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Title = titleStr + " " + versionStr;
+            Title = "初期化中"; // titleStr + " " + versionStr;
 
             try
             {
@@ -213,6 +213,11 @@ namespace FakeChan
                     UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"^[WwＷｗ]{2,}",                     ReplaceText = @"わらわら" });
                     UserData.ReplaceDefs.Add(new ReplaceDefinition() { Apply = true, MatchingPattern = @"https*:\/\/[^\t 　]{1,}",           ReplaceText = @"URL省略" });
                 }
+
+                if ((UserData.FakeChanAppName is null) || (UserData.FakeChanAppName == ""))
+                {
+                    UserData.FakeChanAppName = "偽装ちゃん";
+                }
             }
             catch (Exception e0)
             {
@@ -347,6 +352,10 @@ namespace FakeChan
             EllipseHTTP.Tag    = 2;
             EllipseSocket2.Tag = 3;
             EllipseHTTP2.Tag   = 4;
+
+            // アプリ設定
+            TextBoxAppName.Text = UserData.FakeChanAppName;
+            this.Title = UserData.FakeChanAppName + " " + this.versionStr;
 
             try
             {
@@ -923,6 +932,15 @@ namespace FakeChan
         {
             Hyperlink hl = sender as Hyperlink;
             Process.Start(hl.NavigateUri.ToString());
+        }
+
+        private void TextBoxAppName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (UserData != null)
+            {
+                UserData.FakeChanAppName = (sender as TextBox).Text;
+                this.Title = UserData.FakeChanAppName + " " + this.versionStr;
+            }
         }
     }
 }
