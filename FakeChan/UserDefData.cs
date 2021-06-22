@@ -25,5 +25,9 @@ namespace FakeChan
 
         [DataMember] public string FakeChanAppName;
 
+        [DataMember] public bool VriEng;
+        [DataMember] public bool VriRep;
+        [DataMember] public int VriAvator;
+        [DataMember] public Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> VriAvators;
     }
 }

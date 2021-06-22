@@ -141,6 +141,7 @@ namespace FakeChan
 
                                         voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
                                         cid = UserData.SelectedCid[ListenIf][voice];
+
                                         switch (UserData.RandomVoiceMethod[ListenIf])
                                         {
                                             case 1:
@@ -157,8 +158,21 @@ namespace FakeChan
                                                 break;
                                         }
 
-                                        Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
-                                        Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        if (EditInputText.Judge) cid = UserData.VriAvator;
+
+                                        Dictionary<string, decimal> Effects;
+                                        Dictionary<string, decimal> Emotions;
+                                        if (EditInputText.Judge)
+                                        {
+                                            cid = UserData.VriAvator;
+                                            Effects = UserData.VriAvators[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                            Emotions = UserData.VriAvators[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        }
+                                        else
+                                        {
+                                            Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                            Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                                        }
 
                                         MessageData talk = new MessageData()
                                         {

@@ -29,6 +29,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -60,6 +61,14 @@
                             <Ellipse x:Name="EllipseHTTP2" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="HTTP: 50081" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
+                        
+                        <!--
+
+                        <WrapPanel Grid.Column="5" Grid.Row="0" Margin="2,2,2,2">
+                            <Ellipse x:Name="EllipseClipboard" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Clipboard" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+                        -->
 
                     </Grid>
                 </GroupBox>
@@ -414,12 +423,54 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Label Content="アプリ名称" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                <TextBox x:Name="TextBoxAppName" Text="偽装ちゃん" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="5,2,2,5" TextChanged="TextBoxAppName_TextChanged"/>
+                <GroupBox Header="ウインドウタイトル変更" Grid.Column="0" Grid.Row="0" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Content="タイトル" Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                        <TextBox x:Name="TextBoxAppName" Text="偽装ちゃん" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="5,2,2,5" TextChanged="TextBoxAppName_TextChanged"/>
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="話者切替判定（全受信インタフェースに適用）" Grid.Column="0" Grid.Row="1" >
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox x:Name="CheckBoxVriEng" Content="日本語ではなさそうな時に話者を変更する" Grid.Column="0" Grid.Row="0"  Margin="5,2,2,5" VerticalAlignment="Center" Click="CheckBoxVriEng_Click"/>
+                        <CheckBox x:Name="CheckBoxVriRep" Content="話者変更時に置換処理しない" Grid.Column="1" Grid.Row="0"  Margin="5,2,2,5" VerticalAlignment="Center" Click="CheckBoxVriRep_Click" />
+                        
+                        <ComboBox x:Name="ComboBoxVriEngAvator" Grid.Column="0" Grid.Row="1" Margin="5,2,2,5" SelectedValuePath="Key"  DisplayMemberPath="Value" Width="Auto" IsReadOnly="True" VerticalAlignment="Center" SelectionChanged="ComboBoxVriEngAvator_SelectionChanged"/>
+                        <Button x:Name="ButtonVirParamReset" Content="パラメタ初期化" Grid.Column="1" Grid.Row="1" Margin="5,2,2,5" Click="ButtonVirParamReset_Click" Width="Auto" HorizontalAlignment="Left" />
+
+                        <StackPanel Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2">
+                            <ScrollViewer AutomationProperties.IsOffscreenBehavior="Offscreen" PanningMode="Both" Height="130" VerticalScrollBarVisibility="Auto">
+                                <StackPanel Margin="1,1,1,1">
+                                    <WrapPanel x:Name="WrapPanelVirParams1" Margin="1,1,1,1" ></WrapPanel>
+                                    <WrapPanel x:Name="WrapPanelVirParams2" Margin="1,1,1,1" ></WrapPanel>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </StackPanel>
+
+                    </Grid>
+                </GroupBox>
+
             </Grid>
 
         </TabItem>

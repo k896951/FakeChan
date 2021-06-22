@@ -27,7 +27,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.5";
+        string versionStr = "Ver 2.0.7";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -176,7 +176,8 @@ namespace FakeChan
                             {1, true },
                             {2, true },
                             {3, false },
-                            {4, false }
+                            {4, false },
+                            {5, false }
                         };
                 }
 
@@ -188,7 +189,8 @@ namespace FakeChan
                         { 1, 0 },
                         { 2, 0 },
                         { 3, 0 },
-                        { 4, 0 }
+                        { 4, 0 },
+                        { 5, 0 }
                     };
                 }
 
@@ -218,6 +220,21 @@ namespace FakeChan
                 {
                     UserData.FakeChanAppName = "偽装ちゃん";
                 }
+
+                if (UserData.VriAvator == 0)
+                {
+                    UserData.VriAvator = Config.AvatorNames.First().Key;
+                }
+
+                if (UserData.VriAvators is null)
+                {
+                    UserData.VriAvators = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+                    foreach(int cid in Config.AvatorNames.Keys)
+                    {
+                        UserData.VriAvators[cid] = Config.AvatorParams(cid);
+                    }
+                }
+
             }
             catch (Exception e0)
             {
@@ -241,6 +258,14 @@ namespace FakeChan
                                 UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
                             }
                         }
+                    }
+                }
+
+                foreach (int cid in Config.AvatorNames.Keys)
+                {
+                    if (!UserData.VriAvators.ContainsKey(cid))
+                    {
+                        UserData.VriAvators[cid] = Config.AvatorParams(cid);
                     }
                 }
             }
@@ -356,6 +381,28 @@ namespace FakeChan
             // アプリ設定
             TextBoxAppName.Text = UserData.FakeChanAppName;
             this.Title = UserData.FakeChanAppName + " " + this.versionStr;
+            CheckBoxVriEng.IsChecked = EditParamsBefore.VriEng = UserData.VriEng;
+            CheckBoxVriRep.IsChecked = EditParamsBefore.VriNoRep = UserData.VriRep;
+            ComboBoxVriEngAvator.ItemsSource = null;
+            ComboBoxVriEngAvator.ItemsSource = Config.AvatorNames;
+            {
+                List<int> virAvators = Config.AvatorNames.Select(v => v.Key).ToList();
+                for (int idx = 0; idx < virAvators.Count; idx++)
+                {
+                    if (virAvators[idx] == UserData.VriAvator)
+                    {
+                        ComboBoxVriEngAvator.SelectedIndex = idx;
+                        EditParamsBefore.VriAvator = idx;
+                        break;
+                    }
+                }
+                if (ComboBoxVriEngAvator.SelectedIndex < 0)
+                {
+                    ComboBoxVriEngAvator.SelectedIndex = 0;
+                    UserData.VriAvator = virAvators[0];
+                    EditParamsBefore.VriAvator = virAvators[0];
+                }
+            }
 
             try
             {
@@ -429,6 +476,7 @@ namespace FakeChan
                     EllipseHTTP2.Fill = Brushes.Black;
                     UserData.InterfaceSwitch[(int)ListenInterface.Http2] = false;
                 }
+
             }
             catch (Exception e1)
             {
@@ -833,6 +881,23 @@ namespace FakeChan
             ReSetupParams(cid, ref emotion, WrapPanelParams2.Children);
         }
 
+        private void UpdateEditVirParamPanel()
+        {
+            int cid;
+
+            cid = UserData.VriAvator;
+
+            TextBlockAvatorName.Text = string.Format(@"⇒ {0}", Config.AvatorNames[cid]);
+
+            WrapPanelVirParams1.Children.Clear();
+            WrapPanelVirParams2.Children.Clear();
+            Dictionary<string, Dictionary<string, decimal>> effect = UserData.VriAvators[cid]["effect"];
+            Dictionary<string, Dictionary<string, decimal>> emotion = UserData.VriAvators[cid]["emotion"];
+
+            ReSetupParams(cid, ref effect, WrapPanelVirParams1.Children);
+            ReSetupParams(cid, ref emotion, WrapPanelVirParams2.Children);
+        }
+
         private void ReSetupParams(int cid, ref Dictionary<string, Dictionary<string, decimal>> @params, UIElementCollection panel)
         {
             foreach (var param in @params)
@@ -941,6 +1006,49 @@ namespace FakeChan
                 UserData.FakeChanAppName = (sender as TextBox).Text;
                 this.Title = UserData.FakeChanAppName + " " + this.versionStr;
             }
+        }
+
+        private void ComboBoxVriEngAvator_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+
+            UserData.VriAvator = EditParamsBefore.VriAvator = (int)cb.SelectedValue;
+            UpdateEditVirParamPanel();
+        }
+
+        private void CheckBoxVriEng_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+
+            UserData.VriEng = EditParamsBefore.VriEng = (bool)cb.IsChecked;
+        }
+
+        private void CheckBoxVriRep_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+
+            UserData.VriRep = EditParamsBefore.VriNoRep = (bool)cb.IsChecked;
+        }
+
+        private void ButtonVirParamReset_Click(object sender, RoutedEventArgs e)
+        {
+            int cid = UserData.VriAvator;
+
+            foreach (var item1 in Config.AvatorEffectParams(cid))
+            {
+                foreach (var item2 in item1.Value)
+                {
+                    UserData.VriAvators[cid]["effect"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            foreach (var item1 in Config.AvatorEmotionParams(cid))
+            {
+                foreach (var item2 in item1.Value)
+                {
+                    UserData.VriAvators[cid]["emotion"][item1.Key][item2.Key] = item2.Value;
+                }
+            }
+            UpdateEditVirParamPanel();
         }
     }
 }

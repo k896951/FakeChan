@@ -14,11 +14,22 @@ namespace FakeChan
 
         public string ChangedTalkText { get; private set; }
 
+
         public static int LimitTextLength { get; set; }
         public static bool IsUseSuffixString { get; set; }
         public static string SuffixString { get; set; }
 
+        public static bool VriEng { get; set; }
+        public static bool VriNoRep { get; set; }
+        public static int VriAvator { get; set; }
+
+        public bool Judge { get; set; }
+
+
         static ObservableCollection<ReplaceDefinition> Regexs;
+        static Regex Vrir1 = new Regex(@"[0-9 \t]");
+        static Regex Vrir2 = new Regex(@"[a-zA-ZàÀèÈùÙéÉâÂêÊîÎûÛôÔäÄëËïÏüÜÿŸöÖñÑãÃõÕœŒçÇẞß!""#$%&'\(\)\-=^~|\\`@\{\[\]\};+:*,./?]");
+
 
         public static void CopyRegExs(ref ObservableCollection<ReplaceDefinition> rx)
         {
@@ -32,9 +43,28 @@ namespace FakeChan
             ChangedVoiceNo = orgVoice;
 
             s = CheckSpeedTag(s);
-            s = ReplaceString(s);
-            s = CutString(s);
 
+            if (!VriEng)
+            {
+                s = ReplaceString(s);
+            }
+            else
+            {
+                Judge = JudgeStringNoJapanese(s);
+                if (Judge)
+                {
+                    if (!VriNoRep)
+                    {
+                        s = ReplaceString(s);
+                    }
+                }
+                else
+                {
+                    s = ReplaceString(s);
+                }
+            }
+
+            s = CutString(s);
             ChangedTalkText = s;
 
             return ChangedVoiceNo;
@@ -97,6 +127,18 @@ namespace FakeChan
             }
 
             return sb.ToString();
+        }
+
+        private bool JudgeStringNoJapanese(string talkText)
+        {
+
+            string s1 = Vrir1.Replace(talkText, "");
+            MatchCollection s2 = Vrir2.Matches(s1);
+
+            float le = s2.Count;
+            float ri = s1.Length;
+
+            return ( le / ri) > 0.75;
         }
     }
 }
