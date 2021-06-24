@@ -62,13 +62,10 @@
                             <Label Content="HTTP: 50081" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
                         
-                        <!--
-
                         <WrapPanel Grid.Column="5" Grid.Row="0" Margin="2,2,2,2">
                             <Ellipse x:Name="EllipseClipboard" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="Clipboard" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
-                        -->
 
                     </Grid>
                 </GroupBox>
@@ -335,20 +332,6 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="呟き機能" Grid.Column="0" Grid.Row="2">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="300"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <CheckBox x:Name="CheckBoxIsSilent" Grid.Column="0" Grid.Row="0" Content="読み上げ待機が続いても呟かない" HorizontalAlignment="Right" Width="301" Click="CheckBoxIsSilent_Click" />
-                    </Grid>
-                </GroupBox>
             </Grid>
 
         </TabItem>
@@ -421,6 +404,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -439,8 +423,22 @@
                         <TextBox x:Name="TextBoxAppName" Text="偽装ちゃん" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="5,2,2,5" TextChanged="TextBoxAppName_TextChanged"/>
                     </Grid>
                 </GroupBox>
+                
+                <GroupBox Header="呟き機能" Grid.Column="0" Grid.Row="1">
+                    <Grid >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <GroupBox Header="話者切替判定（全受信インタフェースに適用）" Grid.Column="0" Grid.Row="1" >
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <CheckBox x:Name="CheckBoxIsSilent" Grid.Column="0" Grid.Row="0" Content="読み上げ待機が続いても呟かない" Margin="5,2,2,5" Click="CheckBoxIsSilent_Click" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="話者切替判定（全受信インタフェースに適用）" Grid.Column="0" Grid.Row="2" >
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>

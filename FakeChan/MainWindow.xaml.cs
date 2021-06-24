@@ -5,6 +5,7 @@ using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -14,6 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
@@ -27,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.7";
+        string versionStr = "Ver 2.0.8";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -49,6 +51,9 @@ namespace FakeChan
 
         bool ReEntry;
         object lockObj = new object();
+        WindowInteropHelper Whelper;
+        EditParamsBefore EditInputText;
+        Methods PlayMethodFromClipboard = Methods.sync;
 
         public UserDefData UserData;
 
@@ -60,6 +65,12 @@ namespace FakeChan
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Title = "初期化中"; // titleStr + " " + versionStr;
+
+            Whelper = new WindowInteropHelper(this);
+            EditInputText = new EditParamsBefore();
+            var x = HwndSource.FromHwnd(Whelper.Handle);
+            x.AddHook(WndProc);
+
 
             try
             {
@@ -142,59 +153,92 @@ namespace FakeChan
                 {
                     UserData = new UserDefData();
                 }
-
                 if (UserData.VoiceParams is null)
                 {
                     UserData.VoiceParams = new Dictionary<int, Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>>();
+                }
+                if (UserData.SelectedCid is null)
+                {
                     UserData.SelectedCid = new Dictionary<int, Dictionary<int, int>>();
+                }
+                if (UserData.SelectedCallMethod is null)
+                {
                     UserData.SelectedCallMethod = new Dictionary<int, int>();
+                }
+                if (UserData.InterfaceSwitch is null)
+                {
+                    UserData.InterfaceSwitch = new Dictionary<int, bool>();
+                }
+                if (UserData.RandomVoiceMethod is null)
+                {
+                    UserData.RandomVoiceMethod = new Dictionary<int, int>();
+                }
+                if (UserData.VriAvators is null)
+                {
+                    UserData.VriAvators = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
+                }
 
-                    foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
+                foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
+                {
+                    if (!UserData.VoiceParams.ContainsKey((int)InterfaceIdx))
                     {
-                        UserData.VoiceParams[(int)InterfaceIdx] = new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>();
-                        UserData.SelectedCid[(int)InterfaceIdx] = new Dictionary<int, int>();
-                        UserData.SelectedCallMethod[(int)InterfaceIdx] = (int)Methods.sync;
-
-                        foreach (BouyomiVoice BouIdx in Enum.GetValues(typeof(BouyomiVoice)))
+                        UserData.VoiceParams.Add((int)InterfaceIdx, new Dictionary<int, Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>>());
+                    }
+                    if (!UserData.SelectedCid.ContainsKey((int)InterfaceIdx))
+                    {
+                        UserData.SelectedCid.Add((int)InterfaceIdx, new Dictionary<int, int>());
+                    }
+                    if (!UserData.SelectedCallMethod.ContainsKey((int)InterfaceIdx))
+                    {
+                        UserData.SelectedCallMethod.Add((int)InterfaceIdx, (int)Methods.sync);
+                    }
+                    if (!UserData.InterfaceSwitch.ContainsKey((int)InterfaceIdx))
+                    {
+                        switch(InterfaceIdx)
                         {
-                            UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx] = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
-                            UserData.SelectedCid[(int)InterfaceIdx][(int)BouIdx] = Config.AvatorNames.First().Key;
+                            case ListenInterface.IPC1:
+                            case ListenInterface.Http1:
+                            case ListenInterface.Socket1:
+                                UserData.InterfaceSwitch.Add((int)InterfaceIdx, true);
+                                break;
+                            default:
+                                UserData.InterfaceSwitch.Add((int)InterfaceIdx, false);
+                                break;
+                        }
+                    }
+                    if (!UserData.RandomVoiceMethod.ContainsKey((int)InterfaceIdx))
+                    {
+                        UserData.RandomVoiceMethod.Add((int)InterfaceIdx, 0);
+                    }
 
+                    foreach (BouyomiVoice BouIdx in Enum.GetValues(typeof(BouyomiVoice)))
+                    {
+                        if (!UserData.VoiceParams[(int)InterfaceIdx].ContainsKey((int)BouIdx))
+                        {
+                            UserData.VoiceParams[(int)InterfaceIdx].Add((int)BouIdx, new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>());
                             foreach (int cid in Config.AvatorNames.Keys)
                             {
                                 UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
                             }
                         }
+
+                        if(!UserData.SelectedCid[(int)InterfaceIdx].ContainsKey((int)BouIdx))
+                        {
+                            UserData.SelectedCid[(int)InterfaceIdx][(int)BouIdx] = Config.AvatorNames.First().Key;
+                        }
+                    }
+
+                }
+
+                foreach (int cid in Config.AvatorNames.Keys)
+                {
+                    if (!UserData.VriAvators.ContainsKey(cid))
+                    {
+                        UserData.VriAvators.Add(cid, Config.AvatorParams(cid));
                     }
                 }
 
-                if (UserData.InterfaceSwitch is null)
-                {
-                    UserData.InterfaceSwitch = new Dictionary<int, bool>()
-                        {
-                            {0, true },
-                            {1, true },
-                            {2, true },
-                            {3, false },
-                            {4, false },
-                            {5, false }
-                        };
-                }
-
-                if(UserData.RandomVoiceMethod is null)
-                {
-                    UserData.RandomVoiceMethod = new Dictionary<int, int>()
-                    {
-                        { 0, 0 },
-                        { 1, 0 },
-                        { 2, 0 },
-                        { 3, 0 },
-                        { 4, 0 },
-                        { 5, 0 }
-                    };
-                }
-
-                if(UserData.QuietMessages is null)
+                if (UserData.QuietMessages is null)
                 {
                     UserData.QuietMessages = new Dictionary<int, List<string>>();
                 }
@@ -226,52 +270,10 @@ namespace FakeChan
                     UserData.VriAvator = Config.AvatorNames.First().Key;
                 }
 
-                if (UserData.VriAvators is null)
-                {
-                    UserData.VriAvators = new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>();
-                    foreach(int cid in Config.AvatorNames.Keys)
-                    {
-                        UserData.VriAvators[cid] = Config.AvatorParams(cid);
-                    }
-                }
-
             }
             catch (Exception e0)
             {
                 MessageBox.Show(e0.Message, "設定値読み込みの問題4");
-                Application.Current.Shutdown();
-                return;
-            }
-
-            try
-            {
-                // 以前より話者が増えていた場合、その話者の音声パラメタを初期化
-
-                foreach (ListenInterface InterfaceIdx in Enum.GetValues(typeof(ListenInterface)))
-                {
-                    foreach (BouyomiVoice BouIdx in Enum.GetValues(typeof(BouyomiVoice)))
-                    {
-                        foreach (int cid in Config.AvatorNames.Keys)
-                        {
-                            if (!UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx].ContainsKey(cid))
-                            {
-                                UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
-                            }
-                        }
-                    }
-                }
-
-                foreach (int cid in Config.AvatorNames.Keys)
-                {
-                    if (!UserData.VriAvators.ContainsKey(cid))
-                    {
-                        UserData.VriAvators[cid] = Config.AvatorParams(cid);
-                    }
-                }
-            }
-            catch (Exception e0)
-            {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題5");
                 Application.Current.Shutdown();
                 return;
             }
@@ -377,6 +379,7 @@ namespace FakeChan
             EllipseHTTP.Tag    = 2;
             EllipseSocket2.Tag = 3;
             EllipseHTTP2.Tag   = 4;
+            EllipseClipboard.Tag = 5;
 
             // アプリ設定
             TextBoxAppName.Text = UserData.FakeChanAppName;
@@ -477,6 +480,19 @@ namespace FakeChan
                     UserData.InterfaceSwitch[(int)ListenInterface.Http2] = false;
                 }
 
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Clipboard] == true)
+                {
+                    EllipseClipboard.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Clipboard] = true;
+                    SetClipboardListener();
+                }
+                else
+                {
+                    EllipseClipboard.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Clipboard] = false;
+                    RemoveClipboardListener();
+                }
+
             }
             catch (Exception e1)
             {
@@ -502,6 +518,7 @@ namespace FakeChan
             HttpTask?.StopHttpTasks();
             SockTask2?.StopSocketTasks();
             HttpTask2?.StopHttpTasks();
+            RemoveClipboardListener();
         }
 
         private void KickTalker_Tick(object sender, EventArgs e)
@@ -637,6 +654,7 @@ namespace FakeChan
                     case 2: HttpTask.StopHttpTasks();    break;
                     case 3: SockTask2.StopSocketTasks(); break;
                     case 4: HttpTask2.StopHttpTasks();   break;
+                    case 5: RemoveClipboardListener();   break;
                 }
             }
             else
@@ -649,6 +667,7 @@ namespace FakeChan
                     case 2: HttpTask.StartHttpTasks(Config.HttpAddress, Config.HttpPortNum);          break;
                     case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;
                     case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       break;
+                    case 5: SetClipboardListener(); break;
                 }
             }
         }
@@ -1049,6 +1068,109 @@ namespace FakeChan
                 }
             }
             UpdateEditVirParamPanel();
+        }
+
+        //
+
+        [DllImport("user32.dll")]
+        private static extern bool AddClipboardFormatListener(IntPtr hWnd);
+        [DllImport("user32.dll")]
+        private static extern bool RemoveClipboardFormatListener(IntPtr hWnd);
+
+        const int WM_DRAWCLIPBOARD = 0x0308;
+        const int WM_CHANGECBCHAIN = 0x030D;
+        const int WM_CLIPBOARDUPDATE = 0x031D;
+
+        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            if (msg == WM_CLIPBOARDUPDATE)
+            {
+                try
+                {
+                    PlayFromClipboard(Clipboard.GetText());
+                }
+                catch(Exception)
+                {
+                    //
+                }
+                handled = true;
+            }
+
+            return IntPtr.Zero;
+        }
+
+        private void SetClipboardListener()
+        {
+            AddClipboardFormatListener(Whelper.Handle);
+        }
+
+        private void RemoveClipboardListener()
+        {
+            RemoveClipboardFormatListener(Whelper.Handle);
+        }
+
+        private void PlayFromClipboard(string talkText)
+        {
+            Task.Run(() => {
+                int cid;
+                List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
+                int cnt = CidList.Count;
+                int ListenIf = (int)ListenInterface.Clipboard;
+                int voice = EditInputText.EditInputString(0, talkText);
+
+                cid = UserData.SelectedCid[ListenIf][voice];
+                switch (UserData.RandomVoiceMethod[ListenIf])
+                {
+                    case 1:
+                        voice = r.Next(0, 9);
+                        cid = UserData.SelectedCid[ListenIf][voice];
+                        break;
+
+                    case 2:
+                        cid = CidList[r.Next(0, cnt)];
+                        if (Config.AvatorNames.ContainsKey(cid))
+                        {
+                            UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
+                        }
+                        break;
+                }
+
+                Dictionary<string, decimal> Effects;
+                Dictionary<string, decimal> Emotions;
+                if (EditInputText.Judge)
+                {
+                    cid = UserData.VriAvator;
+                    Effects = UserData.VriAvators[cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                    Emotions = UserData.VriAvators[cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                }
+                else
+                {
+                    Effects = UserData.VoiceParams[ListenIf][voice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                    Emotions = UserData.VoiceParams[ListenIf][voice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
+                }
+
+                MessageData talk = new MessageData()
+                {
+                    Cid = cid,
+                    Message = EditInputText.ChangedTalkText,
+                    BouyomiVoice = voice,
+                    ListenInterface = ListenIf,
+                    TaskId = MessQueWrapper.count + 1,
+                    Effects = Effects,
+                    Emotions = Emotions
+                };
+
+                switch (PlayMethodFromClipboard)
+                {
+                    case Methods.sync:
+                        MessQueWrapper.AddQueue(talk);
+                        break;
+
+                    case Methods.async:
+                        TalkAsyncCall(talk);
+                        break;
+                }
+            });
         }
     }
 }

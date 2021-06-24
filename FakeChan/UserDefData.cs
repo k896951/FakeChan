@@ -29,5 +29,7 @@ namespace FakeChan
         [DataMember] public bool VriRep;
         [DataMember] public int VriAvator;
         [DataMember] public Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>> VriAvators;
+
+        [DataMember] public bool ClipbordSw;
     }
 }
