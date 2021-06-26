@@ -29,6 +29,8 @@ namespace FakeChan
         static ObservableCollection<ReplaceDefinition> Regexs;
         static Regex Vrir1 = new Regex(@"[0-9 \t]");
         static Regex Vrir2 = new Regex(@"[a-zA-ZàÀèÈùÙéÉâÂêÊîÎûÛôÔäÄëËïÏüÜÿŸöÖñÑãÃõÕœŒçÇẞß!""#$%&'\(\)\-=^~|\\`@\{\[\]\};+:*,./?]");
+        static Regex VoiceCommand1 = new Regex(@"^\([Vv][Oo][Ii][Cc][Ee][ \t]{1,}[^ \t\)]{1,}[ \t]{0,}\)");
+        static char[] SepChars = new char[] { ' ', '\t' };
 
 
         public static void CopyRegExs(ref ObservableCollection<ReplaceDefinition> rx)
@@ -42,7 +44,10 @@ namespace FakeChan
 
             ChangedVoiceNo = orgVoice;
 
-            s = CheckSpeedTag(s);
+            if ((s = CheckVoiceTag(s)) == talkText)
+            {
+                s = CheckVoiceTag2(s);
+            }
 
             if (!VriEng)
             {
@@ -70,7 +75,7 @@ namespace FakeChan
             return ChangedVoiceNo;
         }
 
-        private string CheckSpeedTag(string talkText)
+        private string CheckVoiceTag(string talkText)
         {
             string s = talkText;
 
@@ -88,6 +93,27 @@ namespace FakeChan
                     case "t)": ChangedVoiceNo = 7; s = s.Substring(2); break;
                     case "g)": ChangedVoiceNo = 8; s = s.Substring(2); break;
                     default: break;
+                }
+            }
+
+            return s;
+        }
+        private string CheckVoiceTag2(string talkText)
+        {
+            string s = talkText;
+            var r = VoiceCommand1.Match(s);
+
+            if (r.Success)
+            {
+                string[] s2 = r.Value.Substring(1, r.Value.Length - 2).Split(SepChars);
+                s = s.Substring(r.Index + r.Length);
+
+                if (int.TryParse(s2[1], out int no))
+                {
+                    if ((no > 0)&&( 9 > no))
+                    {
+                        ChangedVoiceNo = no;
+                    }
                 }
             }
 
