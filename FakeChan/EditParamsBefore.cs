@@ -110,7 +110,7 @@ namespace FakeChan
 
                 if (int.TryParse(s2[1], out int no))
                 {
-                    if ((no > 0) && (9 > no))
+                    if ((no > 0)&&( 9 > no))
                     {
                         ChangedVoiceNo = no;
                     }
