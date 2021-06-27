@@ -27,6 +27,14 @@ namespace FakeChan
         public Int32 SocketPortNum2 { get; set; }
         public IPAddress HttpAddress2 { get; set; }
         public Int32 HttpPortNum2 { get; set; }
+        public IPAddress SocketAddress3 { get; set; }
+        public Int32 SocketPortNum3 { get; set; }
+        public IPAddress HttpAddress3 { get; set; }
+        public Int32 HttpPortNum3 { get; set; }
+        public IPAddress SocketAddress4 { get; set; }
+        public Int32 SocketPortNum4 { get; set; }
+        public IPAddress HttpAddress4 { get; set; }
+        public Int32 HttpPortNum4 { get; set; }
         public string IPCChannelName { get; set; }
 
         public Dictionary<int, string> AvatorNames
@@ -56,7 +64,19 @@ namespace FakeChan
             HttpAddress2 = IPAddress.Parse("127.0.0.1");
             HttpPortNum2 = 50081;
 
-            IPCChannelName  = "BouyomiChan";
+            SocketAddress3 = IPAddress.Parse("127.0.0.1");
+            SocketPortNum3 = 50003;
+
+            HttpAddress3 = IPAddress.Parse("127.0.0.1");
+            HttpPortNum3 = 50082;
+
+            SocketAddress4 = IPAddress.Parse("127.0.0.1");
+            SocketPortNum4 = 50004;
+
+            HttpAddress4 = IPAddress.Parse("127.0.0.1");
+            HttpPortNum4 = 50083;
+
+            IPCChannelName = "BouyomiChan";
 
         }
 

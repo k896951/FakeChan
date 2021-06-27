@@ -15,7 +15,11 @@ namespace FakeChan
         Http1   = 2,
         Socket2 = 3,
         Http2   = 4,
-        Clipboard = 5
+        Clipboard = 5,
+        Socket3 = 6,
+        Http3   = 7,
+        Socket4 = 8,
+        Http4   = 9
     }
 
     public enum BouyomiVoice

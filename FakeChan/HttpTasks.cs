@@ -121,14 +121,10 @@ namespace FakeChan
 
                         response.ContentType = "application/json; charset=utf-8";
 
-                        if (ListenPort == Config.HttpPortNum2)
-                        {
-                            ListenIf = (int)ListenInterface.Http2;
-                        }
-                        else
-                        {
-                            ListenIf = (int)ListenInterface.Http1;
-                        }
+                        ListenIf = (int)ListenInterface.Http1;
+                        if (ListenPort == Config.HttpPortNum2) ListenIf = (int)ListenInterface.Http2;
+                        if (ListenPort == Config.HttpPortNum3) ListenIf = (int)ListenInterface.Http3;
+                        if (ListenPort == Config.HttpPortNum3) ListenIf = (int)ListenInterface.Http4;
 
                         voice = EditInputText.EditInputString((voice > 8 || voice == -1 ? 0 : voice), TalkText);
                         cid = UserData.SelectedCid[ListenIf][voice];

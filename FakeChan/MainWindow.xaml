@@ -28,43 +28,62 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <WrapPanel Grid.Column="0" Grid.Row="0" Margin="2,2,2,2">
+                        <WrapPanel Grid.Column="0" Grid.Row="0" Margin="2,1,2,1">
                             <Ellipse x:Name="EllipseIpc" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="IPC: BouyomiChan" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
 
-                        <WrapPanel Grid.Column="1" Grid.Row="0" Margin="2,2,2,2">
+                        <WrapPanel Grid.Column="0" Grid.Row="1" Margin="2,1,2,1">
                             <Ellipse x:Name="EllipseSocket" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="Socket: 50001" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
 
-                        <WrapPanel Grid.Column="2" Grid.Row="0" Margin="2,2,2,2">
+                        <WrapPanel Grid.Column="0" Grid.Row="2" Margin="2,1,2,1">
                             <Ellipse x:Name="EllipseHTTP" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="HTTP: 50080" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
 
-                        <WrapPanel Grid.Column="3" Grid.Row="0" Margin="2,2,2,2">
+                        <WrapPanel Grid.Column="1" Grid.Row="0" Margin="2,1,2,1">
+                            <Ellipse x:Name="EllipseClipboard" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Clipboard" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="1" Grid.Row="1" Margin="2,1,2,1">
                             <Ellipse x:Name="EllipseSocket2" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="Socket: 50002" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
 
-                        <WrapPanel Grid.Column="4" Grid.Row="0" Margin="2,2,2,2">
+                        <WrapPanel Grid.Column="1" Grid.Row="2" Margin="2,1,2,1">
                             <Ellipse x:Name="EllipseHTTP2" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
                             <Label Content="HTTP: 50081" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
-                        
-                        <WrapPanel Grid.Column="5" Grid.Row="0" Margin="2,2,2,2">
-                            <Ellipse x:Name="EllipseClipboard" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
-                            <Label Content="Clipboard" Margin="1,1,1,1" FontSize="9"/>
+
+                        <WrapPanel Grid.Column="2" Grid.Row="1" Margin="2,1,2,1">
+                            <Ellipse x:Name="EllipseSocket3" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Socket: 50003" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="2" Grid.Row="2" Margin="2,1,2,1">
+                            <Ellipse x:Name="EllipseHTTP3" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="HTTP: 50082" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="3" Grid.Row="1" Margin="2,1,2,1">
+                            <Ellipse x:Name="EllipseSocket4" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="Socket: 50004" Margin="1,1,1,1" FontSize="9"/>
+                        </WrapPanel>
+
+                        <WrapPanel Grid.Column="3" Grid.Row="2" Margin="2,1,2,1">
+                            <Ellipse x:Name="EllipseHTTP4" Fill="Black" Width="15" Height="15" MouseLeftButtonDown="EllipseConnect_MouseLeftButtonDown"/>
+                            <Label Content="HTTP: 50083" Margin="1,1,1,1" FontSize="9"/>
                         </WrapPanel>
 
                     </Grid>

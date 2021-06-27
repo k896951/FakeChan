@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.8.2";
+        string versionStr = "Ver 2.0.9";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -37,6 +37,10 @@ namespace FakeChan
         HttpTasks HttpTask = null;
         SocketTasks SockTask2 = null;
         HttpTasks HttpTask2 = null;
+        SocketTasks SockTask3 = null;
+        HttpTasks HttpTask3 = null;
+        SocketTasks SockTask4 = null;
+        HttpTasks HttpTask4 = null;
         EditParamsBefore TestEdit = new EditParamsBefore();
         Random r = new Random(Environment.TickCount);
         ObservableCollection<ReplaceDefinition> Regexs;
@@ -301,15 +305,23 @@ namespace FakeChan
             IpcTask = new IpcTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
             SockTask = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
             SockTask2 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            SockTask3 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            SockTask4 = new SocketTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
             HttpTask = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
             HttpTask2 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            HttpTask3 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
+            HttpTask4 = new HttpTasks(ref Config, ref MessQueWrapper, ref WcfClient, ref UserData);
 
             // 非同期発声時のGUI操作用
             IpcTask.OnCallAsyncTalk += TalkAsyncCall;
             SockTask.OnCallAsyncTalk += TalkAsyncCall;
             SockTask2.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask3.OnCallAsyncTalk += TalkAsyncCall;
+            SockTask4.OnCallAsyncTalk += TalkAsyncCall;
             HttpTask.OnCallAsyncTalk += TalkAsyncCall;
             HttpTask2.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask3.OnCallAsyncTalk += TalkAsyncCall;
+            HttpTask4.OnCallAsyncTalk += TalkAsyncCall;
 
             // 話者設定 コンボボックス設定
             ComboBoxInterface.ItemsSource = null;
@@ -380,6 +392,10 @@ namespace FakeChan
             EllipseSocket2.Tag = 3;
             EllipseHTTP2.Tag   = 4;
             EllipseClipboard.Tag = 5;
+            EllipseSocket3.Tag = 6;
+            EllipseHTTP3.Tag   = 7;
+            EllipseSocket4.Tag = 8;
+            EllipseHTTP4.Tag   = 9;
 
             // アプリ設定
             TextBoxAppName.Text = UserData.FakeChanAppName;
@@ -480,6 +496,54 @@ namespace FakeChan
                     UserData.InterfaceSwitch[(int)ListenInterface.Http2] = false;
                 }
 
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Socket3] == true)
+                {
+                    SockTask3.StartSocketTasks(Config.SocketAddress3, Config.SocketPortNum3);
+                    EllipseSocket3.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket3] = true;
+                }
+                else
+                {
+                    EllipseSocket3.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket3] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Http3] == true)
+                {
+                    HttpTask3.StartHttpTasks(Config.HttpAddress3, Config.HttpPortNum3);
+                    EllipseHTTP3.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http3] = true;
+                }
+                else
+                {
+                    EllipseHTTP3.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http3] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Socket4] == true)
+                {
+                    SockTask4.StartSocketTasks(Config.SocketAddress4, Config.SocketPortNum4);
+                    EllipseSocket4.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket4] = true;
+                }
+                else
+                {
+                    EllipseSocket4.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Socket4] = false;
+                }
+
+                if (UserData.InterfaceSwitch[(int)ListenInterface.Http4] == true)
+                {
+                    HttpTask4.StartHttpTasks(Config.HttpAddress4, Config.HttpPortNum4);
+                    EllipseHTTP4.Fill = Brushes.LightGreen;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http4] = true;
+                }
+                else
+                {
+                    EllipseHTTP4.Fill = Brushes.Black;
+                    UserData.InterfaceSwitch[(int)ListenInterface.Http4] = false;
+                }
+
                 if (UserData.InterfaceSwitch[(int)ListenInterface.Clipboard] == true)
                 {
                     EllipseClipboard.Fill = Brushes.LightGreen;
@@ -518,6 +582,11 @@ namespace FakeChan
             HttpTask?.StopHttpTasks();
             SockTask2?.StopSocketTasks();
             HttpTask2?.StopHttpTasks();
+            SockTask3?.StopSocketTasks();
+            HttpTask3?.StopHttpTasks();
+            SockTask4?.StopSocketTasks();
+            HttpTask4?.StopHttpTasks();
+
             RemoveClipboardListener();
         }
 
@@ -541,6 +610,8 @@ namespace FakeChan
                                     IpcTask?.SetTaskId(item.TaskId);
                                     HttpTask?.SetTaskId(item.TaskId);
                                     HttpTask2?.SetTaskId(item.TaskId);
+                                    HttpTask3?.SetTaskId(item.TaskId);
+                                    HttpTask4?.SetTaskId(item.TaskId);
                                     TextBlockTweetCounter.Text = "0";
                                     TextBlockReceveText.Text = item.Message;
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
@@ -553,6 +624,8 @@ namespace FakeChan
                             IpcTask?.SetTaskId(0);
                             HttpTask?.SetTaskId(0);
                             HttpTask2?.SetTaskId(0);
+                            HttpTask3?.SetTaskId(0);
+                            HttpTask4?.SetTaskId(0);
 
                             ReEntry = true;
                         });
@@ -628,6 +701,8 @@ namespace FakeChan
                     IpcTask?.SetTaskId(talk.TaskId);
                     HttpTask?.SetTaskId(talk.TaskId);
                     HttpTask2?.SetTaskId(talk.TaskId);
+                    HttpTask3?.SetTaskId(talk.TaskId);
+                    HttpTask4?.SetTaskId(talk.TaskId);
                     TextBoxReceveText.Text = talk.Message;
                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[talk.ListenInterface], ConstClass.BouyomiVoiceMap[talk.BouyomiVoice], an[talk.Cid]);
                 });
@@ -655,6 +730,10 @@ namespace FakeChan
                     case 3: SockTask2.StopSocketTasks(); break;
                     case 4: HttpTask2.StopHttpTasks();   break;
                     case 5: RemoveClipboardListener();   break;
+                    case 6: SockTask3.StopSocketTasks(); break;
+                    case 7: HttpTask3.StopHttpTasks();   break;
+                    case 8: SockTask4.StopSocketTasks(); break;
+                    case 9: HttpTask4.StopHttpTasks();   break;
                 }
             }
             else
@@ -668,6 +747,10 @@ namespace FakeChan
                     case 3: SockTask2.StartSocketTasks(Config.SocketAddress2, Config.SocketPortNum2); break;
                     case 4: HttpTask2.StartHttpTasks(Config.HttpAddress2, Config.HttpPortNum2);       break;
                     case 5: SetClipboardListener(); break;
+                    case 6: SockTask3.StartSocketTasks(Config.SocketAddress3, Config.SocketPortNum3); break;
+                    case 7: HttpTask3.StartHttpTasks(Config.HttpAddress3, Config.HttpPortNum3);       break;
+                    case 8: SockTask4.StartSocketTasks(Config.SocketAddress4, Config.SocketPortNum4); break;
+                    case 9: HttpTask4.StartHttpTasks(Config.HttpAddress4, Config.HttpPortNum4);       break;
                 }
             }
         }
@@ -746,6 +829,11 @@ namespace FakeChan
                 case 2: HttpTask.PlayMethod  = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
                 case 3: SockTask2.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
                 case 4: HttpTask2.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 5: PlayMethodFromClipboard = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 6: SockTask3.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 7: HttpTask3.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 8: SockTask4.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
+                case 9: HttpTask4.PlayMethod = UserData.SelectedCallMethod[ListenIf] == 0 ? Methods.sync : Methods.async; break;
             }
         }
 

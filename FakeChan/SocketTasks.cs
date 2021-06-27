@@ -130,14 +130,10 @@ namespace FakeChan
                                                 break;
                                         }
 
-                                        if (ListenPort == Config.SocketPortNum2)
-                                        {
-                                            ListenIf = (int)ListenInterface.Socket2;
-                                        }
-                                        else
-                                        {
-                                            ListenIf = (int)ListenInterface.Socket1;
-                                        }
+                                        ListenIf = (int)ListenInterface.Socket1;
+                                        if (ListenPort == Config.SocketPortNum2) ListenIf = (int)ListenInterface.Socket2;
+                                        if (ListenPort == Config.SocketPortNum3) ListenIf = (int)ListenInterface.Socket3;
+                                        if (ListenPort == Config.SocketPortNum4) ListenIf = (int)ListenInterface.Socket4;
 
                                         voice = EditInputText.EditInputString((iVoice > 8 || iVoice == -1 ? 0 : iVoice), TalkText);
                                         cid = UserData.SelectedCid[ListenIf][voice];

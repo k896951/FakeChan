@@ -51,7 +51,11 @@ namespace FakeChan
             new ComboBoxListDataInterface("Socket : 50002",      ListenInterface.Socket2  ),
             new ComboBoxListDataInterface("HTTP : 50080",        ListenInterface.Http1    ),
             new ComboBoxListDataInterface("HTTP : 50081",        ListenInterface.Http2    ),
-            new ComboBoxListDataInterface("Clipboard",           ListenInterface.Clipboard )
+            new ComboBoxListDataInterface("Clipboard",           ListenInterface.Clipboard ),
+            new ComboBoxListDataInterface("Socket : 50003",      ListenInterface.Socket3  ),
+            new ComboBoxListDataInterface("Socket : 50004",      ListenInterface.Socket4  ),
+            new ComboBoxListDataInterface("HTTP : 50082",        ListenInterface.Http3    ),
+            new ComboBoxListDataInterface("HTTP : 50083",        ListenInterface.Http4    ),
         };
 
         public static List<ComboBoxListDataCallMethod> BouyomiCallMethod = new List<ComboBoxListDataCallMethod>()
@@ -100,7 +104,11 @@ namespace FakeChan
             { 2, "Http : 50080"      },
             { 3, "Socket2 : 50002"   },
             { 4, "Http2 : 50081"     },
-            { 5, "Clipboard"         }
+            { 5, "Clipboard"         },
+            { 6, "Socket : 50003"    },
+            { 7, "Http : 50082"      },
+            { 8, "Socket2 : 50004"   },
+            { 9, "Http2 : 50083"     }
         };
 
     }
