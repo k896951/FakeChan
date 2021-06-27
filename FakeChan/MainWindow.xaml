@@ -473,6 +473,31 @@
 
         </TabItem>
 
+        <TabItem x:Name="others" Header="その他">
+            <RichTextBox IsReadOnly="True">
+                <FlowDocument >
+                    <Paragraph>
+                        Copyright (c) 2021 k896951(tomason510@gmail.com)
+                        <LineBreak/>
+                        Released under the MIT license
+                        <LineBreak/>
+                        <Hyperlink  NavigateUri="https//opensource.org/licenses/mit-license.php" MouseLeftButtonDown="Hyperlink_MouseLeftButtonDown">https//opensource.org/licenses/mit-license.php</Hyperlink>
+                    </Paragraph>
+
+                    <Paragraph>
+                        偽装ちゃんは
+                        <Hyperlink NavigateUri="https://hgotoh.jp/wiki/doku.php/documents/tools/tools-206" MouseLeftButtonDown="Hyperlink_MouseLeftButtonDown">https://hgotoh.jp/wiki/doku.php/documents/tools/tools-206</Hyperlink> で配布しています。
+                    </Paragraph>
+
+                    <Paragraph>
+                        ソースコードは一部を除き
+                        <Hyperlink NavigateUri="https://github.com/k896951/FakeChan" MouseLeftButtonDown="Hyperlink_MouseLeftButtonDown">https://github.com/k896951/FakeChan</Hyperlink> で公開しています。
+                    </Paragraph>
+
+                </FlowDocument>
+            </RichTextBox>
+
+        </TabItem>
 
 
     </TabControl>
