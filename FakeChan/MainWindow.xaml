@@ -12,16 +12,9 @@
 
         <TabItem x:Name="Monitoring" Header="状態表示">
 
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Stretch">
 
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-
-                <GroupBox Header="受信インタフェース" Grid.Column="0" Grid.Row="0">
+                <GroupBox Header="受信インタフェース">
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -89,7 +82,7 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="発声データ" Grid.Column="0" Grid.Row="1">
+                <GroupBox Header="発声データ">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -108,7 +101,7 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="その他" Grid.Column="0" Grid.Row="2">
+                <GroupBox x:Name="GroupBoxTweetDisplay" Header="その他" Visibility="Hidden">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -121,82 +114,76 @@
                         </Grid.RowDefinitions>
 
                         <Label Content="待機カウンタ：" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>
-                        <TextBlock x:Name="TextBlockTweetCounter" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="4"/>
+                        <TextBlock x:Name="TextBlockTweetCounter" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" />
                         <Label Content="呟き抑止：" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                        <TextBlock x:Name="TextBlockTweetMuteStatus" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="4"/>
+                        <TextBlock x:Name="TextBlockTweetMuteStatus" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" />
                     </Grid>
                 </GroupBox>
-                
-                <StackPanel  Grid.Column="0" Grid.Row="3"  VerticalAlignment="Bottom">
+
+                <StackPanel Grid.Column="0" Grid.Row="2" VerticalAlignment="Bottom">
                     <Label Content="偽装ちゃんは、棒読みちゃんの代わりにアプリから情報を受け取り、AssistantSeikaへ転送します。"/>
                     <Label Content="怪しいツールじゃないよ！ 名前で判断しちゃだめだよ！"/>
                 </StackPanel>
 
-            </Grid>
+            </StackPanel>
+
         </TabItem>
 
         <TabItem x:Name="VoiceMap" Header="話者設定">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                
-                <GroupBox Header="インタフェース音声設定" Grid.Column="0" Grid.Row="0">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+            <GroupBox Header="受信インタフェース毎の音声割り当て">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                        <Label Content="受信インタフェース" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxInterface"  Grid.Column="1" Grid.Row="0" Margin="2,5,2,1"
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Content="受信インタフェース" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,2"/>
+                    <ComboBox x:Name="ComboBoxInterface"  Grid.Column="1" Grid.Row="0" Margin="2,5,2,1"
                                                                                                      IsReadOnly="True"
                                                                                                      VerticalContentAlignment="Center"
                                                                                                      SnapsToDevicePixels="True"
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch" SelectionChanged="ComboBoxInterface_SelectionChanged" />
 
-                        <Label Content="発声方法" Grid.Column="2" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxCallMethod"  Grid.Column="3" Grid.Row="0" Margin="2,5,2,1"
+                    <Label Content="発声方法" Grid.Column="2" Grid.Row="0" HorizontalContentAlignment="Right" Margin="2,5,2,2"/>
+                    <ComboBox x:Name="ComboBoxCallMethod"  Grid.Column="3" Grid.Row="0" Margin="2,5,2,1"
                                                                                                      IsReadOnly="True"
                                                                                                      VerticalContentAlignment="Center"
                                                                                                      SnapsToDevicePixels="True"
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch" SelectionChanged="ComboBoxCallMethod_SelectionChanged_1" />
 
-                        <Label Content="音声適用方法" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxRandomAssignVoice" Grid.Column="1" Grid.Row="1" Margin="2,5,2,5"
+                    <Label Content="ランダム選択" Grid.Column="2" Grid.Row="1" HorizontalContentAlignment="Right" Margin="2,5,2,2"/>
+                    <ComboBox x:Name="ComboBoxRandomAssignVoice" Grid.Column="3" Grid.Row="1" Margin="2,5,2,2"
                                                                                                   IsReadOnly="True"
                                                                                                   SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                   VerticalContentAlignment="Center"
                                                                                                   SelectionChanged="ComboBoxRandomAssignVoice_SelectionChanged" />
-                        <Label Content="発声方法が 同期 の時に適用されます" Grid.Column="2" Grid.Row="1" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" Margin="2,5,2,5"/>
+                    <Label Content="発声方法が 同期 の時に適用されます" Grid.Column="3" Grid.Row="2" Grid.ColumnSpan="2" HorizontalContentAlignment="Left" Margin="2,1,2,1"/>
 
-                        <Label Content="話者マップ" Grid.Column="0" Grid.Row="3" HorizontalContentAlignment="Left" Margin="2,2,2,2"/>
+                    <Label Content="話者マップ（受信インタフェース毎に棒読みちゃん声質と音声合成製品の話者を紐づけする）" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="4" HorizontalContentAlignment="Left" Margin="2,1,2,1"/>
 
-                        <Label Content="ボイス0" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
-                        <ComboBox x:Name="ComboBoxMapVoice0"  Grid.Column="1" Grid.Row="4" Margin="2,5,2,5"
+                    <Label Content="ボイス0" Grid.Column="0" Grid.Row="4" HorizontalContentAlignment="Right" Margin="2,5,2,5"/>
+                    <ComboBox x:Name="ComboBoxMapVoice0"  Grid.Column="1" Grid.Row="4" Margin="2,5,2,5"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -204,8 +191,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="女性1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice1"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1"
+                    <Label Content="女性1" Grid.Column="0" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice1"  Grid.Column="1" Grid.Row="5" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -213,8 +200,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="女性2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice2"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1"
+                    <Label Content="女性2" Grid.Column="2" Grid.Row="5" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice2"  Grid.Column="3" Grid.Row="5" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -222,8 +209,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="男性1" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice3"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1"
+                    <Label Content="男性1" Grid.Column="0" Grid.Row="6" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice3"  Grid.Column="1" Grid.Row="6" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -231,8 +218,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="男性2" Grid.Column="2" Grid.Row="6" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice4"  Grid.Column="3" Grid.Row="6" Margin="2,1,2,1"
+                    <Label Content="男性2" Grid.Column="2" Grid.Row="6" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice4"  Grid.Column="3" Grid.Row="6" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -240,8 +227,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="中性" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice5"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1"
+                    <Label Content="中性" Grid.Column="0" Grid.Row="7" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice5"  Grid.Column="1" Grid.Row="7" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -249,8 +236,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="ロボット" Grid.Column="2" Grid.Row="7" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice6"  Grid.Column="3" Grid.Row="7" Margin="2,1,2,1"
+                    <Label Content="ロボット" Grid.Column="2" Grid.Row="7" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice6"  Grid.Column="3" Grid.Row="7" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -258,8 +245,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice7"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1"
+                    <Label Content="機械1" Grid.Column="0" Grid.Row="8" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice7"  Grid.Column="1" Grid.Row="8" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -267,8 +254,8 @@
                                                                                                      HorizontalAlignment="Stretch"
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
-                        <Label Content="機械2" Grid.Column="2" Grid.Row="8" HorizontalContentAlignment="Right"/>
-                        <ComboBox x:Name="ComboBoxMapVoice8"  Grid.Column="3" Grid.Row="8" Margin="2,1,2,1"
+                    <Label Content="機械2" Grid.Column="2" Grid.Row="8" HorizontalContentAlignment="Right"/>
+                    <ComboBox x:Name="ComboBoxMapVoice8"  Grid.Column="3" Grid.Row="8" Margin="2,1,2,1"
                                                                                                      SelectedValuePath="Key"  DisplayMemberPath="Value"
                                                                                                      IsReadOnly="True"
                                                                                                      SnapsToDevicePixels="True"
@@ -277,10 +264,8 @@
                                                                                                      HorizontalContentAlignment="Stretch"/>
 
 
-                    </Grid>
-                </GroupBox>
-
-            </Grid>
+                </Grid>
+            </GroupBox>
 
         </TabItem>
 
@@ -419,17 +404,10 @@
         </TabItem>
 
         <TabItem x:Name="Settings3" Header="アプリ設定">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
 
-                <GroupBox Header="ウインドウタイトル変更" Grid.Column="0" Grid.Row="0" >
+            <StackPanel>
+
+                <GroupBox Header="ウインドウタイトル変更">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -442,8 +420,8 @@
                         <TextBox x:Name="TextBoxAppName" Text="偽装ちゃん" Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="5,2,2,5" TextChanged="TextBoxAppName_TextChanged"/>
                     </Grid>
                 </GroupBox>
-                
-                <GroupBox Header="呟き機能" Grid.Column="0" Grid.Row="1">
+
+                <GroupBox x:Name="GroupBoxTweetControl" Header="呟き機能" Visibility="Collapsed">
                     <Grid >
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -457,7 +435,7 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox Header="話者切替判定（全受信インタフェースに適用）" Grid.Column="0" Grid.Row="2" >
+                <GroupBox Header="話者切替判定（全受信インタフェースに適用）">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
@@ -472,7 +450,7 @@
 
                         <CheckBox x:Name="CheckBoxVriEng" Content="日本語ではなさそうな時に話者を変更する" Grid.Column="0" Grid.Row="0"  Margin="5,2,2,5" VerticalAlignment="Center" Click="CheckBoxVriEng_Click"/>
                         <CheckBox x:Name="CheckBoxVriRep" Content="話者変更時に置換処理しない" Grid.Column="1" Grid.Row="0"  Margin="5,2,2,5" VerticalAlignment="Center" Click="CheckBoxVriRep_Click" />
-                        
+
                         <ComboBox x:Name="ComboBoxVriEngAvator" Grid.Column="0" Grid.Row="1" Margin="5,2,2,5" SelectedValuePath="Key"  DisplayMemberPath="Value" Width="Auto" IsReadOnly="True" VerticalAlignment="Center" SelectionChanged="ComboBoxVriEngAvator_SelectionChanged"/>
                         <Button x:Name="ButtonVirParamReset" Content="パラメタ初期化" Grid.Column="1" Grid.Row="1" Margin="5,2,2,5" Click="ButtonVirParamReset_Click" Width="Auto" HorizontalAlignment="Left" />
 
@@ -488,7 +466,7 @@
                     </Grid>
                 </GroupBox>
 
-            </Grid>
+            </StackPanel>
 
         </TabItem>
 

@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.9";
+        string versionStr = "Ver 2.0.10";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -292,13 +292,18 @@ namespace FakeChan
                     UserData.QuietMessages = UserData.QuietMessages.Where(c => c.Key <= QuietMessageKeyMax).ToDictionary(c =>c.Key, v=>v.Value);
                 }
 
+                GroupBoxTweetDisplay.Visibility = Visibility.Visible;
+                GroupBoxTweetControl.Visibility = Visibility.Visible;
+                CheckBoxIsSilent.IsEnabled = true;
                 CheckBoxIsSilent.IsChecked = UserData.IsSilentAvator;
             }
             else
             {
                 QuietMessageKeyMax = 0;
-                CheckBoxIsSilent.IsChecked = false;
+                GroupBoxTweetDisplay.Visibility = Visibility.Hidden;
+                GroupBoxTweetControl.Visibility = Visibility.Collapsed;
                 CheckBoxIsSilent.IsEnabled = false;
+                CheckBoxIsSilent.IsChecked = false;
             }
 
             // バックグラウンドタスク用オブジェクト
