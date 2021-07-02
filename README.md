@@ -10,7 +10,7 @@
 
 …つまり、棒読みちゃんを停止して偽装ちゃんを実行すれば、棒読みちゃんから呼び出せなかった音声合成製品を呼び出せます。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210331-165343.png "ダイアグラム")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210702-114714.png "ダイアグラム")
 
 
 
