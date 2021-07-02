@@ -33,8 +33,9 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 偽装ちゃんの状態を表示する画面です。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210513-023355.png "偽装ちゃん起動直後")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210702-134108.png "偽装ちゃん起動直後")
 
+  
 棒読みちゃんを使うアプリケーションが棒読みちゃんと連携する時に使う受信インタフェースの有効化・無効化の状態と直近の受信データを表示しています。
 
 偽装ちゃんと同じフォルダにファイル QuietMessages.json が存在すると、呟き機能が有効になります。
@@ -44,7 +45,7 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 各受信インタフェースで、棒読みちゃんの声質と音声合成製品を紐付けします。  
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210513-023609.png "話者マップ")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210702-141812.png "話者マップ")
 
 棒読みちゃん連携のソフトウエアのほとんどはボイス0のみ使っているように見受けられます。
 ツイキャスコメントビューアー（閲覧君）は1番（女性1）を使用するようです。
@@ -59,11 +60,9 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 音声合成製品のパラメタを編集できます。
 
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210513-023643.png "音声パラメタ編集")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210702-142113.png "音声パラメタ編集")
 
 テスト再生ボタンを押すと、再生テキストにあるテキストを設定したパラメタを適用して再生します。パラメタのテストで利用してください。
-
-チェックボックスをONにすると、一時的に呟き機能を抑止できます。このチェックは 2.0.7 からアプリ設定タブに移動されました。
 
 ### 置換設定タブ
 
@@ -78,11 +77,9 @@ AssistantSeikaで利用したい音声合成製品を認識している状態に
 
 アプリの共通的な設定を行います。
   
-![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210623-183712.png "アプリ設定")
+![偽装ちゃん](https://hgotoh.jp/wiki/lib/exe/fetch.php/documents/tools/pasted/20210702-142433.png "アプリ設定")
 
 ウインドウタイトルを変更すると気に入らないアプリ名をとりあえず見なくて済むようにできます。
-
-呟き機能のチェックはONにすると、一時的に呟き機能を抑止できます。
 
 話者切り替え判定にチェックを入れると、日本語テキストではなさそうな場合、ここで指定した話者で発声するようになります。
 ただし、この判定は大変適当なものです。
