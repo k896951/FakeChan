@@ -87,7 +87,6 @@ namespace FakeChan
                         byte[] iLengthBuff;
 
                         List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
-                        int cnt = CidList.Count;
                         int cid;
 
                         using (NetworkStream ns = client.GetStream())
@@ -146,11 +145,7 @@ namespace FakeChan
                                                 break;
 
                                             case 2:
-                                                cid = CidList[r.Next(0, cnt)];
-                                                if (Config.AvatorNames.ContainsKey(cid))
-                                                {
-                                                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                                                }
+                                                cid = CidList[r.Next(0, CidList.Count)];
                                                 break;
                                         }
 

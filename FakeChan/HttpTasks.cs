@@ -78,7 +78,6 @@ namespace FakeChan
                 string listFmt = @"""id"":{0}, ""kind"":""AquesTalk"", ""name"":""{1}"", ""alias"":""""";
 
                 List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
-                int cnt = CidList.Count;
                 int cid;
                 int ListenIf;
 
@@ -136,11 +135,7 @@ namespace FakeChan
                                 break;
 
                             case 2:
-                                cid = CidList[r.Next(0, cnt)];
-                                if (Config.AvatorNames.ContainsKey(cid))
-                                {
-                                    UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                                }
+                                cid = CidList[r.Next(0, CidList.Count)];
                                 break;
                         }
 

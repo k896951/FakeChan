@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.10";
+        string versionStr = "Ver 2.0.10.1";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -1207,7 +1207,6 @@ namespace FakeChan
             Task.Run(() => {
                 int cid;
                 List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
-                int cnt = CidList.Count;
                 int ListenIf = (int)ListenInterface.Clipboard;
                 int voice = EditInputText.EditInputString(0, talkText);
 
@@ -1220,11 +1219,7 @@ namespace FakeChan
                         break;
 
                     case 2:
-                        cid = CidList[r.Next(0, cnt)];
-                        if (Config.AvatorNames.ContainsKey(cid))
-                        {
-                            UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                        }
+                        cid = CidList[r.Next(0, CidList.Count)];
                         break;
                 }
 

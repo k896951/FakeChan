@@ -104,7 +104,6 @@ namespace FakeChan
         {
             int cid;
             List<int> CidList = Config.AvatorNames.Select(c => c.Key).ToList();
-            int cnt = CidList.Count;
             int ListenIf = (int)ListenInterface.IPC1;
             int voice = EditInputText.EditInputString((vType > 8 || vType == -1 ? 0 : vType), TalkText);
 
@@ -117,11 +116,7 @@ namespace FakeChan
                     break;
 
                 case 2:
-                    cid = CidList[r.Next(0, cnt)];
-                    if (Config.AvatorNames.ContainsKey(cid))
-                    {
-                        UserData.VoiceParams[ListenIf][voice][cid] = Config.AvatorParams(cid);
-                    }
+                    cid = CidList[r.Next(0, CidList.Count)];
                     break;
             }
 
