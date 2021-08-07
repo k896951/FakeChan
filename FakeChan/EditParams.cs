@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace FakeChan
 {
-    public class EditParamsBefore
+    public class EditParams
     {
         public int ChangedVoiceNo { get; private set; }
 
         public string ChangedTalkText { get; private set; }
 
+
+        public static bool NoUseRep { get; set; }
 
         public static int LimitTextLength { get; set; }
         public static bool IsUseSuffixString { get; set; }
@@ -124,13 +126,16 @@ namespace FakeChan
         {
             string s = talkText;
 
-            if (s.Length != 0)
+            if(!NoUseRep)
             {
-                for (int idx = 0; idx < Regexs.Count; idx++)
+                if (s.Length != 0)
                 {
-                    if (Regexs[idx].Apply)
+                    for (int idx = 0; idx < Regexs.Count; idx++)
                     {
-                        try { s = Regex.Replace(s, Regexs[idx].MatchingPattern, Regexs[idx].ReplaceText); } catch (Exception) { }
+                        if (Regexs[idx].Apply)
+                        {
+                            try { s = Regex.Replace(s, Regexs[idx].MatchingPattern, Regexs[idx].ReplaceText); } catch (Exception) { }
+                        }
                     }
                 }
             }

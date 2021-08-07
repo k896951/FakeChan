@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.10.1";
+        string versionStr = "Ver 2.0.12";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -41,7 +41,7 @@ namespace FakeChan
         HttpTasks HttpTask3 = null;
         SocketTasks SockTask4 = null;
         HttpTasks HttpTask4 = null;
-        EditParamsBefore TestEdit = new EditParamsBefore();
+        EditParams TestEdit = new EditParams();
         Random r = new Random(Environment.TickCount);
         ObservableCollection<ReplaceDefinition> Regexs;
 
@@ -56,7 +56,7 @@ namespace FakeChan
         bool ReEntry;
         object lockObj = new object();
         WindowInteropHelper Whelper;
-        EditParamsBefore EditInputText;
+        EditParams EditInputText;
         Methods PlayMethodFromClipboard = Methods.sync;
 
         public UserDefData UserData;
@@ -71,9 +71,9 @@ namespace FakeChan
             Title = "初期化中"; // titleStr + " " + versionStr;
 
             Whelper = new WindowInteropHelper(this);
-            EditInputText = new EditParamsBefore();
-            var x = HwndSource.FromHwnd(Whelper.Handle);
-            x.AddHook(WndProc);
+            EditInputText = new EditParams();
+            HwndSource MsgProc = HwndSource.FromHwnd(Whelper.Handle);
+            MsgProc.AddHook(WndProc);
 
 
             try
@@ -112,8 +112,9 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題1");
-                Application.Current.Shutdown();
+                MessageBox.Show(e0.Message, "過去のバージョンの設定値データを変換できなかった可能性があります。初期化をお試しください。");
+
+                InitAndShutdown();
                 return;
             }
 
@@ -131,8 +132,9 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題2");
-                Application.Current.Shutdown();
+                MessageBox.Show(e0.Message, "保存されている設定値データを取り込みできません。初期化をお試しください。");
+
+                InitAndShutdown();
                 return;
             }
 
@@ -143,7 +145,7 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題3");
+                MessageBox.Show(e0.Message, "呟き機能で使うファイルに問題があります。書式等を確認してください。");
                 Application.Current.Shutdown();
                 return;
             }
@@ -220,13 +222,17 @@ namespace FakeChan
                         if (!UserData.VoiceParams[(int)InterfaceIdx].ContainsKey((int)BouIdx))
                         {
                             UserData.VoiceParams[(int)InterfaceIdx].Add((int)BouIdx, new Dictionary<int, Dictionary<string, Dictionary<string, Dictionary<string, decimal>>>>());
-                            foreach (int cid in Config.AvatorNames.Keys)
+                        }
+
+                        foreach (int cid in Config.AvatorNames.Keys)
+                        {
+                            if(!UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx].ContainsKey(cid))
                             {
                                 UserData.VoiceParams[(int)InterfaceIdx][(int)BouIdx][cid] = Config.AvatorParams(cid);
                             }
                         }
 
-                        if(!UserData.SelectedCid[(int)InterfaceIdx].ContainsKey((int)BouIdx))
+                        if (!UserData.SelectedCid[(int)InterfaceIdx].ContainsKey((int)BouIdx))
                         {
                             UserData.SelectedCid[(int)InterfaceIdx][(int)BouIdx] = Config.AvatorNames.First().Key;
                         }
@@ -277,8 +283,9 @@ namespace FakeChan
             }
             catch (Exception e0)
             {
-                MessageBox.Show(e0.Message, "設定値読み込みの問題4");
-                Application.Current.Shutdown();
+                MessageBox.Show(e0.Message, "新規追加話者や過去バージョン設定値の統合処理で問題が発生した可能性があります。初期化をお試しください。");
+
+                InitAndShutdown();
                 return;
             }
 
@@ -381,14 +388,14 @@ namespace FakeChan
 
             // 置換設定 テキストボックス設定
             TextBoxTextLength.Text           = UserData.TextLength.ToString();
-            EditParamsBefore.LimitTextLength = UserData.TextLength;
-            CheckBoxAddSuffix.IsChecked      = EditParamsBefore.IsUseSuffixString = UserData.AddSuffix;
-            TextBoxAddSuffixStr.Text         = EditParamsBefore.SuffixString = UserData.AddSuffixStr;
+            EditParams.LimitTextLength       = UserData.TextLength;
+            CheckBoxAddSuffix.IsChecked      = EditParams.IsUseSuffixString = UserData.AddSuffix;
+            TextBoxAddSuffixStr.Text         = EditParams.SuffixString = UserData.AddSuffixStr;
             Regexs = new ObservableCollection<ReplaceDefinition>(UserData.ReplaceDefs);
             DataGridRepDefs.DataContext = null;
             DataGridRepDefs.DataContext = Regexs;
             if (UserData.ReplaceDefs.Count != 0) DataGridRepDefs.SelectedIndex = 0;
-            EditParamsBefore.CopyRegExs(ref Regexs);
+            EditParams.CopyRegExs(ref Regexs);
 
             // 状態 受信インタフェース
             EllipseIpc.Tag     = 0;
@@ -405,8 +412,9 @@ namespace FakeChan
             // アプリ設定
             TextBoxAppName.Text = UserData.FakeChanAppName;
             this.Title = UserData.FakeChanAppName + " " + this.versionStr;
-            CheckBoxVriEng.IsChecked = EditParamsBefore.VriEng = UserData.VriEng;
-            CheckBoxVriRep.IsChecked = EditParamsBefore.VriNoRep = UserData.VriRep;
+            CheckBoxTextNoReplace.IsChecked = EditParams.NoUseRep = UserData.NoUseReplaceDefs;
+            CheckBoxVriEng.IsChecked = EditParams.VriEng = UserData.VriEng;
+            CheckBoxVriRep.IsChecked = EditParams.VriNoRep = UserData.VriRep;
             ComboBoxVriEngAvator.ItemsSource = null;
             ComboBoxVriEngAvator.ItemsSource = Config.AvatorNames;
             {
@@ -416,7 +424,7 @@ namespace FakeChan
                     if (virAvators[idx] == UserData.VriAvator)
                     {
                         ComboBoxVriEngAvator.SelectedIndex = idx;
-                        EditParamsBefore.VriAvator = idx;
+                        EditParams.VriAvator = idx;
                         break;
                     }
                 }
@@ -424,7 +432,7 @@ namespace FakeChan
                 {
                     ComboBoxVriEngAvator.SelectedIndex = 0;
                     UserData.VriAvator = virAvators[0];
-                    EditParamsBefore.VriAvator = virAvators[0];
+                    EditParams.VriAvator = virAvators[0];
                 }
             }
 
@@ -572,14 +580,7 @@ namespace FakeChan
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            UserData.ReplaceDefs = new List<ReplaceDefinition>(Regexs);
-            DataContractJsonSerializer uds = new DataContractJsonSerializer(typeof(UserDefData));
-            MemoryStream ms = new MemoryStream();
-            uds.WriteObject(ms, UserData);
-            
-            Properties.Settings.Default.UserSettings = Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)(ms.Length));
-            Properties.Settings.Default.Save();
-            ms.Close();
+            DefinitionSave();
 
             KickTalker?.Stop();
             SockTask?.StopSocketTasks();
@@ -593,6 +594,18 @@ namespace FakeChan
             HttpTask4?.StopHttpTasks();
 
             RemoveClipboardListener();
+        }
+
+        private void DefinitionSave()
+        {
+            UserData.ReplaceDefs = new List<ReplaceDefinition>(Regexs);
+            DataContractJsonSerializer uds = new DataContractJsonSerializer(typeof(UserDefData));
+            MemoryStream ms = new MemoryStream();
+            uds.WriteObject(ms, UserData);
+
+            Properties.Settings.Default.UserSettings = Encoding.UTF8.GetString(ms.GetBuffer(), 0, (int)(ms.Length));
+            Properties.Settings.Default.Save();
+            ms.Close();
         }
 
         private void KickTalker_Tick(object sender, EventArgs e)
@@ -760,12 +773,12 @@ namespace FakeChan
             }
         }
 
-        private void TextBox_MaxTextSizePreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+        private void TextBox_MaxTextSizePreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             e.Handled = !new Regex("[0-9]").IsMatch(e.Text);
         }
 
-        private void TextBox_MaxTextSizePreviewExecuted(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
+        private void TextBox_MaxTextSizePreviewExecuted(object sender, ExecutedRoutedEventArgs e)
         {
             TextBox tb = sender as TextBox;
             if (e.Command == ApplicationCommands.Paste)
@@ -787,7 +800,7 @@ namespace FakeChan
                 len = 1;
             }
 
-            EditParamsBefore.LimitTextLength = UserData.TextLength = len;
+            EditParams.LimitTextLength = UserData.TextLength = len;
         }
 
         private void TextBoxTextLength_LostFocus(object sender, RoutedEventArgs e)
@@ -800,14 +813,14 @@ namespace FakeChan
         {
             TextBox tb = sender as TextBox;
 
-            EditParamsBefore.SuffixString = UserData.AddSuffixStr = tb.Text;
+            EditParams.SuffixString = UserData.AddSuffixStr = tb.Text;
         }
 
         private void CheckBoxAddSuffix_Click(object sender, RoutedEventArgs e)
         {
             CheckBox cb = sender as CheckBox;
 
-            EditParamsBefore.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
+            EditParams.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
         }
 
         private void ComboBoxInterface_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -986,8 +999,16 @@ namespace FakeChan
 
             WrapPanelParams1.Children.Clear();
             WrapPanelParams2.Children.Clear();
-            Dictionary<string, Dictionary<string, decimal>> effect = UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"];
-            Dictionary<string, Dictionary<string, decimal>> emotion = UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"];
+            Dictionary<string, Dictionary<string, decimal>> effect = new Dictionary<string, Dictionary<string, decimal>>();
+            Dictionary<string, Dictionary<string, decimal>> emotion = new Dictionary<string, Dictionary<string, decimal>>();
+            if (UserData.VoiceParams[ListenIf][BouVoice][cid].ContainsKey("effect"))
+            {
+                effect = UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"];
+            }
+            if(UserData.VoiceParams[ListenIf][BouVoice][cid].ContainsKey("emotion"))
+            {
+                emotion = UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"];
+            }
 
             ReSetupParams(cid, ref effect,  WrapPanelParams1.Children);
             ReSetupParams(cid, ref emotion, WrapPanelParams2.Children);
@@ -1124,7 +1145,7 @@ namespace FakeChan
         {
             ComboBox cb = sender as ComboBox;
 
-            UserData.VriAvator = EditParamsBefore.VriAvator = (int)cb.SelectedValue;
+            UserData.VriAvator = EditParams.VriAvator = (int)cb.SelectedValue;
             UpdateEditVirParamPanel();
         }
 
@@ -1132,14 +1153,14 @@ namespace FakeChan
         {
             CheckBox cb = sender as CheckBox;
 
-            UserData.VriEng = EditParamsBefore.VriEng = (bool)cb.IsChecked;
+            UserData.VriEng = EditParams.VriEng = (bool)cb.IsChecked;
         }
 
         private void CheckBoxVriRep_Click(object sender, RoutedEventArgs e)
         {
             CheckBox cb = sender as CheckBox;
 
-            UserData.VriRep = EditParamsBefore.VriNoRep = (bool)cb.IsChecked;
+            UserData.VriRep = EditParams.VriNoRep = (bool)cb.IsChecked;
         }
 
         private void ButtonVirParamReset_Click(object sender, RoutedEventArgs e)
@@ -1259,6 +1280,29 @@ namespace FakeChan
                         break;
                 }
             });
+        }
+
+        private void ButtonInitParams_Click(object sender, RoutedEventArgs e)
+        {
+            InitAndShutdown();
+        }
+
+        private void InitAndShutdown()
+        {
+            if (MessageBox.Show("設定値を全て初期化して終了しますか？", "警告", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            {
+                UserData = new UserDefData();
+                DefinitionSave();
+
+                Application.Current.Shutdown();
+            }
+        }
+
+        private void CheckBoxTextNoReplace_Click(object sender, RoutedEventArgs e)
+        {
+            CheckBox sw = sender as CheckBox;
+
+            EditParams.NoUseRep = UserData.NoUseReplaceDefs = (bool)sw.IsChecked;
         }
     }
 }

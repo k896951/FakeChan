@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace FakeChan
 {
-    public class HttpTasks
+    public class WebSocketTasks
     {
         Configs Config;
         MessQueueWrapper MessQue;
@@ -29,37 +29,36 @@ namespace FakeChan
 
         public Methods PlayMethod { get; set; }
 
-        public HttpTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref UserDefData UsrData)
+        public WebSocketTasks(ref Configs cfg, ref MessQueueWrapper mq, ref WCFClient wcf, ref UserDefData UsrData)
         {
             Config = cfg;
             MessQue = mq;
             WcfClient = wcf;
             UserData = UsrData;
         }
-
-        public void StartHttpTasks(IPAddress addr, int port)
+        public void StartWebSocketTasks(IPAddress addr, int port)
         {
             PlayMethod = Methods.sync;
 
-            // HTTP リスナタスク起動
+            // WebSocket リスナタスク起動
             HTTPListener = new HttpListener();
             HTTPListener.Prefixes.Add(string.Format(@"http://{0}:{1}/", addr, port));
             HTTPListener.Start();
             KeepListen = true;
-            BGHttpListen = SetupBGHttpListenerTask();
+            BGHttpListen = SetupBGWebSocketListenerTask();
             Task.Run(BGHttpListen);
             ListenPort = port;
         }
 
-        public void StopHttpTasks()
+        public void StopWebSocketTasks()
         {
-            // HTTP リスナタスク停止
+            // WebSocket リスナタスク停止
             KeepListen = false;
             try
             {
                 HTTPListener?.Stop();
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //
             }
@@ -70,7 +69,7 @@ namespace FakeChan
             taskId = tid;
         }
 
-        private Action SetupBGHttpListenerTask()
+        private Action SetupBGWebSocketListenerTask()
         {
             Action BGHttpListen = (() => {
 
@@ -85,8 +84,8 @@ namespace FakeChan
                 {
                     try
                     {
-                        HttpListenerContext  context  = HTTPListener.GetContext();
-                        HttpListenerRequest  request  = context.Request;
+                        HttpListenerContext context = HTTPListener.GetContext();
+                        HttpListenerRequest request = context.Request;
                         HttpListenerResponse response = context.Response;
                         int voice = 0;
                         string TalkText = "本日は晴天ですか？";
@@ -96,8 +95,8 @@ namespace FakeChan
                         {
                             if (item == "") continue;
 
-                            string[] s = Regex.Split(item, "=") ;
-                            if (s.Length <  2) s = new string[] { HttpUtility.UrlDecode(s[0]), "" };
+                            string[] s = Regex.Split(item, "=");
+                            if (s.Length < 2) s = new string[] { HttpUtility.UrlDecode(s[0]), "" };
                             if (s.Length >= 2) s = new string[] { HttpUtility.UrlDecode(s[0]), HttpUtility.UrlDecode(s[1]) };
 
                             switch (s[0])
@@ -201,7 +200,7 @@ namespace FakeChan
                                 break;
 
                             case "/GETTALKTASKCOUNT":
-                                byte[] responseTaskCountContent = Encoding.UTF8.GetBytes( "{" + string.Format(@"""talkTaskCount"":{0}", MessQue.count) +"}");
+                                byte[] responseTaskCountContent = Encoding.UTF8.GetBytes("{" + string.Format(@"""talkTaskCount"":{0}", MessQue.count) + "}");
                                 response.OutputStream.Write(responseTaskCountContent, 0, responseTaskCountContent.Length);
                                 response.Close();
                                 break;

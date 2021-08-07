@@ -14,13 +14,12 @@ namespace FakeChan
 
         [DataMember] public Dictionary<int, int> RandomVoiceMethod;
 
-        //[DataMember] public bool IsRandomVoice;
-        //[DataMember] public bool IsRandomAvator;
         [DataMember] public bool IsSilentAvator;
         [DataMember] public int TextLength;
         [DataMember] public bool AddSuffix;
         [DataMember] public string AddSuffixStr;
 
+        [DataMember] public bool NoUseReplaceDefs;
         [DataMember] public List<ReplaceDefinition> ReplaceDefs;
 
         [DataMember] public string FakeChanAppName;

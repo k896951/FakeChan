@@ -16,7 +16,7 @@ namespace FakeChan
         UserDefData UserData;
         FNF.Utility.BouyomiChanRemoting ShareIpcObject;
         IpcServerChannel IpcCh = null;
-        EditParamsBefore EditInputText = new EditParamsBefore();
+        EditParams EditInputText = new EditParams();
         string ChannelName;
         Random r = new Random(Environment.TickCount);
 

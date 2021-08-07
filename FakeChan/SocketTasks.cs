@@ -14,7 +14,7 @@ namespace FakeChan
         MessQueueWrapper MessQue;
         WCFClient WcfClient;
         UserDefData UserData;
-        EditParamsBefore EditInputText = new EditParamsBefore();
+        EditParams EditInputText = new EditParams();
         Random r = new Random(Environment.TickCount);
 
         bool KeepListen = false;

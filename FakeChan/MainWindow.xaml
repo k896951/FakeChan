@@ -421,19 +421,40 @@
                     </Grid>
                 </GroupBox>
 
-                <GroupBox x:Name="GroupBoxTweetControl" Header="呟き機能" Visibility="Collapsed">
-                    <Grid >
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <Grid >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                        <CheckBox x:Name="CheckBoxIsSilent" Grid.Column="0" Grid.Row="0" Content="読み上げ待機が続いても呟かない" Margin="5,2,2,5" Click="CheckBoxIsSilent_Click" />
-                    </Grid>
-                </GroupBox>
+                    <GroupBox x:Name="GroupBoxInitParams" Header="初期化" Visibility="Visible" Grid.Column="0" Grid.Row="0">
+                        <Button x:Name="ButtonInitParams" Content="記憶した全設定を初期化" Width="Auto" Click="ButtonInitParams_Click"/>
+                    </GroupBox>
+
+                    <GroupBox x:Name="GroupBoxTextNoReplace" Header="テキスト置換" Visibility="Visible" Grid.Column="1" Grid.Row="0">
+                        <CheckBox x:Name="CheckBoxTextNoReplace" Content="テキストの置換処理をしない" Grid.Column="1" Grid.Row="0"  Margin="5,2,2,5" VerticalAlignment="Center" Click="CheckBoxTextNoReplace_Click" />
+                    </GroupBox>
+
+                    <GroupBox x:Name="GroupBoxTweetControl" Header="呟き機能" Visibility="Collapsed" Grid.Column="2" Grid.Row="0">
+                        <Grid >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <CheckBox x:Name="CheckBoxIsSilent" Grid.Column="0" Grid.Row="0" Content="読み上げ待機が続いても呟かない" Margin="5,2,2,5" Click="CheckBoxIsSilent_Click" />
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
 
                 <GroupBox Header="話者切替判定（全受信インタフェースに適用）">
                     <Grid>

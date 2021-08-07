@@ -67,7 +67,7 @@
     <Compile Include="BouyomiChanRemoting.cs" />
     <Compile Include="Configs.cs" />
     <Compile Include="ConstClass.cs" />
-    <Compile Include="EditParamsBefore.cs" />
+    <Compile Include="EditParams.cs" />
     <Compile Include="EnumClass.cs" />
     <Compile Include="IpcTasks.cs" />
     <Compile Include="MessageData.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="SocketTasks.cs" />
     <Compile Include="UserDefData.cs" />
     <Compile Include="WCFClient.cs" />
+    <Compile Include="WebSocketTasks.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
