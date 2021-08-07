@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.12";
+        string versionStr = "Ver 2.0.13";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;

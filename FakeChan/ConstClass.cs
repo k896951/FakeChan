@@ -73,8 +73,8 @@ namespace FakeChan
             new ComboListDataBouyomiVoice("男性2",     BouyomiVoice.male2     ),
             new ComboListDataBouyomiVoice("中性",      BouyomiVoice.nogender  ),
             new ComboListDataBouyomiVoice("ロボット",  BouyomiVoice.robot     ),
-            new ComboListDataBouyomiVoice("機械1",     BouyomiVoice.voice0    ),
-            new ComboListDataBouyomiVoice("機械2",     BouyomiVoice.voice0    ),
+            new ComboListDataBouyomiVoice("機械1",     BouyomiVoice.machine1  ),
+            new ComboListDataBouyomiVoice("機械2",     BouyomiVoice.machine2  ),
         };
 
         public static Dictionary<int, string> RandomAssignMethod = new Dictionary<int, string>()
