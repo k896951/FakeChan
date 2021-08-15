@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.13";
+        string versionStr = "Ver 2.0.14";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -635,6 +635,11 @@ namespace FakeChan
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
                                 });
 
+                                if (MessQueWrapper.count > 10)
+                                {
+                                    decimal spd = item.Effects["speed"];
+                                    item.Effects["speed"] = spd * 1.5m;
+                                }
                                 WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                                 LonelyCount = 0;
                             }
@@ -823,17 +828,23 @@ namespace FakeChan
             EditParams.IsUseSuffixString = UserData.AddSuffix = (bool)cb.IsChecked;
         }
 
+        /// <summary>
+        /// 受信委インタフェース切り替え時のイベントハンドラ
+        /// </summary>
         private void ComboBoxInterface_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ComboBoxInterface.SelectedIndex == -1) return;
 
             int ListenIf = (int)ComboBoxInterface.SelectedValue;
+
             ComboBoxCallMethod.SelectedIndex = UserData.SelectedCallMethod[ListenIf];
             ComboBoxRandomAssignVoice.SelectedIndex = UserData.RandomVoiceMethod[ListenIf];
-
             SetupVoiceMapGUI();
         }
 
+        /// <summary>
+        /// 発声方法切り替え時のイベントハンドラ
+        /// </summary>
         private void ComboBoxCallMethod_SelectionChanged_1(object sender, SelectionChangedEventArgs e)
         {
             if (ComboBoxCallMethod.SelectedIndex == -1) return;
@@ -855,6 +866,19 @@ namespace FakeChan
             }
         }
 
+        /// <summary>
+        /// ランダム話者選択方法切り替え時のイベントハンドラ
+        /// </summary>
+        private void ComboBoxRandomAssignVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBox cb = sender as ComboBox;
+
+            if (ComboBoxInterface.SelectedIndex == -1) return;
+
+            int ListenIf = (int)ComboBoxInterface.SelectedValue;
+            UserData.RandomVoiceMethod[ListenIf] = cb.SelectedIndex;
+        }
+
         private void ComboBoxMapVoice0_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ComboBox cb = sender as ComboBox;
@@ -873,6 +897,17 @@ namespace FakeChan
         {
             int ListenIf = (int)ComboBoxInterface.SelectedValue;
             List<int> ListCid = Config.AvatorNames.Select(v => v.Key).ToList();
+
+            ComboBoxMapVoice0.SelectedIndex = -1;
+            ComboBoxMapVoice1.SelectedIndex = -1;
+            ComboBoxMapVoice2.SelectedIndex = -1;
+            ComboBoxMapVoice3.SelectedIndex = -1;
+            ComboBoxMapVoice4.SelectedIndex = -1;
+            ComboBoxMapVoice5.SelectedIndex = -1;
+            ComboBoxMapVoice6.SelectedIndex = -1;
+            ComboBoxMapVoice7.SelectedIndex = -1;
+            ComboBoxMapVoice8.SelectedIndex = -1;
+
             for (int idx = 0; idx < ListCid.Count; idx++)
             {
                 if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.voice0] == ListCid[idx]) ComboBoxMapVoice0.SelectedIndex = idx;
@@ -885,6 +920,7 @@ namespace FakeChan
                 if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine1] == ListCid[idx]) ComboBoxMapVoice7.SelectedIndex = idx;
                 if (UserData.SelectedCid[ListenIf][(int)BouyomiVoice.machine2] == ListCid[idx]) ComboBoxMapVoice8.SelectedIndex = idx;
             }
+
             if (ComboBoxMapVoice0.SelectedIndex == -1) { ComboBoxMapVoice0.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.voice0] = ListCid[0]; }
             if (ComboBoxMapVoice1.SelectedIndex == -1) { ComboBoxMapVoice1.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female1] = ListCid[0]; }
             if (ComboBoxMapVoice2.SelectedIndex == -1) { ComboBoxMapVoice2.SelectedIndex = 0; UserData.SelectedCid[ListenIf][(int)BouyomiVoice.female2] = ListCid[0]; }
@@ -1118,12 +1154,6 @@ namespace FakeChan
                 Regexs.Insert(dg.SelectedIndex, x2);
                 Regexs.Remove(x1);
             }
-        }
-
-        private void ComboBoxRandomAssignVoice_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ComboBox cb = sender as ComboBox;
-            UserData.RandomVoiceMethod[ComboBoxInterface.SelectedIndex] = cb.SelectedIndex;
         }
 
         private void Hyperlink_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
