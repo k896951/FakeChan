@@ -14,6 +14,12 @@ namespace FakeChan
 
         public string Message { get; set; }
 
+        public string OrgMessage {
+            get { return orgmessage; }
+            set { orgmessage = Message = value;  }
+        }
+        private string orgmessage;
+
         public Dictionary<string, decimal> Effects { get; set; }
 
         public Dictionary<string, decimal> Emotions { get; set; }

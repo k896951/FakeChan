@@ -160,7 +160,7 @@ namespace FakeChan
                                 MessageData talk = new MessageData()
                                 {
                                     Cid = cid,
-                                    Message = EditInputText.ChangedTalkText,
+                                    OrgMessage = EditInputText.ChangedTalkText,
                                     BouyomiVoice = voice,
                                     ListenInterface = ListenIf,
                                     TaskId = MessQue.count + 1,

@@ -29,7 +29,7 @@ namespace FakeChan
     public partial class MainWindow : Window
     {
         string titleStr = "偽装ちゃん";
-        string versionStr = "Ver 2.0.14";
+        string versionStr = "Ver 2.0.15";
         MessQueueWrapper MessQueWrapper = new MessQueueWrapper();
         Configs Config;
         IpcTasks IpcTask = null;
@@ -58,6 +58,8 @@ namespace FakeChan
         WindowInteropHelper Whelper;
         EditParams EditInputText;
         Methods PlayMethodFromClipboard = Methods.sync;
+
+        int SpeechAccelerator = 0;
 
         public UserDefData UserData;
 
@@ -610,6 +612,8 @@ namespace FakeChan
 
         private void KickTalker_Tick(object sender, EventArgs e)
         {
+            TextBlockQueueText.Text = string.Format(@"{0}", MessQueWrapper.count);
+
             if (MessQueWrapper.count != 0)
             {
                 lock (lockObj)
@@ -623,6 +627,52 @@ namespace FakeChan
                             Dictionary<int, string> an = Config.AvatorNames;
                             foreach (var item in MessQueWrapper.QueueRef().GetConsumingEnumerable())
                             {
+                                decimal spd = item.Effects["speed"];
+                                int cnt = MessQueWrapper.count;
+
+                                if ((cnt < 20) && (SpeechAccelerator <= 3))
+                                {
+                                    SpeechAccelerator = 2;
+                                }
+
+                                if ((cnt < 3) && (SpeechAccelerator != 0))
+                                {
+                                    SpeechAccelerator = 0;
+                                }
+
+                                if ((cnt > 10) && (SpeechAccelerator <= 1))
+                                {
+                                    SpeechAccelerator = 1;
+                                }
+
+                                if ((cnt > 15) && (SpeechAccelerator <= 2))
+                                {
+                                    SpeechAccelerator = 2;
+                                }
+
+                                if ((cnt > 30) && (SpeechAccelerator <= 3))
+                                {
+                                    SpeechAccelerator = 3;
+                                }
+
+                                switch (SpeechAccelerator)
+                                {
+                                    case 3:
+                                        item.Message = "(略";
+                                        break;
+
+                                    case 2:
+                                        if (item.Message.Length > 10) item.Message = item.Message.Substring(0, 6) + (UserData.AddSuffix ? "" : "(以下略");
+                                        goto case 1;
+
+                                    case 1:
+                                        item.Effects["speed"] = spd * 1.5m;
+                                        break;
+
+                                    case 0:
+                                        break;
+                                }
+
                                 Dispatcher.Invoke(() =>
                                 {
                                     IpcTask?.SetTaskId(item.TaskId);
@@ -631,16 +681,28 @@ namespace FakeChan
                                     HttpTask3?.SetTaskId(item.TaskId);
                                     HttpTask4?.SetTaskId(item.TaskId);
                                     TextBlockTweetCounter.Text = "0";
-                                    TextBlockReceveText.Text = item.Message;
+                                    try
+                                    {
+                                        TextBlockReceveText.Text = item.Message;
+                                    }
+                                    catch(Exception)
+                                    {
+                                        //
+                                    }
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
+                                    TextBlockQueueText.Text = string.Format(@"{0}", cnt);
+                                    TextBlockAcceleratorText.Text = string.Format(@"{0}", SpeechAccelerator);
                                 });
 
-                                if (MessQueWrapper.count > 10)
+                                try
                                 {
-                                    decimal spd = item.Effects["speed"];
-                                    item.Effects["speed"] = spd * 1.5m;
+                                    WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
                                 }
-                                WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                                catch (Exception)
+                                {
+                                    //
+                                }
+
                                 LonelyCount = 0;
                             }
 
@@ -683,7 +745,15 @@ namespace FakeChan
                                 TextBlockAvatorText.Text = string.Format(@"⇒ {0}", LonelyAvatorNames[cid]);
                                 //Console.WriteLine(@"{0}-{1} : {2}", cnt, idx, UserData.QuietMessages[cnt][idx]);
                             });
-                            WcfClient.Talk(cid, UserData.QuietMessages[cnt][idx], "", null, null);
+
+                            try
+                            {
+                                WcfClient.Talk(cid, UserData.QuietMessages[cnt][idx], "", null, null);
+                            }
+                            catch(Exception)
+                            {
+                                //
+                            }
                         });
                     }
                 }
@@ -730,7 +800,15 @@ namespace FakeChan
                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[talk.ListenInterface], ConstClass.BouyomiVoiceMap[talk.BouyomiVoice], an[talk.Cid]);
                 });
 
-                WcfClient.TalkAsync(talk.Cid, talk.Message, talk.Effects, talk.Emotions);
+                try
+                {
+                    WcfClient.TalkAsync(talk.Cid, talk.Message, talk.Effects, talk.Emotions);
+                }
+                catch(Exception)
+                {
+                    //
+                }
+
             });
         }
 
@@ -999,7 +1077,14 @@ namespace FakeChan
                 Dictionary<string, decimal> Effects = UserData.VoiceParams[ListenIf][BouVoice][cid]["effect"].ToDictionary(k => k.Key, v => v.Value["value"]);
                 Dictionary<string, decimal> Emotions = UserData.VoiceParams[ListenIf][BouVoice][cid]["emotion"].ToDictionary(k => k.Key, v => v.Value["value"]);
 
-                WcfClient.Talk(cid, TestEdit.ChangedTalkText, "", Effects, Emotions);
+                try
+                {
+                    WcfClient.Talk(cid, TestEdit.ChangedTalkText, "", Effects, Emotions);
+                }
+                catch(Exception)
+                {
+                    //
+                }
 
                 Dispatcher.Invoke(() =>
                 {
@@ -1291,7 +1376,7 @@ namespace FakeChan
                 MessageData talk = new MessageData()
                 {
                     Cid = cid,
-                    Message = EditInputText.ChangedTalkText,
+                    OrgMessage = EditInputText.ChangedTalkText,
                     BouyomiVoice = voice,
                     ListenInterface = ListenIf,
                     TaskId = MessQueWrapper.count + 1,

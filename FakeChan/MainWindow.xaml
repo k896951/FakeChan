@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FakeChan"
         mc:Ignorable="d"
-        Title="偽装ちゃん Ver x.x.x" Height="375" Width="665" Loaded="Window_Loaded" MinWidth="575" MinHeight="360" Closing="Window_Closing" ResizeMode="CanResizeWithGrip"
+        Title="偽装ちゃん Ver x.x.x" Height="392" Width="678" Loaded="Window_Loaded" MinWidth="575" MinHeight="360" Closing="Window_Closing" ResizeMode="CanResizeWithGrip"
         Style="{StaticResource window_style}">
 
     <TabControl>
@@ -87,17 +87,26 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
                         <Label Content="発声話者：" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>
-                        <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="4"/>
+                        <TextBlock x:Name="TextBlockAvatorText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="0" Grid.ColumnSpan="3"/>
 
-                        <Label Content="発声テキスト：" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
-                        <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3"/>
+                        <Label Content="キュー滞留：" Grid.Column="0" Grid.Row="1" HorizontalContentAlignment="Right"/>
+                        <TextBlock x:Name="TextBlockQueueText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                        <Label Content="キュー消化モード：" Grid.Column="2" Grid.Row="1" HorizontalContentAlignment="Right"/>
+                        <TextBlock x:Name="TextBlockAcceleratorText" Text="" VerticalAlignment="Center" Grid.Column="3" Grid.Row="1" Grid.ColumnSpan="2"/>
+
+                        <Label Content="発声テキスト：" Grid.Column="0" Grid.Row="2" HorizontalContentAlignment="Right"/>
+                        <TextBlock x:Name="TextBlockReceveText" Text="" VerticalAlignment="Center" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="3"/>
                     </Grid>
                 </GroupBox>
 
@@ -110,7 +119,7 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
                         <Label Content="待機カウンタ：" Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Right"/>

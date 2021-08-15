@@ -5,6 +5,7 @@ using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace FakeChan
 {
@@ -137,7 +138,7 @@ namespace FakeChan
             MessageData talk = new MessageData()
             {
                 Cid = cid,
-                Message = EditInputText.ChangedTalkText,
+                OrgMessage = EditInputText.ChangedTalkText,
                 BouyomiVoice = voice,
                 ListenInterface = ListenIf,
                 TaskId = MessQue.count + 1,
