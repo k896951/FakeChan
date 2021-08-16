@@ -612,7 +612,7 @@ namespace FakeChan
 
         private void KickTalker_Tick(object sender, EventArgs e)
         {
-            TextBlockQueueText.Text = string.Format(@"{0}", MessQueWrapper.count);
+            //TextBlockQueueText.Text = string.Format(@"{0}", MessQueWrapper.count);
 
             if (MessQueWrapper.count != 0)
             {
@@ -625,51 +625,55 @@ namespace FakeChan
                         Task.Run(() =>
                         {
                             Dictionary<int, string> an = Config.AvatorNames;
+                            int sc = 0;
+
+                            SpeechAccelerator = 0;
                             foreach (var item in MessQueWrapper.QueueRef().GetConsumingEnumerable())
                             {
                                 decimal spd = item.Effects["speed"];
                                 int cnt = MessQueWrapper.count;
 
-                                if ((cnt < 20) && (SpeechAccelerator <= 3))
+                                if ((cnt > 5) && (SpeechAccelerator == 4)) // 発声スキップ条件
                                 {
-                                    SpeechAccelerator = 2;
+                                    Dispatcher.Invoke(() =>
+                                    {
+                                        TextBlockAvatorText.Text = "";
+                                        TextBlockQueueText.Text = string.Format(@"{0}", cnt);
+                                        TextBlockAcceleratorText.Text = string.Format(@"{0}", SpeechAccelerator);
+                                    });
+                                    continue;
                                 }
 
-                                if ((cnt < 3) && (SpeechAccelerator != 0))
-                                {
-                                    SpeechAccelerator = 0;
-                                }
-
-                                if ((cnt > 10) && (SpeechAccelerator <= 1))
-                                {
-                                    SpeechAccelerator = 1;
-                                }
-
-                                if ((cnt > 15) && (SpeechAccelerator <= 2))
-                                {
-                                    SpeechAccelerator = 2;
-                                }
-
-                                if ((cnt > 30) && (SpeechAccelerator <= 3))
-                                {
-                                    SpeechAccelerator = 3;
-                                }
+                                if      (cnt > 20) SpeechAccelerator = 3;
+                                else if (cnt > 15) SpeechAccelerator = 2;
+                                else if (cnt > 10) SpeechAccelerator = 1;
+                                else               SpeechAccelerator = 0;
 
                                 switch (SpeechAccelerator)
                                 {
+                                    case 4:
+                                        sc = 0;
+                                        break;
+
                                     case 3:
-                                        item.Message = "(略";
+                                        item.Message = "(省略";
+                                        sc++;
+                                        if (sc > 3) SpeechAccelerator = 4;
                                         break;
 
                                     case 2:
                                         if (item.Message.Length > 10) item.Message = item.Message.Substring(0, 6) + (UserData.AddSuffix ? "" : "(以下略");
-                                        goto case 1;
+                                        item.Effects["speed"] = spd * 1.5m;
+                                        sc = 0;
+                                        break;
 
                                     case 1:
                                         item.Effects["speed"] = spd * 1.5m;
+                                        sc = 0;
                                         break;
 
                                     case 0:
+                                        sc = 0;
                                         break;
                                 }
 
@@ -690,13 +694,16 @@ namespace FakeChan
                                         //
                                     }
                                     TextBlockAvatorText.Text = string.Format(@"{0} ⇒ {1} ⇒ {2}", ConstClass.ListenInterfaceMap[item.ListenInterface], ConstClass.BouyomiVoiceMap[item.BouyomiVoice], an[item.Cid] );
-                                    TextBlockQueueText.Text = string.Format(@"{0}", cnt);
+                                    TextBlockQueueText.Text = string.Format(@"{0}({1})", cnt, sc);
                                     TextBlockAcceleratorText.Text = string.Format(@"{0}", SpeechAccelerator);
                                 });
 
                                 try
                                 {
-                                    WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                                    if (SpeechAccelerator != 4)
+                                    {
+                                        WcfClient.Talk(item.Cid, item.Message, "", item.Effects, item.Emotions);
+                                    }
                                 }
                                 catch (Exception)
                                 {
